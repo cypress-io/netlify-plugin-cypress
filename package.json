@@ -8,7 +8,10 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "semantic-release": "semantic-release"
   },
-  "author": "",
+  "author": "Gleb Bahmutov <gleb@cypress.io>",
+  "files": [
+    "manifest.yml"
+  ],
   "license": "ISC",
   "dependencies": {
     "debug": "4.1.1",

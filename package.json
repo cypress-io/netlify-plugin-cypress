@@ -1,6 +1,6 @@
 {
   "name": "netlify-plugin-cypress",
-  "private": true,
+  "private": false,
   "version": "0.0.0-development",
   "description": "Cypress Netlify build plugin",
   "main": "index.js",
@@ -22,7 +22,7 @@
     "url": "https://github.com/cypress-io/netlify-plugin-cypress.git"
   },
   "publishConfig": {
-    "access": "restricted"
+    "access": "public"
   },
   "devDependencies": {
     "semantic-release": "^17.0.4"

@@ -1,16 +1,27 @@
 {
   "name": "netlify-plugin-cypress",
   "private": true,
-  "version": "0.0.1",
+  "version": "0.0.0-development",
   "description": "Cypress Netlify build plugin",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "semantic-release": "semantic-release"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "debug": "4.1.1",
     "ecstatic": "4.1.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cypress-io/netlify-plugin-cypress.git"
+  },
+  "publishConfig": {
+    "access": "restricted"
+  },
+  "devDependencies": {
+    "semantic-release": "^17.0.4"
   }
 }

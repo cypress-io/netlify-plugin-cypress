@@ -1,4 +1,4 @@
-# netlify-plugin-cypress
+# netlify-plugin-cypress [![CircleCI](https://circleci.com/gh/cypress-io/netlify-plugin-cypress/tree/master.svg?style=svg&circle-token=9cbb587a5a0ae4ce28b011dd03d10d66de906708)](https://circleci.com/gh/cypress-io/netlify-plugin-cypress/tree/master)
 > Runs Cypress end-to-end tests after Netlify builds the site
 
 **Note:** currently the built site is served statically and tested _without proxying redirects_.

@@ -19,8 +19,8 @@ jobs:
     steps:
       - checkout
       - node/with-cache:
-        steps:
-          - run: npm ci
+          steps:
+            - run: npm ci
       - run: npx semantic-release
 
 workflows:

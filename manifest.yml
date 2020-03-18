@@ -1,0 +1,4 @@
+name: netlify-plugin-cypress
+inputs:
+  - name: record
+    default: false

@@ -2,3 +2,4 @@ name: netlify-plugin-cypress
 inputs:
   - name: record
     default: false
+  - name: spec

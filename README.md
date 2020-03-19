@@ -98,6 +98,20 @@ plugins:
 
 See [cypress-example-kitchensink](https://github.com/cypress-io/cypress-example-kitchensink/blob/master/netlify.toml) for instance.
 
+## toml
+
+You can write Netlify configuration file using TOML format, and then configure the plugin as
+
+```toml
+# build and build environment settings ...
+
+[[plugins]]
+  package = "netlify-plugin-cypress"
+  inputs = { spec = 'cypress/integration/examples/w*.js', record = true }
+```
+
+See [cypress-example-kitchensink netlify.toml](https://github.com/cypress-io/cypress-example-kitchensink/blob/master/netlify.toml)
+
 ## Debugging
 
 Set environment variable `DEBUG=netlify-plugin-cypress` to see the debug logs. To see even more information, set `DEBUG=netlify-plugin-cypress,netlify-plugin-cypress:verbose`

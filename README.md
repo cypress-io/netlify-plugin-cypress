@@ -69,6 +69,31 @@ plugins:
       record: true
 ```
 
+### spec
+
+Run only a single spec or specs matching a wildcard
+
+```yaml
+# Netlify config file
+build:
+  command: "npm run build"
+  publish: "build"
+  environment:
+    # do not show Cypress installation progress messages
+    CI: 1
+    # cache Cypress binary in local "node_modules" folder
+    # so Netlify caches it
+    CYPRESS_CACHE_FOLDER: "./node_modules/CypressBinary"
+    # set TERM variable for terminal output
+    TERM: "xterm"
+
+plugins:
+  # local Cypress plugin will test our site after it is built
+  - package: netlify-plugin-cypress
+    config:
+      spec: 'cypress/integration/smoke*.js'
+```
+
 ## Debugging
 
 Set environment variable `DEBUG=netlify-plugin-cypress` to see the debug logs. To see even more information, set `DEBUG=netlify-plugin-cypress,netlify-plugin-cypress:verbose`

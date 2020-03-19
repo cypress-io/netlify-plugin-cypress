@@ -3,7 +3,7 @@
   "private": false,
   "version": "0.0.0-development",
   "description": "Cypress Netlify build plugin",
-  "main": "index.js",
+  "main": "src",
   "scripts": {
     "test": "cypress run",
     "semantic-release": "semantic-release",
@@ -11,7 +11,8 @@
   },
   "author": "Gleb Bahmutov <gleb@cypress.io>",
   "files": [
-    "manifest.yml"
+    "manifest.yml",
+    "src"
   ],
   "license": "ISC",
   "dependencies": {

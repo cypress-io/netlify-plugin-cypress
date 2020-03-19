@@ -135,7 +135,7 @@ package = "netlify-plugin-cypress"
 
 See [cypress-example-kitchensink](https://github.com/cypress-io/cypress-example-kitchensink) for instance.
 
-### testing server before build
+### testing the site before build
 
 By default this plugin tests static site _after build_. But maybe you want to run end-to-end tests against the _local development server_. You can start local server, wait for it to respond and then run Cypress tests by passing parameters to this plugin. Here is a sample config file
 

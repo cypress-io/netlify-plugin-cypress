@@ -6,6 +6,9 @@ inputs:
     default: false
   - name: spec
   - name: group
+  - name: tag
+
   # tells the plugin how to start the server using custom command
-  # and waiting for an url
+  # and waiting for an url, record to the dashboard, tag, etc
+  # see README "testing the site before build"
   - name: preBuild

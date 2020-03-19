@@ -67,7 +67,14 @@ async function runCypressTests (baseUrl, record, spec, group) {
   // https://on.cypress.io/module-api
   const cypress = require('cypress')
 
-  debug('run cypress params %o', { baseUrl, record, spec, group })
+  let ciBuildId
+  if (record) {
+    // https://docs.netlify.com/configure-builds/environment-variables/#build-metadata
+    // unique build id we can use to link preBuild and postBuild recordings
+    ciBuildId = process.env.BUILD_ID
+  }
+
+  debug('run cypress params %o', { baseUrl, record, spec, group, ciBuildId })
 
   return await cypress.run({
     config: {
@@ -75,7 +82,8 @@ async function runCypressTests (baseUrl, record, spec, group) {
     },
     spec,
     record,
-    group
+    group,
+    ciBuildId
   })
 }
 

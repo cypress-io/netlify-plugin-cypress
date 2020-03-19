@@ -30,7 +30,11 @@ async function runCypressTests (baseUrl, record, spec) {
 
 async function preBuild() {
   debug('installing Cypress binary just in case')
-  await execa('npx', ['cypress', 'install'])
+  if (debug.enabled) {
+    await execa('npx', ['cypress', 'install'], {stdio: 'inherit'})
+  } else {
+    await execa('npx', ['cypress', 'install'])
+  }
 }
 
 async function postBuild({ fullPublishFolder, record, spec, failBuild }) {

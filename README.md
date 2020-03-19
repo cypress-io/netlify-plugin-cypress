@@ -76,11 +76,38 @@ publish = "build"
 [[plugins]]
 # local Cypress plugin will test our site after it is built
 package = "netlify-plugin-cypress"
-  [plugins.config]
+  [plugins.inputs]
   record = true
 ```
 
 See [cypress-example-kitchensink](https://github.com/cypress-io/cypress-example-kitchensink) and recorded results at [![Cypress Dashboard](https://img.shields.io/badge/cypress-dashboard-brightgreen.svg)](https://dashboard.cypress.io/#/projects/4b7344/runs)
+
+#### group
+
+You can change the group name for the recorded run using `group` parameter
+
+```toml
+[[plugins]]
+# local Cypress plugin will test our site after it is built
+package = "netlify-plugin-cypress"
+  [plugins.inputs]
+  record = true
+  group = "built site"
+```
+
+#### tag
+
+You can give recorded run [tags](https://on.cypress.io/module-api#cypress-run) using a comma-separated string. If the tag is not specified, Netlify context will be used (`production`, `deploy-preview` or `branch-deploy`)
+
+```toml
+[[plugins]]
+# local Cypress plugin will test our site after it is built
+package = "netlify-plugin-cypress"
+  [plugins.inputs]
+  record = true
+  group = "built site"
+  tag = "nightly,production"
+```
 
 ### spec
 
@@ -102,11 +129,28 @@ publish = "build"
 [[plugins]]
 # local Cypress plugin will test our site after it is built
 package = "netlify-plugin-cypress"
-  [plugins.config]
+  [plugins.inputs]
   spec = "cypress/integration/smoke*.js"
 ```
 
 See [cypress-example-kitchensink](https://github.com/cypress-io/cypress-example-kitchensink) for instance.
+
+### testing the site before build
+
+By default this plugin tests static site _after build_. But maybe you want to run end-to-end tests against the _local development server_. You can start local server, wait for it to respond and then run Cypress tests by passing parameters to this plugin. Here is a sample config file
+
+```toml
+[[plugins]]
+  package = "netlify-plugin-cypress"
+  # let's run tests against development server
+  # before building it (and testing the built site)
+  [plugins.inputs.preBuild]
+    start = 'npm start'
+    wait-on = 'http://localhost:5000'
+    wait-on-timeout = '30' # seconds
+```
+
+Parameters you can place into `preBuild` inputs: `start`, `wait-on`, `wait-on-timeout`, `spec`, `record`, `group`, and `tag`. If there is `preBuild` and `postBuild` testing with different tags, the first one wins :)
 
 ## Debugging
 
@@ -141,4 +185,8 @@ Set environment variable `DEBUG=netlify-plugin-cypress` to see the debug logs. T
 
 ## License
 
-This project is licensed under the terms of the [MIT license](/LICENSE.md).
+This project is licensed under the terms of the [MIT license](LICENSE.md).
+
+## Contributing
+
+Read the [contributing guide](CONTRIBUTING.md)

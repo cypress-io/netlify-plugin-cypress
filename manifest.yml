@@ -1,5 +1,14 @@
 name: netlify-plugin-cypress
 inputs:
+  # these settings apply during postBuild step
+  # when we are testing the site served from the distribution folder
   - name: record
     default: false
   - name: spec
+  - name: group
+  - name: tag
+
+  # tells the plugin how to start the server using custom command
+  # and waiting for an url, record to the dashboard, tag, etc
+  # see README "testing the site before build"
+  - name: preBuild

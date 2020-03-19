@@ -3,20 +3,26 @@
   "private": false,
   "version": "0.0.0-development",
   "description": "Cypress Netlify build plugin",
-  "main": "index.js",
+  "main": "src",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "semantic-release": "semantic-release"
+    "test": "cypress run",
+    "semantic-release": "semantic-release",
+    "start": "serve public"
   },
   "author": "Gleb Bahmutov <gleb@cypress.io>",
   "files": [
-    "manifest.yml"
+    "manifest.yml",
+    "src"
   ],
   "license": "ISC",
   "dependencies": {
+    "argument-vector": "1.0.2",
+    "check-more-types": "2.24.0",
     "debug": "4.1.1",
     "ecstatic": "4.1.2",
-    "execa": "3.4.0"
+    "execa": "3.4.0",
+    "got": "9.6.0",
+    "lazy-ass": "1.6.0"
   },
   "repository": {
     "type": "git",
@@ -26,6 +32,8 @@
     "access": "public"
   },
   "devDependencies": {
-    "semantic-release": "^17.0.4"
+    "cypress": "4.2.0",
+    "semantic-release": "^17.0.4",
+    "serve": "11.3.0"
   }
 }

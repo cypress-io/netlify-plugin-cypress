@@ -3,6 +3,18 @@
 
 **Note:** currently the built site is served statically and tested _without proxying redirects_.
 
+## Install and use
+
+*note:* this plugin assumes you have already installed Cypress as a dev NPM dependency.
+
+```shell
+npm install --save-dev netlify-plugin-cypress
+# or
+yarn add -D netlify-plugin-cypress
+```
+
+And then add the plugin's name to the list of build plugins in `netlify.yml` file as shown in the examples below.
+
 ## Examples
 
 ### basic
@@ -75,7 +87,7 @@ Set environment variable `DEBUG=netlify-plugin-cypress` to see the debug logs. T
 
 <details>
   <summary>Cypress binary is missing</summary>
-  If you see error messages from `cypress` NPM module <code>Error: The cypress npm package is installed, but the Cypress binary is missing.</code> add to your repository <code>package.json</code> scripts <code>"postinstall": "cypress install"</code> command.
+  If you see error messages from `cypress` NPM module <code>Error: The cypress npm package is installed, but the Cypress binary is missing.</code> add to your repository <code>package.json</code> scripts <code>"postinstall": "cypress install"</code> command. See <a href="https://github.com/cypress-io/netlify-plugin-cypress-example/blob/master/package.json">netlify-plugin-cypress-example</a> for instance.
 </details>
 
 <details>

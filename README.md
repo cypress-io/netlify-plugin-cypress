@@ -15,7 +15,7 @@ npm install --save-dev netlify-plugin-cypress
 yarn add -D netlify-plugin-cypress
 ```
 
-And then add the plugin's name to the list of build plugins in `netlify.yml` file as shown in the examples below.
+And then add the plugin's name to the list of build plugins in `netlify.toml` file as shown in the examples below.
 
 *note:* this plugin assumes you have already installed Cypress as a dev NPM dependency.
 
@@ -23,23 +23,24 @@ And then add the plugin's name to the list of build plugins in `netlify.yml` fil
 
 ### basic
 
-```yaml
+```toml
 # Netlify config file
-build:
-  command: "npm run build"
-  publish: "build"
-  environment:
-    # do not show Cypress installation progress messages
-    CI: 1
-    # cache Cypress binary in local "node_modules" folder
-    # so Netlify caches it
-    CYPRESS_CACHE_FOLDER: "./node_modules/CypressBinary"
-    # set TERM variable for terminal output
-    TERM: "xterm"
+[build]
+command = "npm run build"
+publish = "build"
 
-plugins:
-  # local Cypress plugin will test our site after it is built
-  - package: netlify-plugin-cypress
+  [build.environment]
+  # do not show Cypress installation progress messages
+  CI = 1.0
+  # cache Cypress binary in local "node_modules" folder
+  # so Netlify caches it
+  CYPRESS_CACHE_FOLDER = "./node_modules/CypressBinary"
+  # set TERM variable for terminal output
+  TERM = "xterm"
+
+[[plugins]]
+# local Cypress plugin will test our site after it is built
+package = "netlify-plugin-cypress"
 ```
 
 See [netlify-plugin-cypress-example](https://github.com/cypress-io/netlify-plugin-cypress-example) repo
@@ -48,25 +49,27 @@ See [netlify-plugin-cypress-example](https://github.com/cypress-io/netlify-plugi
 
 To record test results and artifacts on Cypress Dashboard, set `record: true` plugin input and set `CYPRESS_RECORD_KEY` as an environment variable via Netlify Deploy settings.
 
-```yaml
+```toml
 # Netlify config file
-build:
-  command: "npm run build"
-  publish: "build"
-  environment:
-    # do not show Cypress installation progress messages
-    CI: 1
-    # cache Cypress binary in local "node_modules" folder
-    # so Netlify caches it
-    CYPRESS_CACHE_FOLDER: "./node_modules/CypressBinary"
-    # set TERM variable for terminal output
-    TERM: "xterm"
+[build]
+command = "npm run build"
+publish = "build"
 
-plugins:
-  # local Cypress plugin will test our site after it is built
-  - package: netlify-plugin-cypress
-    config:
-      record: true
+  [build.environment]
+  # do not show Cypress installation progress messages
+  CI = 1.0
+  # cache Cypress binary in local "node_modules" folder
+  # so Netlify caches it
+  CYPRESS_CACHE_FOLDER = "./node_modules/CypressBinary"
+  # set TERM variable for terminal output
+  TERM = "xterm"
+
+[[plugins]]
+# local Cypress plugin will test our site after it is built
+package = "netlify-plugin-cypress"
+
+  [plugins.config]
+  record = true
 ```
 
 ## Debugging

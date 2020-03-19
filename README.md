@@ -65,9 +65,11 @@ build:
 plugins:
   # local Cypress plugin will test our site after it is built
   - package: netlify-plugin-cypress
-    config:
+    inputs:
       record: true
 ```
+
+See [cypress-example-kitchensink](https://github.com/cypress-io/cypress-example-kitchensink/blob/master/netlify.toml) and recorded results at [![Cypress Dashboard](https://img.shields.io/badge/cypress-dashboard-brightgreen.svg)](https://dashboard.cypress.io/#/projects/4b7344/runs)
 
 ### spec
 
@@ -90,9 +92,11 @@ build:
 plugins:
   # local Cypress plugin will test our site after it is built
   - package: netlify-plugin-cypress
-    config:
+    inputs:
       spec: 'cypress/integration/smoke*.js'
 ```
+
+See [cypress-example-kitchensink](https://github.com/cypress-io/cypress-example-kitchensink/blob/master/netlify.toml) for instance.
 
 ## Debugging
 

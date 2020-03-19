@@ -1,6 +1,7 @@
 // @ts-check
 const ecstatic = require('ecstatic')
 const http = require('http')
+const execa = require('execa')
 const debug = require('debug')('netlify-plugin-cypress')
 const debugVerbose = require('debug')('netlify-plugin-cypress:verbose')
 
@@ -25,6 +26,11 @@ async function runCypressTests (baseUrl, record, spec) {
     spec,
     record
   })
+}
+
+async function preBuild() {
+  debug('installing Cypress binary just in case')
+  await execa('npx', ['cypress', 'install'])
 }
 
 async function postBuild({ fullPublishFolder, record, spec, failBuild }) {
@@ -77,6 +83,7 @@ module.exports = function cypressPlugin (pluginConfig) {
 
   return {
     name: 'cypress netlify plugin',
+    preBuild,
     postBuild: async (arg) => {
       debugVerbose('postBuild arg %o', arg)
 

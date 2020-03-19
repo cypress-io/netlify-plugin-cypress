@@ -13,6 +13,26 @@ function serveFolder (folder, port) {
   return http.createServer(server).listen(port)
 }
 
+function startServerMaybe (options = {}) {
+  const startCommand = options.start
+  if (!startCommand) {
+    debug('No start command found')
+    return
+  }
+
+  const serverProcess = execa(startCommand, {
+    stdio: 'inherit',
+    detached: true,
+    shell: true
+  })
+
+  debug('detached the process and returning stop function')
+  return () => {
+    debug('stopping server process')
+    serverProcess.kill()
+  }
+}
+
 async function waitOnMaybe (options = {}) {
   const waitOnUrl = options['wait-on']
   if (!waitOnUrl) {
@@ -32,6 +52,7 @@ async function waitOnMaybe (options = {}) {
 
   try {
     await ping(waitOnUrl, waitTimeoutMs)
+    debug('url %s responds', waitOnUrl)
   } catch (err) {
     debug('pinging %s for %d ms failed', waitOnUrl, waitTimeoutMs)
     debug(err)
@@ -44,7 +65,7 @@ async function runCypressTests (baseUrl, record, spec) {
   // https://on.cypress.io/module-api
   const cypress = require('cypress')
 
-  console.log('running Cypress against url %s recording?', baseUrl, record)
+  debug('run cypress params %o', { baseUrl, record, spec })
 
   return await cypress.run({
     config: {
@@ -64,26 +85,7 @@ async function onInit() {
   }
 }
 
-async function postBuild({ fullPublishFolder, record, spec, failBuild }) {
-  const port = 8080
-  const server = serveFolder(fullPublishFolder, port)
-  debug('local server listening on port %d', port)
-
-  const baseUrl = `http://localhost:${port}`
-
-  const results = await runCypressTests(baseUrl, record, spec)
-
-  await new Promise((resolve, reject) => {
-    server.close(err => {
-      if (err) {
-        return reject(err)
-      }
-      debug('closed local server on port %d', port)
-      resolve()
-    })
-  })
-
-  // seems Cypress TS definition does not have "failures" and "message" properties
+const processCypressResults = (results, failBuild) => {
   if (results.failures) {
     // Cypress failed without even running the tests
     console.error('Problem running Cypress')
@@ -109,6 +111,35 @@ async function postBuild({ fullPublishFolder, record, spec, failBuild }) {
   }
 }
 
+async function postBuild({ fullPublishFolder, record, spec, failBuild }) {
+  const port = 8080
+  const server = serveFolder(fullPublishFolder, port)
+  debug('local server listening on port %d', port)
+
+  const baseUrl = `http://localhost:${port}`
+
+  const results = await runCypressTests(baseUrl, record, spec)
+
+  await new Promise((resolve, reject) => {
+    server.close(err => {
+      if (err) {
+        return reject(err)
+      }
+      debug('closed local server on port %d', port)
+      resolve()
+    })
+  })
+
+  processCypressResults(results, failBuild)
+}
+
+const throwAnError = (message, info) => {
+  console.error('Exit with error: %s', message)
+  throw info.error
+}
+
+const hasRecordKey = () => typeof process.env.CYPRESS_RECORD_KEY === 'string'
+
 module.exports = function cypressPlugin (pluginConfig) {
   debugVerbose('cypressPlugin config %o', pluginConfig)
 
@@ -122,10 +153,26 @@ module.exports = function cypressPlugin (pluginConfig) {
       debug('cypress plugin preBuild inputs %o', arg.inputs)
       const preBuildInputs = arg.inputs && arg.inputs.preBuild
       if (!preBuildInputs) {
+        debug('there are no preBuild inputs')
         return
       }
 
+      const closeServer = startServerMaybe(preBuildInputs)
       await waitOnMaybe(preBuildInputs)
+
+      const baseUrl = preBuildInputs['wait-on']
+      const record = Boolean(preBuildInputs.record)
+      const spec = preBuildInputs.spec
+      const results = await runCypressTests(baseUrl, record, spec)
+
+      if (closeServer) {
+        debug('closing server')
+        closeServer()
+      }
+
+      const failBuild = arg.utils && arg.utils.build && arg.utils.build.failBuild || throwAnError
+
+      processCypressResults(results, failBuild)
     },
 
     postBuild: async (arg) => {
@@ -137,17 +184,11 @@ module.exports = function cypressPlugin (pluginConfig) {
 
       // only if the user wants to record the tests and has set the record key
       // then we should attempt recording
-      const record =
-        typeof process.env.CYPRESS_RECORD_KEY === 'string' &&
-        Boolean(pluginConfig.record)
+      const record = hasRecordKey() && Boolean(pluginConfig.record)
 
       const spec = pluginConfig.spec
 
-      const exitWithError = (message, info) => {
-        console.error('Exit with error: %s', message)
-        throw info.error
-      }
-      const failBuild = arg.utils && arg.utils.build && arg.utils.build.failBuild || exitWithError
+      const failBuild = arg.utils && arg.utils.build && arg.utils.build.failBuild || throwAnError
 
       return postBuild({
         fullPublishFolder,

@@ -11,16 +11,18 @@ function serveFolder (folder, port) {
   return http.createServer(server).listen(port)
 }
 
-async function runCypressTests (baseUrl, record) {
+async function runCypressTests (baseUrl, record, spec) {
   // we will use Cypress via its NPM module API
   // https://on.cypress.io/module-api
   const cypress = require('cypress')
 
   console.log('running Cypress against url %s recording?', baseUrl, record)
+
   return await cypress.run({
     config: {
-      baseUrl
+      baseUrl,
     },
+    spec,
     record
   })
 }
@@ -46,7 +48,9 @@ module.exports = function cypressPlugin (pluginConfig) {
         typeof process.env.CYPRESS_RECORD_KEY === 'string' &&
         Boolean(pluginConfig.record)
       const baseUrl = `http://localhost:${port}`
-      const results = await runCypressTests(baseUrl, record)
+      const spec = pluginConfig.spec
+
+      const results = await runCypressTests(baseUrl, record, spec)
 
       await new Promise((resolve, reject) => {
         server.close(err => {

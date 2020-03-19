@@ -28,7 +28,7 @@ async function runCypressTests (baseUrl, record, spec) {
   })
 }
 
-async function preBuild() {
+async function onInit() {
   debug('installing Cypress binary just in case')
   if (debug.enabled) {
     await execa('npx', ['cypress', 'install'], {stdio: 'inherit'})
@@ -85,9 +85,12 @@ async function postBuild({ fullPublishFolder, record, spec, failBuild }) {
 module.exports = function cypressPlugin (pluginConfig) {
   debugVerbose('cypressPlugin config %o', pluginConfig)
 
+  // here we can grab all input settings to isolate Cypress logic
+  // from reading the inputs
+
   return {
     name: 'cypress netlify plugin',
-    preBuild,
+    onInit,
     postBuild: async (arg) => {
       debugVerbose('postBuild arg %o', arg)
 

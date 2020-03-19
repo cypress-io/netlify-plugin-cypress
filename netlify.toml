@@ -1,0 +1,13 @@
+# WARNING ⚠️: this is a Netlify file with local Cypress plugin
+# so it might look quite different from the user's Netlify configuration
+[build]
+command = "echo 'Netlify build command ..."
+publish = "public"
+  [build.environment]
+  CI = "1"
+  TERM = "xterm"
+  CYPRESS_CACHE_FOLDER = "./node_modules/CypressBinary"
+
+[[plugins]]
+  # local Cypress plugin will test our site after it is built
+  package = "."

@@ -1,5 +1,7 @@
 name: netlify-plugin-cypress
 inputs:
+  # these settings apply during postBuild step
+  # when we are testing the site served from the distribution folder
   - name: record
     default: false
   - name: spec

@@ -4,6 +4,8 @@ const http = require('http')
 const execa = require('execa')
 const debug = require('debug')('netlify-plugin-cypress')
 const debugVerbose = require('debug')('netlify-plugin-cypress:verbose')
+const la = require('lazy-ass')
+const is = require('check-more-types')
 const { ping } = require('./utils')
 
 function serveFolder (folder, port) {
@@ -133,11 +135,6 @@ async function postBuild({ fullPublishFolder, record, spec, failBuild }) {
   processCypressResults(results, failBuild)
 }
 
-const throwAnError = (message, info) => {
-  console.error('Exit with error: %s', message)
-  throw info.error
-}
-
 const hasRecordKey = () => typeof process.env.CYPRESS_RECORD_KEY === 'string'
 
 module.exports = function cypressPlugin (pluginConfig) {
@@ -170,7 +167,8 @@ module.exports = function cypressPlugin (pluginConfig) {
         closeServer()
       }
 
-      const failBuild = arg.utils && arg.utils.build && arg.utils.build.failBuild || throwAnError
+      const failBuild = arg.utils && arg.utils.build && arg.utils.build.failBuild
+      la(is.fn(failBuild), 'expected failBuild function inside', arg.utils)
 
       processCypressResults(results, failBuild)
     },
@@ -188,7 +186,8 @@ module.exports = function cypressPlugin (pluginConfig) {
 
       const spec = pluginConfig.spec
 
-      const failBuild = arg.utils && arg.utils.build && arg.utils.build.failBuild || throwAnError
+      const failBuild = arg.utils && arg.utils.build && arg.utils.build.failBuild
+      la(is.fn(failBuild), 'expected failBuild function inside', arg.utils)
 
       return postBuild({
         fullPublishFolder,

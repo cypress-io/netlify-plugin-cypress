@@ -141,4 +141,8 @@ Set environment variable `DEBUG=netlify-plugin-cypress` to see the debug logs. T
 
 ## License
 
-This project is licensed under the terms of the [MIT license](/LICENSE.md).
+This project is licensed under the terms of the [MIT license](LICENSE.md).
+
+## Contributing
+
+Read the [contributing guide](CONTRIBUTING.md)

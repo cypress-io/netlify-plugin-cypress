@@ -26,6 +26,8 @@ plugins:
   - package: netlify-plugin-cypress
 ```
 
+See [netlify-plugin-cypress-example](https://github.com/cypress-io/netlify-plugin-cypress-example) repo
+
 ### recording
 
 To record test results and artifacts on Cypress Dashboard, set `record: true` plugin input and set `CYPRESS_RECORD_KEY` as an environment variable via Netlify Deploy settings.

@@ -97,7 +97,7 @@ package = "netlify-plugin-cypress"
 
 #### tag
 
-You can give recorded run [tags](https://on.cypress.io/module-api#cypress-run) using a comma-separated string
+You can give recorded run [tags](https://on.cypress.io/module-api#cypress-run) using a comma-separated string. If the tag is not specified, Netlify context will be used (`production`, `deploy-preview` or `branch-deploy`)
 
 ```toml
 [[plugins]]

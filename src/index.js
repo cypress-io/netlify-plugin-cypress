@@ -179,6 +179,8 @@ module.exports = function cypressPlugin (pluginConfig) {
         group = preBuildInputs.group || 'preBuild'
         if (preBuildInputs.tag) {
           tag = preBuildInputs.tag
+        } else {
+          tag = process.env.CONTEXT
         }
       }
 

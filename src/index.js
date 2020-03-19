@@ -4,12 +4,39 @@ const http = require('http')
 const execa = require('execa')
 const debug = require('debug')('netlify-plugin-cypress')
 const debugVerbose = require('debug')('netlify-plugin-cypress:verbose')
+const { ping } = require('./utils')
 
 function serveFolder (folder, port) {
   const server = ecstatic({
     root: folder
   })
   return http.createServer(server).listen(port)
+}
+
+async function waitOnMaybe (options = {}) {
+  const waitOnUrl = options['wait-on']
+  if (!waitOnUrl) {
+    debug('no wait-on defined')
+    return
+  }
+
+  const waitOnTimeout = options['wait-on-timeout'] || '60'
+
+  console.log(
+    'waiting on "%s" with timeout of %s seconds',
+    waitOnUrl,
+    waitOnTimeout
+  )
+
+  const waitTimeoutMs = parseFloat(waitOnTimeout) * 1000
+
+  try {
+    await ping(waitOnUrl, waitTimeoutMs)
+  } catch (err) {
+    debug('pinging %s for %d ms failed', waitOnUrl, waitTimeoutMs)
+    debug(err)
+    throw new Error(err.message)
+  }
 }
 
 async function runCypressTests (baseUrl, record, spec) {
@@ -91,6 +118,16 @@ module.exports = function cypressPlugin (pluginConfig) {
   return {
     name: 'cypress netlify plugin',
     onInit,
+    preBuild: async (arg) => {
+      debug('cypress plugin preBuild inputs %o', arg.inputs)
+      const preBuildInputs = arg.inputs && arg.inputs.preBuild
+      if (!preBuildInputs) {
+        return
+      }
+
+      await waitOnMaybe(preBuildInputs)
+    },
+
     postBuild: async (arg) => {
       debugVerbose('postBuild arg %o', arg)
       debug('cypress plugin postBuild inputs %o', arg.inputs)

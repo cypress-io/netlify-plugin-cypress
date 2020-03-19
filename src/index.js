@@ -62,7 +62,7 @@ async function waitOnMaybe (options = {}) {
   }
 }
 
-async function runCypressTests (baseUrl, record, spec, group) {
+async function runCypressTests (baseUrl, record, spec, group, tag) {
   // we will use Cypress via its NPM module API
   // https://on.cypress.io/module-api
   const cypress = require('cypress')
@@ -74,7 +74,7 @@ async function runCypressTests (baseUrl, record, spec, group) {
     ciBuildId = process.env.BUILD_ID
   }
 
-  debug('run cypress params %o', { baseUrl, record, spec, group, ciBuildId })
+  debug('run cypress params %o', { baseUrl, record, spec, group, tag, ciBuildId })
 
   return await cypress.run({
     config: {
@@ -83,6 +83,10 @@ async function runCypressTests (baseUrl, record, spec, group) {
     spec,
     record,
     group,
+    // ignoring the TS error for now
+    // https://github.com/cypress-io/cypress/pull/6796
+    // @ts-ignore
+    tag,
     ciBuildId
   })
 }
@@ -122,14 +126,14 @@ const processCypressResults = (results, failBuild) => {
   }
 }
 
-async function postBuild({ fullPublishFolder, record, spec, group, failBuild }) {
+async function postBuild({ fullPublishFolder, record, spec, group, tag, failBuild }) {
   const port = 8080
   const server = serveFolder(fullPublishFolder, port)
   debug('local server listening on port %d', port)
 
   const baseUrl = `http://localhost:${port}`
 
-  const results = await runCypressTests(baseUrl, record, spec, group)
+  const results = await runCypressTests(baseUrl, record, spec, group, tag)
 
   await new Promise((resolve, reject) => {
     server.close(err => {
@@ -170,11 +174,15 @@ module.exports = function cypressPlugin (pluginConfig) {
       const record = Boolean(preBuildInputs.record)
       const spec = preBuildInputs.spec
       let group
+      let tag
       if (record) {
         group = preBuildInputs.group || 'preBuild'
+        if (preBuildInputs.tag) {
+          tag = preBuildInputs.tag
+        }
       }
 
-      const results = await runCypressTests(baseUrl, record, spec, group)
+      const results = await runCypressTests(baseUrl, record, spec, group, tag)
 
       if (closeServer) {
         debug('closing server')
@@ -200,8 +208,12 @@ module.exports = function cypressPlugin (pluginConfig) {
 
       const spec = pluginConfig.spec
       let group
+      let tag
       if (record) {
         group = pluginConfig.group || 'postBuild'
+        if (pluginConfig.tag) {
+          tag = pluginConfig.tag
+        }
       }
 
       const failBuild = arg.utils && arg.utils.build && arg.utils.build.failBuild
@@ -212,6 +224,7 @@ module.exports = function cypressPlugin (pluginConfig) {
         record,
         spec,
         group,
+        tag,
         failBuild
       })
     }

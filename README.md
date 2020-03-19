@@ -82,6 +82,8 @@ package = "netlify-plugin-cypress"
 
 See [cypress-example-kitchensink](https://github.com/cypress-io/cypress-example-kitchensink) and recorded results at [![Cypress Dashboard](https://img.shields.io/badge/cypress-dashboard-brightgreen.svg)](https://dashboard.cypress.io/#/projects/4b7344/runs)
 
+#### group
+
 You can change the group name for the recorded run using `group` parameter
 
 ```toml
@@ -91,6 +93,20 @@ package = "netlify-plugin-cypress"
   [plugins.inputs]
   record = true
   group = "built site"
+```
+
+#### tag
+
+You can give recorded run [tags](https://on.cypress.io/module-api#cypress-run) using a comma-separated string
+
+```toml
+[[plugins]]
+# local Cypress plugin will test our site after it is built
+package = "netlify-plugin-cypress"
+  [plugins.inputs]
+  record = true
+  group = "built site"
+  tag = "nightly,production"
 ```
 
 ### spec
@@ -134,7 +150,7 @@ By default this plugin tests static site _after build_. But maybe you want to ru
     wait-on-timeout = '30' # seconds
 ```
 
-Parameters you can place into `preBuild` inputs: `start`, `wait-on`, `wait-on-timeout`, `spec`, `record`, and `group`.
+Parameters you can place into `preBuild` inputs: `start`, `wait-on`, `wait-on-timeout`, `spec`, `record`, `group`, and `tag`.
 
 ## Debugging
 

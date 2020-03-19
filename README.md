@@ -76,7 +76,7 @@ publish = "build"
 [[plugins]]
 # local Cypress plugin will test our site after it is built
 package = "netlify-plugin-cypress"
-  [plugins.config]
+  [plugins.inputs]
   record = true
 ```
 
@@ -102,7 +102,7 @@ publish = "build"
 [[plugins]]
 # local Cypress plugin will test our site after it is built
 package = "netlify-plugin-cypress"
-  [plugins.config]
+  [plugins.inputs]
   spec = "cypress/integration/smoke*.js"
 ```
 

@@ -3,3 +3,6 @@ inputs:
   - name: record
     default: false
   - name: spec
+  # tells the plugin how to start the server using custom command
+  # and waiting for an url
+  - name: preBuild

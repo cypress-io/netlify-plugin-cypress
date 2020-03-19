@@ -93,6 +93,7 @@ module.exports = function cypressPlugin (pluginConfig) {
     onInit,
     postBuild: async (arg) => {
       debugVerbose('postBuild arg %o', arg)
+      debug('cypress plugin postBuild inputs %o', arg.inputs)
 
       const fullPublishFolder = arg.netlifyConfig.build.publish
       debug('folder to publish is "%s"', fullPublishFolder)

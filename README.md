@@ -150,7 +150,7 @@ By default this plugin tests static site _after build_. But maybe you want to ru
     wait-on-timeout = '30' # seconds
 ```
 
-Parameters you can place into `preBuild` inputs: `start`, `wait-on`, `wait-on-timeout`, `spec`, `record`, `group`, and `tag`.
+Parameters you can place into `preBuild` inputs: `start`, `wait-on`, `wait-on-timeout`, `spec`, `record`, `group`, and `tag`. If there is `preBuild` and `postBuild` testing with different tags, the first one wins :)
 
 ## Debugging
 

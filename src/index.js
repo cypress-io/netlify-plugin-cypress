@@ -177,6 +177,7 @@ module.exports = function cypressPlugin (pluginConfig) {
       let tag
       if (record) {
         group = preBuildInputs.group || 'preBuild'
+
         if (preBuildInputs.tag) {
           tag = preBuildInputs.tag
         } else {
@@ -213,8 +214,11 @@ module.exports = function cypressPlugin (pluginConfig) {
       let tag
       if (record) {
         group = pluginConfig.group || 'postBuild'
+
         if (pluginConfig.tag) {
           tag = pluginConfig.tag
+        } else {
+          tag = process.env.CONTEXT
         }
       }
 

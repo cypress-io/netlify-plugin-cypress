@@ -62,19 +62,20 @@ async function waitOnMaybe (options = {}) {
   }
 }
 
-async function runCypressTests (baseUrl, record, spec) {
+async function runCypressTests (baseUrl, record, spec, group) {
   // we will use Cypress via its NPM module API
   // https://on.cypress.io/module-api
   const cypress = require('cypress')
 
-  debug('run cypress params %o', { baseUrl, record, spec })
+  debug('run cypress params %o', { baseUrl, record, spec, group })
 
   return await cypress.run({
     config: {
       baseUrl,
     },
     spec,
-    record
+    record,
+    group
   })
 }
 
@@ -113,14 +114,14 @@ const processCypressResults = (results, failBuild) => {
   }
 }
 
-async function postBuild({ fullPublishFolder, record, spec, failBuild }) {
+async function postBuild({ fullPublishFolder, record, spec, group, failBuild }) {
   const port = 8080
   const server = serveFolder(fullPublishFolder, port)
   debug('local server listening on port %d', port)
 
   const baseUrl = `http://localhost:${port}`
 
-  const results = await runCypressTests(baseUrl, record, spec)
+  const results = await runCypressTests(baseUrl, record, spec, group)
 
   await new Promise((resolve, reject) => {
     server.close(err => {
@@ -160,7 +161,12 @@ module.exports = function cypressPlugin (pluginConfig) {
       const baseUrl = preBuildInputs['wait-on']
       const record = Boolean(preBuildInputs.record)
       const spec = preBuildInputs.spec
-      const results = await runCypressTests(baseUrl, record, spec)
+      let group
+      if (record) {
+        group = preBuildInputs.group || 'preBuild'
+      }
+
+      const results = await runCypressTests(baseUrl, record, spec, group)
 
       if (closeServer) {
         debug('closing server')
@@ -185,6 +191,10 @@ module.exports = function cypressPlugin (pluginConfig) {
       const record = hasRecordKey() && Boolean(pluginConfig.record)
 
       const spec = pluginConfig.spec
+      let group
+      if (record) {
+        group = pluginConfig.group || 'postBuild'
+      }
 
       const failBuild = arg.utils && arg.utils.build && arg.utils.build.failBuild
       la(is.fn(failBuild), 'expected failBuild function inside', arg.utils)
@@ -193,6 +203,7 @@ module.exports = function cypressPlugin (pluginConfig) {
         fullPublishFolder,
         record,
         spec,
+        group,
         failBuild
       })
     }

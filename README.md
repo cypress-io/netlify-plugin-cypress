@@ -15,7 +15,7 @@ npm install --save-dev netlify-plugin-cypress
 yarn add -D netlify-plugin-cypress
 ```
 
-And then add the plugin's name to the list of build plugins in `netlify.yml` file as shown in the examples below.
+And then add the plugin's name to the list of build plugins in `netlify.toml` file as shown in the examples below.
 
 *note:* this plugin assumes you have already installed Cypress as a dev NPM dependency.
 

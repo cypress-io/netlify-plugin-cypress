@@ -30,7 +30,7 @@ function startServerMaybe (options = {}) {
 
   debug('detached the process and returning stop function')
   return () => {
-    debug('stopping server process')
+    console.log('stopping server process opened with:', startCommand)
     serverProcess.kill()
   }
 }

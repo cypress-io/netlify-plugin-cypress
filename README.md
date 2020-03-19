@@ -108,6 +108,23 @@ package = "netlify-plugin-cypress"
 
 See [cypress-example-kitchensink](https://github.com/cypress-io/cypress-example-kitchensink) for instance.
 
+### testing server before build
+
+By default this plugin tests static site _after build_. But maybe you want to run end-to-end tests against the _local development server_. You can start local server, wait for it to respond and then run Cypress tests by passing parameters to this plugin. Here is a sample config file
+
+```toml
+[[plugins]]
+  package = "netlify-plugin-cypress"
+  # let's run tests against development server
+  # before building it (and testing the built site)
+  [plugins.inputs.preBuild]
+    start = 'npm start'
+    wait-on = 'http://localhost:5000'
+    wait-on-timeout = '30' # seconds
+```
+
+Parameters you can place into `preBuild` inputs: `start`, `wait-on`, `wait-on-timeout`, `record`, `spec`.
+
 ## Debugging
 
 Set environment variable `DEBUG=netlify-plugin-cypress` to see the debug logs. To see even more information, set `DEBUG=netlify-plugin-cypress,netlify-plugin-cypress:verbose`

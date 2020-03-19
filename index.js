@@ -1,6 +1,7 @@
 // @ts-check
 const ecstatic = require('ecstatic')
 const http = require('http')
+const execa = require('execa')
 const debug = require('debug')('netlify-plugin-cypress')
 const debugVerbose = require('debug')('netlify-plugin-cypress:verbose')
 
@@ -27,40 +28,79 @@ async function runCypressTests (baseUrl, record, spec) {
   })
 }
 
+async function preBuild() {
+  debug('installing Cypress binary just in case')
+  if (debug.enabled) {
+    await execa('npx', ['cypress', 'install'], {stdio: 'inherit'})
+  } else {
+    await execa('npx', ['cypress', 'install'])
+  }
+}
+
+async function postBuild({ fullPublishFolder, record, spec, failBuild }) {
+  const port = 8080
+  const server = serveFolder(fullPublishFolder, port)
+  debug('local server listening on port %d', port)
+
+  const baseUrl = `http://localhost:${port}`
+
+  const results = await runCypressTests(baseUrl, record, spec)
+
+  await new Promise((resolve, reject) => {
+    server.close(err => {
+      if (err) {
+        return reject(err)
+      }
+      debug('closed local server on port %d', port)
+      resolve()
+    })
+  })
+
+  // seems Cypress TS definition does not have "failures" and "message" properties
+  if (results.failures) {
+    // Cypress failed without even running the tests
+    console.error('Problem running Cypress')
+    console.error(results.message)
+
+    return failBuild('Problem running Cypress', {
+      error: new Error(results.message)
+    })
+  }
+
+  debug('Cypress run results')
+  Object.keys(results).forEach(key => {
+    if (key.startsWith('total')) {
+      debug('%s:', key, results[key])
+    }
+  })
+
+  // results.totalFailed gives total number of failed tests
+  if (results.totalFailed) {
+    return failBuild('Failed Cypress tests', {
+      error: new Error(`${results.totalFailed} test(s) failed`)
+    })
+  }
+}
+
 module.exports = function cypressPlugin (pluginConfig) {
   debugVerbose('cypressPlugin config %o', pluginConfig)
 
   return {
     name: 'cypress netlify plugin',
+    preBuild,
     postBuild: async (arg) => {
       debugVerbose('postBuild arg %o', arg)
 
       const fullPublishFolder = arg.netlifyConfig.build.publish
       debug('folder to publish is "%s"', fullPublishFolder)
 
-      const port = 8080
-      const server = serveFolder(fullPublishFolder, port)
-      debug('local server listening on port %d', port)
-
       // only if the user wants to record the tests and has set the record key
       // then we should attempt recording
       const record =
         typeof process.env.CYPRESS_RECORD_KEY === 'string' &&
         Boolean(pluginConfig.record)
-      const baseUrl = `http://localhost:${port}`
+
       const spec = pluginConfig.spec
-
-      const results = await runCypressTests(baseUrl, record, spec)
-
-      await new Promise((resolve, reject) => {
-        server.close(err => {
-          if (err) {
-            return reject(err)
-          }
-          debug('closed local server on port %d', port)
-          resolve()
-        })
-      })
 
       const exitWithError = (message, info) => {
         console.error('Exit with error: %s', message)
@@ -68,30 +108,12 @@ module.exports = function cypressPlugin (pluginConfig) {
       }
       const failBuild = arg.utils && arg.utils.build && arg.utils.build.failBuild || exitWithError
 
-      // seems Cypress TS definition does not have "failures" and "message" properties
-      if (results.failures) {
-        // Cypress failed without even running the tests
-        console.error('Problem running Cypress')
-        console.error(results.message)
-
-        return failBuild('Problem running Cypress', {
-          error: new Error(results.message)
-        })
-      }
-
-      debug('Cypress run results')
-      Object.keys(results).forEach(key => {
-        if (key.startsWith('total')) {
-          debug('%s:', key, results[key])
-        }
+      return postBuild({
+        fullPublishFolder,
+        record,
+        spec,
+        failBuild
       })
-
-      // results.totalFailed gives total number of failed tests
-      if (results.totalFailed) {
-        return failBuild('Failed Cypress tests', {
-          error: new Error(`${results.totalFailed} test(s) failed`)
-        })
-      }
     }
   }
 }

@@ -23,8 +23,26 @@ And then add the plugin's name to the list of build plugins in `netlify.yml` fil
 
 ### basic
 
+Here is the most basic Netlify config file `netlify.yml` in YAML format with just Cypress plugin
+
 ```yaml
-# Netlify config file
+plugins:
+  # local Cypress plugin will test our site after it is built
+  - package: netlify-plugin-cypress
+```
+
+and its equivalent TOML format `netlify.toml`
+
+```toml
+[[plugins]]
+  package = "netlify-plugin-cypress"
+```
+
+### recommended
+
+We strongly recommend setting `CYPRESS_CACHE_FOLDER` to place the Cypress binary _inside the node_modules_ folder to [cache it between builds](https://on.cypress.io/caching)
+
+```yaml
 build:
   command: "npm run build"
   publish: "build"
@@ -130,11 +148,6 @@ Set environment variable `DEBUG=netlify-plugin-cypress` to see the debug logs. T
   Netlify build does NOT cache this folder, but it DOES cache the local "node_modules" folder.
   Tell Cypress to install its binary in the "node_modules" folder by setting build environment
   variable <code>CYPRESS_CACHE_FOLDER = "./node_modules/CypressBinary"</code>.
-</details>
-
-<details>
-  <summary>Cypress binary is missing</summary>
-  If you see error messages from `cypress` NPM module <code>Error: The cypress npm package is installed, but the Cypress binary is missing.</code> add to your repository <code>package.json</code> scripts <code>"postinstall": "cypress install"</code> command. See <a href="https://github.com/cypress-io/netlify-plugin-cypress-example/blob/master/package.json">netlify-plugin-cypress-example</a> for instance.
 </details>
 
 <details>

@@ -23,18 +23,11 @@ And then add the plugin's name to the list of build plugins in `netlify.yml` fil
 
 ### basic
 
-Here is the most basic Netlify config file `netlify.yml` in YAML format with just Cypress plugin
-
-```yaml
-plugins:
-  # local Cypress plugin will test our site after it is built
-  - package: netlify-plugin-cypress
-```
-
-and its equivalent TOML format `netlify.toml`
+Here is the most basic [Netlify config file](https://docs.netlify.com/configure-builds/file-based-configuration/) `netlify.toml` with just the Cypress plugin
 
 ```toml
 [[plugins]]
+  # local Cypress plugin will test our site after it is built
   package = "netlify-plugin-cypress"
 ```
 
@@ -42,22 +35,23 @@ and its equivalent TOML format `netlify.toml`
 
 We strongly recommend setting `CYPRESS_CACHE_FOLDER` to place the Cypress binary _inside the node_modules_ folder to [cache it between builds](https://on.cypress.io/caching)
 
-```yaml
-build:
-  command: "npm run build"
-  publish: "build"
-  environment:
-    # do not show Cypress installation progress messages
-    CI: 1
-    # cache Cypress binary in local "node_modules" folder
-    # so Netlify caches it
-    CYPRESS_CACHE_FOLDER: "./node_modules/CypressBinary"
-    # set TERM variable for terminal output
-    TERM: "xterm"
+```toml
+[build]
+command = "npm run build"
+publish = "build"
 
-plugins:
-  # local Cypress plugin will test our site after it is built
-  - package: netlify-plugin-cypress
+[build.environment]
+# do not show Cypress installation progress messages
+CI = 1.0
+# cache Cypress binary in local "node_modules" folder
+# so Netlify caches it
+CYPRESS_CACHE_FOLDER = "./node_modules/CypressBinary"
+# set TERM variable for terminal output
+TERM = "xterm"
+
+[[plugins]]
+# local Cypress plugin will test our site after it is built
+package = "netlify-plugin-cypress"
 ```
 
 See [netlify-plugin-cypress-example](https://github.com/cypress-io/netlify-plugin-cypress-example) repo
@@ -67,68 +61,52 @@ See [netlify-plugin-cypress-example](https://github.com/cypress-io/netlify-plugi
 To record test results and artifacts on Cypress Dashboard, set `record: true` plugin input and set `CYPRESS_RECORD_KEY` as an environment variable via Netlify Deploy settings.
 
 ```yaml
-# Netlify config file
-build:
-  command: "npm run build"
-  publish: "build"
-  environment:
-    # do not show Cypress installation progress messages
-    CI: 1
-    # cache Cypress binary in local "node_modules" folder
-    # so Netlify caches it
-    CYPRESS_CACHE_FOLDER: "./node_modules/CypressBinary"
-    # set TERM variable for terminal output
-    TERM: "xterm"
+[build]
+command = "npm run build"
+publish = "build"
+  [build.environment]
+  # do not show Cypress installation progress messages
+  CI = 1.0
+  # cache Cypress binary in local "node_modules" folder
+  # so Netlify caches it
+  CYPRESS_CACHE_FOLDER = "./node_modules/CypressBinary"
+  # set TERM variable for terminal output
+  TERM = "xterm"
 
-plugins:
-  # local Cypress plugin will test our site after it is built
-  - package: netlify-plugin-cypress
-    inputs:
-      record: true
+[[plugins]]
+# local Cypress plugin will test our site after it is built
+package = "netlify-plugin-cypress"
+  [plugins.config]
+  record = true
 ```
 
-See [cypress-example-kitchensink](https://github.com/cypress-io/cypress-example-kitchensink/blob/master/netlify.toml) and recorded results at [![Cypress Dashboard](https://img.shields.io/badge/cypress-dashboard-brightgreen.svg)](https://dashboard.cypress.io/#/projects/4b7344/runs)
+See [cypress-example-kitchensink](https://github.com/cypress-io/cypress-example-kitchensink) and recorded results at [![Cypress Dashboard](https://img.shields.io/badge/cypress-dashboard-brightgreen.svg)](https://dashboard.cypress.io/#/projects/4b7344/runs)
 
 ### spec
 
 Run only a single spec or specs matching a wildcard
 
-```yaml
-# Netlify config file
-build:
-  command: "npm run build"
-  publish: "build"
-  environment:
-    # do not show Cypress installation progress messages
-    CI: 1
-    # cache Cypress binary in local "node_modules" folder
-    # so Netlify caches it
-    CYPRESS_CACHE_FOLDER: "./node_modules/CypressBinary"
-    # set TERM variable for terminal output
-    TERM: "xterm"
-
-plugins:
-  # local Cypress plugin will test our site after it is built
-  - package: netlify-plugin-cypress
-    inputs:
-      spec: 'cypress/integration/smoke*.js'
-```
-
-See [cypress-example-kitchensink](https://github.com/cypress-io/cypress-example-kitchensink/blob/master/netlify.toml) for instance.
-
-## toml
-
-You can write Netlify configuration file using TOML format, and then configure the plugin as
-
 ```toml
-# build and build environment settings ...
+[build]
+command = "npm run build"
+publish = "build"
+  [build.environment]
+  # do not show Cypress installation progress messages
+  CI = 1.0
+  # cache Cypress binary in local "node_modules" folder
+  # so Netlify caches it
+  CYPRESS_CACHE_FOLDER = "./node_modules/CypressBinary"
+  # set TERM variable for terminal output
+  TERM = "xterm"
 
 [[plugins]]
-  package = "netlify-plugin-cypress"
-  inputs = { spec = 'cypress/integration/examples/w*.js', record = true }
+# local Cypress plugin will test our site after it is built
+package = "netlify-plugin-cypress"
+  [plugins.config]
+  spec = "cypress/integration/smoke*.js"
 ```
 
-See [cypress-example-kitchensink netlify.toml](https://github.com/cypress-io/cypress-example-kitchensink/blob/master/netlify.toml)
+See [cypress-example-kitchensink](https://github.com/cypress-io/cypress-example-kitchensink) for instance.
 
 ## Debugging
 

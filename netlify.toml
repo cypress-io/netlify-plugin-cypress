@@ -4,7 +4,6 @@
 command = "echo 'Netlify build command ...'"
 publish = "public"
   [build.environment]
-  CI = "1"
   TERM = "xterm"
   CYPRESS_CACHE_FOLDER = "./node_modules/CypressBinary"
 

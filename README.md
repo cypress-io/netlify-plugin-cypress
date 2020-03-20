@@ -43,8 +43,6 @@ command = "npm run build"
 publish = "build"
 
 [build.environment]
-# do not show Cypress installation progress messages
-CI = 1.0
 # cache Cypress binary in local "node_modules" folder
 # so Netlify caches it
 CYPRESS_CACHE_FOLDER = "./node_modules/CypressBinary"
@@ -67,8 +65,6 @@ To record test results and artifacts on Cypress Dashboard, set `record: true` pl
 command = "npm run build"
 publish = "build"
   [build.environment]
-  # do not show Cypress installation progress messages
-  CI = 1.0
   # cache Cypress binary in local "node_modules" folder
   # so Netlify caches it
   CYPRESS_CACHE_FOLDER = "./node_modules/CypressBinary"
@@ -120,8 +116,6 @@ Run only a single spec or specs matching a wildcard
 command = "npm run build"
 publish = "build"
   [build.environment]
-  # do not show Cypress installation progress messages
-  CI = 1.0
   # cache Cypress binary in local "node_modules" folder
   # so Netlify caches it
   CYPRESS_CACHE_FOLDER = "./node_modules/CypressBinary"

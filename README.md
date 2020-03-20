@@ -54,7 +54,18 @@ TERM = "xterm"
 package = "netlify-plugin-cypress"
 ```
 
-See [netlify-plugin-cypress-example](https://github.com/cypress-io/netlify-plugin-cypress-example) repo
+See [netlify-plugin-cypress-example](https://github.com/cypress-io/netlify-plugin-cypress-example) repo.
+
+Typescript users may need to add a `install` before the build command. For a yarn user with a typescript app, the build section of the Netlify configuration might look like this:
+
+```toml
+[build]
+command = "yarn install && yarn build"
+publish = "build"
+
+# ...remaining configuration...
+```
+
 
 ### recording
 

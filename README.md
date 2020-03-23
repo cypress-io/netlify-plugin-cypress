@@ -21,6 +21,10 @@ And then add the plugin's name to the list of build plugins in `netlify.toml` fi
 
 *note:* this plugin assumes you have already installed Cypress as a dev NPM dependency.
 
+## How does it work
+
+When Netlify Build runs, it "knows" the output folder name and calls the `netlify-plugin-cypress` after the build has finished with that folder. Then the plugin runs Cypress tests using its [NPM module API](https://on.cypress.io/module-api). If the tests pass, the plugin finishes and the Netlify deploy starts.
+
 ## Examples
 
 ### basic

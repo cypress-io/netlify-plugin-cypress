@@ -98,6 +98,8 @@ package = "netlify-plugin-cypress"
 
 See [cypress-example-kitchensink](https://github.com/cypress-io/cypress-example-kitchensink) and recorded results at [![Cypress Dashboard](https://img.shields.io/badge/cypress-dashboard-brightgreen.svg)](https://dashboard.cypress.io/#/projects/4b7344/runs)
 
+**Security note 🔐:** you should keep your `CYPRESS_RECORD_KEY` secret. Keep an eye on [this Netlify question](https://community.netlify.com/t/common-issue-using-environment-variables-on-netlify-correctly/267); we really hope Netlify hides this variable in logs if accidentally exposed and does not pass the environment variables to forked pull requests.
+
 #### group
 
 You can change the group name for the recorded run using `group` parameter

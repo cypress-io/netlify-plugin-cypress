@@ -37,11 +37,15 @@ Here is the most basic [Netlify config file](https://docs.netlify.com/configure-
   package = "netlify-plugin-cypress"
 ```
 
+The example file above should be enough to run Cypress tests in any existing Netlify project.
+
 ### recommended
 
 We strongly recommend setting `CYPRESS_CACHE_FOLDER` to place the Cypress binary _inside the node_modules_ folder to [cache it between builds](https://on.cypress.io/caching)
 
 ```toml
+# explicit commands for building the site
+# and the folder to publish
 [build]
 command = "npm run build"
 publish = "build"
@@ -69,7 +73,6 @@ publish = "build"
 
 # ...remaining configuration...
 ```
-
 
 ### recording
 
@@ -164,6 +167,14 @@ By default this plugin tests static site _after build_. But maybe you want to ru
 Parameters you can place into `preBuild` inputs: `start`, `wait-on`, `wait-on-timeout`, `spec`, `record`, `group`, and `tag`. If there is `preBuild` and `postBuild` testing with different tags, the first one wins :)
 
 See [netlify-plugin-prebuild-example](https://github.com/cypress-io/netlify-plugin-prebuild-example) repo
+
+## Example repos
+
+Name | Description
+--- | ---
+[netlify-plugin-cypress-example](https://github.com/cypress-io/netlify-plugin-cypress-example) | Runs Cypress tests on Netlify and records their results to Cypress Dashboard
+[netlify-plugin-prebuild-example](https://github.com/cypress-io/netlify-plugin-prebuild-example) | Runs tests twice, first using the development version of the site, then after Netlify builds the production bundles, runs the tests again
+[cypress-example-kitchensink](https://github.com/cypress-io/cypress-example-kitchensink) | Runs only a subset of all tests before publishing the folder to Netlify
 
 ## Debugging
 

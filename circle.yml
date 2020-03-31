@@ -27,7 +27,13 @@ jobs:
   'basic test':
     executor: cypress/base-12-14-0
     steps:
-      - run: echo 'running basic test'
+      # all dependencies were installed in previous job
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Netlify Build 🏗
+          command: npx netlify build
+          working_directory: tests/basic
 
 workflows:
   version: 2

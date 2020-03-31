@@ -1,6 +1,7 @@
 version: 2.1
 orbs:
   node: circleci/node@1.1.6
+  cypress: cypress-io/cypress@1
 jobs:
   build:
     executor:
@@ -23,14 +24,82 @@ jobs:
             - run: npm ci
       - run: npx semantic-release
 
+  'basic test':
+    executor: cypress/base-12-14-0
+    steps:
+      # all dependencies were installed in previous job
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Netlify Build 🏗
+          command: npx netlify build
+          working_directory: tests/basic
+          environment:
+            DEBUG: netlify-plugin-cypress
+
+  'recommended test':
+    executor: cypress/base-12-14-0
+    steps:
+      # all dependencies were installed in previous job
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Netlify Build 🏗
+          command: npx netlify build
+          working_directory: tests/recommended
+          environment:
+            DEBUG: netlify-plugin-cypress
+
+  'recording test':
+    executor: cypress/base-12-14-0
+    steps:
+      # all dependencies were installed in previous job
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Netlify Build 🏗
+          command: npx netlify build
+          working_directory: tests/recording
+          environment:
+            DEBUG: netlify-plugin-cypress
+
+  'test-twice':
+    executor: cypress/base-12-14-0
+    steps:
+      # all dependencies were installed in previous job
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Netlify Build 🏗
+          command: npx netlify build
+          working_directory: tests/test-twice
+          environment:
+            DEBUG: netlify-plugin-cypress
 workflows:
   version: 2
   test_and_release:
     jobs:
       - build
+      - cypress/install
+      - 'basic test':
+          requires:
+            - cypress/install
+      - 'recommended test':
+          requires:
+            - cypress/install
+      - 'recording test':
+          requires:
+            - cypress/install
+      - 'test-twice':
+          requires:
+            - cypress/install
       - release:
           requires:
             - build
+            - 'basic test'
+            - 'recommended test'
+            - 'recording test'
+            - 'test-twice'
           filters:
             branches:
               only:

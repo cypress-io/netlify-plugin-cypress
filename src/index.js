@@ -158,11 +158,11 @@ module.exports = {
       const failPlugin = arg.utils && arg.utils.build && arg.utils.build.failPlugin
       la(is.fn(failPlugin), 'expected failPlugin function inside', arg.utils)
 
-      const closeServer = startServerMaybe(args.utils.run, preBuildInputs)
+      const closeServer = startServerMaybe(arg.utils.run, preBuildInputs)
       await waitOnMaybe(failPlugin, preBuildInputs)
 
       const baseUrl = preBuildInputs['wait-on']
-      const record = Boolean(preBuildInputs.record)
+      const record = hasRecordKey() && Boolean(preBuildInputs.record)
       const spec = preBuildInputs.spec
       let group
       let tag

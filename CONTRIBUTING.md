@@ -2,7 +2,7 @@ How to [code a plugin](https://github.com/netlify/build/blob/master/docs/creatin
 
 ## Testing
 
-End-to-end tests are in folder [tests](tests) and they use this [plugin locally](https://github.com/netlify/build/blob/master/README.md#using-a-local-plugin) and build each subfolder using Netlify CLI on CircleCI.
+End-to-end tests are in folder [tests](tests) and they use this [plugin locally](https://github.com/netlify/build/blob/master/README.md#using-a-local-plugin) and build each subfolder using Netlify CLI on CircleCI. You can find the test recordings at [Cypress Dashboard](https://dashboard.cypress.io/projects/ixroqc/)
 
 ## Releasing a new version
 

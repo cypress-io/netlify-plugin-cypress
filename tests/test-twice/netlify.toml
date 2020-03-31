@@ -24,11 +24,11 @@ TERM = "xterm"
     wait-on = 'http://localhost:5000'
     wait-on-timeout = '30' # seconds
     record = true
-    group = "1 - before build"
+    group = "test twice: 1 - before build"
     tag = "test twice"
 
   # and test after
   [plugins.inputs]
     record = true
-    group = "2 - after build"
+    group = "test twice: 2 - after build"
     tag = "test twice"

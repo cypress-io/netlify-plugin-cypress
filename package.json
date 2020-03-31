@@ -39,6 +39,7 @@
   },
   "devDependencies": {
     "cypress": "4.2.0",
+    "netlify-cli": "2.40.0",
     "semantic-release": "^17.0.4",
     "serve": "11.3.0"
   }

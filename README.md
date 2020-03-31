@@ -100,6 +100,12 @@ See [cypress-example-kitchensink](https://github.com/cypress-io/cypress-example-
 
 **Security note 🔐:** you should keep your `CYPRESS_RECORD_KEY` secret. You can control how Netlify builds external pull requests, see [the doc](https://docs.netlify.com/configure-builds/environment-variables/) - you never want to expose sensitive environment variables to outside builds.
 
+#### status checks
+
+If you are recording test results to Cypress Dashboard, you should also install [Cypress GitHub Integration App](https://on.cypress.io/github-integration) to see status checks from individual groups or from individual specs per commit. See [netlify-plugin-prebuild-example PR #8](https://github.com/cypress-io/netlify-plugin-prebuild-example/pull/8) pull request for an example.
+
+![Netlify to Cypress Dashboard to GH Integration checks](images/netlify-to-cy-gh-app-checks.png)
+
 #### group
 
 You can change the group name for the recorded run using `group` parameter

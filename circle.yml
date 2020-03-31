@@ -1,6 +1,7 @@
 version: 2.1
 orbs:
   node: circleci/node@1.1.6
+  cypress: cypress-io/cypress@1
 jobs:
   build:
     executor:
@@ -23,14 +24,24 @@ jobs:
             - run: npm ci
       - run: npx semantic-release
 
+  'basic test':
+    executor: cypress/base-12-14-0
+    steps:
+      - run: echo 'running basic test'
+
 workflows:
   version: 2
   test_and_release:
     jobs:
       - build
+      - cypress/install
+      - 'basic test':
+          requires:
+            - cypress/install
       - release:
           requires:
             - build
+            - 'basic test'
           filters:
             branches:
               only:

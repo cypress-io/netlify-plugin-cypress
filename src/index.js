@@ -162,7 +162,7 @@ module.exports = {
       await waitOnMaybe(failPlugin, preBuildInputs)
 
       const baseUrl = preBuildInputs['wait-on']
-      const record = Boolean(preBuildInputs.record)
+      const record = hasRecordKey() && Boolean(preBuildInputs.record)
       const spec = preBuildInputs.spec
       let group
       let tag

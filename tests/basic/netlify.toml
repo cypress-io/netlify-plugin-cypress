@@ -1,9 +1,8 @@
-# WARNING ⚠️: this is a Netlify file with local Cypress plugin
-# so it might look quite different from the user's Netlify configuration
 [build]
 command = "echo 'Netlify build command ...'"
 publish = "public"
 
 [[plugins]]
   # local Cypress plugin will test our site after it is built
+  # in production, please use: package = "netlify-plugin-cypress"
   package = "../../"

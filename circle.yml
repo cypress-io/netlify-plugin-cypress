@@ -62,6 +62,19 @@ jobs:
           working_directory: tests/recording
           environment:
             DEBUG: netlify-plugin-cypress
+
+  'test-twice':
+    executor: cypress/base-12-14-0
+    steps:
+      # all dependencies were installed in previous job
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Netlify Build 🏗
+          command: npx netlify build
+          working_directory: tests/test-twice
+          environment:
+            DEBUG: netlify-plugin-cypress
 workflows:
   version: 2
   test_and_release:
@@ -77,12 +90,16 @@ workflows:
       - 'recording test':
           requires:
             - cypress/install
+      - 'test-twice':
+          requires:
+            - cypress/install
       - release:
           requires:
             - build
             - 'basic test'
             - 'recommended test'
             - 'recording test'
+            - 'test-twice'
           filters:
             branches:
               only:

@@ -1,5 +1,3 @@
-# WARNING ⚠️: this is a Netlify file with local Cypress plugin
-# so it might look quite different from the user's Netlify configuration
 [build]
 command = "echo 'Netlify build command ...'"
 publish = "public"
@@ -13,7 +11,9 @@ TERM = "xterm"
 
 [[plugins]]
   # local Cypress plugin will test our site after it is built
+  # in production, please use: package = "netlify-plugin-cypress"
   package = "../../"
+
   # run Cypress tests once on the site before it is built
   # and then after building the static folder
 

@@ -158,7 +158,7 @@ module.exports = {
       const failPlugin = arg.utils && arg.utils.build && arg.utils.build.failPlugin
       la(is.fn(failPlugin), 'expected failPlugin function inside', arg.utils)
 
-      const closeServer = startServerMaybe(args.utils.run, preBuildInputs)
+      const closeServer = startServerMaybe(arg.utils.run, preBuildInputs)
       await waitOnMaybe(failPlugin, preBuildInputs)
 
       const baseUrl = preBuildInputs['wait-on']

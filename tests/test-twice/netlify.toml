@@ -14,7 +14,21 @@ TERM = "xterm"
 [[plugins]]
   # local Cypress plugin will test our site after it is built
   package = "../../"
+  # run Cypress tests once on the site before it is built
+  # and then after building the static folder
+
+  # let's run tests against development server
+  # before building it (and testing the built site)
+  [plugins.inputs.preBuild]
+    start = 'npx serve public'
+    wait-on = 'http://localhost:5000'
+    wait-on-timeout = '30' # seconds
+    record = true
+    group = "1 - before build"
+    tag = "test twice"
+
+  # and test after
   [plugins.inputs]
     record = true
-    group = "test once after build"
-    tag = "recommended"
+    group = "2 - after build"
+    tag = "test twice"

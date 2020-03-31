@@ -34,6 +34,8 @@ jobs:
           name: Netlify Build 🏗
           command: npx netlify build
           working_directory: tests/basic
+          environment:
+            DEBUG: netlify-plugin-cypress
 
 workflows:
   version: 2

@@ -1,0 +1,26 @@
+{
+  "extends": [
+    "config:base"
+  ],
+  "automerge": true,
+  "major": {
+    "automerge": false
+  },
+  "masterIssue": true,
+  "labels": [
+    "type: dependencies",
+    "renovate"
+  ],
+  "packageRules": [
+    {
+      "packagePatterns": ["*"],
+      "excludePackagePatterns": [
+        "ecstatic",
+        "cypress",
+        "netlify-cli",
+        "got"
+      ],
+      "enabled": false
+    }
+  ]
+}

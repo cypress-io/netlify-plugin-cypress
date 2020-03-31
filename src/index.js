@@ -1,7 +1,6 @@
 // @ts-check
 const ecstatic = require('ecstatic')
 const http = require('http')
-const execa = require('execa')
 const debug = require('debug')('netlify-plugin-cypress')
 const debugVerbose = require('debug')('netlify-plugin-cypress:verbose')
 const la = require('lazy-ass')
@@ -15,15 +14,14 @@ function serveFolder (folder, port) {
   return http.createServer(server).listen(port)
 }
 
-function startServerMaybe (options = {}) {
+function startServerMaybe (run, options = {}) {
   const startCommand = options.start
   if (!startCommand) {
     debug('No start command found')
     return
   }
 
-  const serverProcess = execa(startCommand, {
-    stdio: 'inherit',
+  const serverProcess = run(startCommand, {
     detached: true,
     shell: true
   })
@@ -35,7 +33,7 @@ function startServerMaybe (options = {}) {
   }
 }
 
-async function waitOnMaybe (options = {}) {
+async function waitOnMaybe (failPlugin, options = {}) {
   const waitOnUrl = options['wait-on']
   if (!waitOnUrl) {
     debug('no wait-on defined')
@@ -58,7 +56,7 @@ async function waitOnMaybe (options = {}) {
   } catch (err) {
     debug('pinging %s for %d ms failed', waitOnUrl, waitTimeoutMs)
     debug(err)
-    throw new Error(err.message)
+    failPlugin(`Pinging ${waitOnUrl} for ${waitTimeoutMs} failed`, { error: err })
   }
 }
 
@@ -91,22 +89,19 @@ async function runCypressTests (baseUrl, record, spec, group, tag) {
   })
 }
 
-async function onInit() {
+async function onInit(arg) {
   debug('installing Cypress binary just in case')
-  if (debug.enabled) {
-    await execa('npx', ['cypress', 'install'], {stdio: 'inherit'})
-  } else {
-    await execa('npx', ['cypress', 'install'])
-  }
+  const runOptions = debug.enabled ? {} : {stdio: 'ignore'}
+  await arg.utils.run('cypress', ['install'], runOptions)
 }
 
-const processCypressResults = (results, failBuild) => {
+const processCypressResults = (results, failPlugin) => {
   if (results.failures) {
     // Cypress failed without even running the tests
     console.error('Problem running Cypress')
     console.error(results.message)
 
-    return failBuild('Problem running Cypress', {
+    return failPlugin('Problem running Cypress', {
       error: new Error(results.message)
     })
   }
@@ -120,13 +115,13 @@ const processCypressResults = (results, failBuild) => {
 
   // results.totalFailed gives total number of failed tests
   if (results.totalFailed) {
-    return failBuild('Failed Cypress tests', {
+    return failPlugin('Failed Cypress tests', {
       error: new Error(`${results.totalFailed} test(s) failed`)
     })
   }
 }
 
-async function postBuild({ fullPublishFolder, record, spec, group, tag, failBuild }) {
+async function postBuild({ fullPublishFolder, record, spec, group, tag, failPlugin }) {
   const port = 8080
   const server = serveFolder(fullPublishFolder, port)
   debug('local server listening on port %d', port)
@@ -145,21 +140,14 @@ async function postBuild({ fullPublishFolder, record, spec, group, tag, failBuil
     })
   })
 
-  processCypressResults(results, failBuild)
+  processCypressResults(results, failPlugin)
 }
 
 const hasRecordKey = () => typeof process.env.CYPRESS_RECORD_KEY === 'string'
 
-module.exports = function cypressPlugin (pluginConfig) {
-  debugVerbose('cypressPlugin config %o', pluginConfig)
-
-  // here we can grab all input settings to isolate Cypress logic
-  // from reading the inputs
-
-  return {
-    name: 'cypress netlify plugin',
+module.exports = {
     onInit,
-    preBuild: async (arg) => {
+    onPreBuild: async (arg) => {
       debug('cypress plugin preBuild inputs %o', arg.inputs)
       const preBuildInputs = arg.inputs && arg.inputs.preBuild
       if (!preBuildInputs) {
@@ -167,8 +155,11 @@ module.exports = function cypressPlugin (pluginConfig) {
         return
       }
 
-      const closeServer = startServerMaybe(preBuildInputs)
-      await waitOnMaybe(preBuildInputs)
+      const failPlugin = arg.utils && arg.utils.build && arg.utils.build.failPlugin
+      la(is.fn(failPlugin), 'expected failPlugin function inside', arg.utils)
+
+      const closeServer = startServerMaybe(args.utils.run, preBuildInputs)
+      await waitOnMaybe(failPlugin, preBuildInputs)
 
       const baseUrl = preBuildInputs['wait-on']
       const record = Boolean(preBuildInputs.record)
@@ -192,47 +183,43 @@ module.exports = function cypressPlugin (pluginConfig) {
         closeServer()
       }
 
-      const failBuild = arg.utils && arg.utils.build && arg.utils.build.failBuild
-      la(is.fn(failBuild), 'expected failBuild function inside', arg.utils)
-
-      processCypressResults(results, failBuild)
+      processCypressResults(results, failPlugin)
     },
 
-    postBuild: async (arg) => {
+    onPostBuild: async (arg) => {
       debugVerbose('postBuild arg %o', arg)
       debug('cypress plugin postBuild inputs %o', arg.inputs)
 
-      const fullPublishFolder = arg.netlifyConfig.build.publish
+      const fullPublishFolder = arg.constants.PUBLISH_DIR
       debug('folder to publish is "%s"', fullPublishFolder)
 
       // only if the user wants to record the tests and has set the record key
       // then we should attempt recording
-      const record = hasRecordKey() && Boolean(pluginConfig.record)
+      const record = hasRecordKey() && Boolean(arg.inputs.record)
 
-      const spec = pluginConfig.spec
+      const spec = arg.inputs.spec
       let group
       let tag
       if (record) {
-        group = pluginConfig.group || 'postBuild'
+        group = arg.inputs.group || 'postBuild'
 
-        if (pluginConfig.tag) {
-          tag = pluginConfig.tag
+        if (arg.inputs.tag) {
+          tag = arg.inputs.tag
         } else {
           tag = process.env.CONTEXT
         }
       }
 
-      const failBuild = arg.utils && arg.utils.build && arg.utils.build.failBuild
-      la(is.fn(failBuild), 'expected failBuild function inside', arg.utils)
+      const failPlugin = arg.utils && arg.utils.build && arg.utils.build.failPlugin
+      la(is.fn(failPlugin), 'expected failPlugin function inside', arg.utils)
 
-      return postBuild({
+      await postBuild({
         fullPublishFolder,
         record,
         spec,
         group,
         tag,
-        failBuild
+        failPlugin
       })
     }
-  }
 }

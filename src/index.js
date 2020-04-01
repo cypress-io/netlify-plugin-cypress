@@ -178,7 +178,7 @@ module.exports = {
         closeServer()
       }
 
-      processCypressResults(results, args.utils.build)
+      processCypressResults(results, arg.utils.build)
     },
 
     onPostBuild: async (arg) => {

@@ -20,12 +20,9 @@
   ],
   "license": "ISC",
   "dependencies": {
-    "argument-vector": "1.0.2",
-    "check-more-types": "2.24.0",
     "debug": "4.1.1",
     "ecstatic": "4.1.2",
-    "got": "9.6.0",
-    "lazy-ass": "1.6.0"
+    "got": "9.6.0"
   },
   "repository": {
     "type": "git",

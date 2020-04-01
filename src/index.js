@@ -3,8 +3,6 @@ const ecstatic = require('ecstatic')
 const http = require('http')
 const debug = require('debug')('netlify-plugin-cypress')
 const debugVerbose = require('debug')('netlify-plugin-cypress:verbose')
-const la = require('lazy-ass')
-const is = require('check-more-types')
 const { ping } = require('./utils')
 
 function serveFolder (folder, port) {
@@ -33,7 +31,7 @@ function startServerMaybe (run, options = {}) {
   }
 }
 
-async function waitOnMaybe (failPlugin, options = {}) {
+async function waitOnMaybe (buildUtils, options = {}) {
   const waitOnUrl = options['wait-on']
   if (!waitOnUrl) {
     debug('no wait-on defined')
@@ -56,7 +54,7 @@ async function waitOnMaybe (failPlugin, options = {}) {
   } catch (err) {
     debug('pinging %s for %d ms failed', waitOnUrl, waitTimeoutMs)
     debug(err)
-    failPlugin(`Pinging ${waitOnUrl} for ${waitTimeoutMs} failed`, { error: err })
+    return buildUtils.failBuild(`Pinging ${waitOnUrl} for ${waitTimeoutMs} failed`, { error: err })
   }
 }
 
@@ -95,13 +93,13 @@ async function onInit(arg) {
   await arg.utils.run('cypress', ['install'], runOptions)
 }
 
-const processCypressResults = (results, failPlugin) => {
+const processCypressResults = (results, buildUtils) => {
   if (results.failures) {
     // Cypress failed without even running the tests
     console.error('Problem running Cypress')
     console.error(results.message)
 
-    return failPlugin('Problem running Cypress', {
+    return buildUtils.failPlugin('Problem running Cypress', {
       error: new Error(results.message)
     })
   }
@@ -115,13 +113,13 @@ const processCypressResults = (results, failPlugin) => {
 
   // results.totalFailed gives total number of failed tests
   if (results.totalFailed) {
-    return failPlugin('Failed Cypress tests', {
+    return buildUtils.failBuild('Failed Cypress tests', {
       error: new Error(`${results.totalFailed} test(s) failed`)
     })
   }
 }
 
-async function postBuild({ fullPublishFolder, record, spec, group, tag, failPlugin }) {
+async function postBuild({ fullPublishFolder, record, spec, group, tag, buildUtils }) {
   const port = 8080
   const server = serveFolder(fullPublishFolder, port)
   debug('local server listening on port %d', port)
@@ -140,7 +138,7 @@ async function postBuild({ fullPublishFolder, record, spec, group, tag, failPlug
     })
   })
 
-  processCypressResults(results, failPlugin)
+  processCypressResults(results, buildUtils)
 }
 
 const hasRecordKey = () => typeof process.env.CYPRESS_RECORD_KEY === 'string'
@@ -155,11 +153,8 @@ module.exports = {
         return
       }
 
-      const failPlugin = arg.utils && arg.utils.build && arg.utils.build.failPlugin
-      la(is.fn(failPlugin), 'expected failPlugin function inside', arg.utils)
-
       const closeServer = startServerMaybe(arg.utils.run, preBuildInputs)
-      await waitOnMaybe(failPlugin, preBuildInputs)
+      await waitOnMaybe(arg.utils.build, preBuildInputs)
 
       const baseUrl = preBuildInputs['wait-on']
       const record = hasRecordKey() && Boolean(preBuildInputs.record)
@@ -183,7 +178,7 @@ module.exports = {
         closeServer()
       }
 
-      processCypressResults(results, failPlugin)
+      processCypressResults(results, arg.utils.build)
     },
 
     onPostBuild: async (arg) => {
@@ -210,8 +205,7 @@ module.exports = {
         }
       }
 
-      const failPlugin = arg.utils && arg.utils.build && arg.utils.build.failPlugin
-      la(is.fn(failPlugin), 'expected failPlugin function inside', arg.utils)
+      const buildUtils = arg.utils.build
 
       await postBuild({
         fullPublishFolder,
@@ -219,7 +213,7 @@ module.exports = {
         spec,
         group,
         tag,
-        failPlugin
+        buildUtils,
       })
     }
 }

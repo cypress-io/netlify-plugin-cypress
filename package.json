@@ -21,7 +21,7 @@
   "license": "ISC",
   "dependencies": {
     "debug": "4.1.1",
-    "ecstatic": "4.1.2",
+    "ecstatic": "4.1.4",
     "got": "9.6.0"
   },
   "repository": {

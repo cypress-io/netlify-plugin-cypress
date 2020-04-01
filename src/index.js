@@ -205,13 +205,15 @@ module.exports = {
         }
       }
 
+      const buildUtils = arg.utils.build
+
       await postBuild({
         fullPublishFolder,
         record,
         spec,
         group,
         tag,
-        buildUtils: arg.utils.build,
+        buildUtils,
       })
     }
 }

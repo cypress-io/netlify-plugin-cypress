@@ -22,7 +22,7 @@
   "dependencies": {
     "debug": "4.1.1",
     "ecstatic": "4.1.4",
-    "got": "9.6.0"
+    "got": "10.7.0"
   },
   "repository": {
     "type": "git",

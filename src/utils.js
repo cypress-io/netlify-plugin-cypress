@@ -9,15 +9,21 @@ const debugVerbose = require('debug')('netlify-plugin-cypress:verbose')
  */
 const ping = (url, timeout) => {
   debug('pinging "%s" for %d ms max', url, timeout)
+  const start = +new Date()
+
   return got(url, {
     retry: {
       limit: 30,
-      calculateDelay({attemptCount, retryOptions, error, computedValue}) {
-        debugVerbose(`attempt ${attemptCount} ${computedValue}ms ${error.message}`)
+      calculateDelay({attemptCount, retryOptions, error}) {
+        const now = +new Date()
+        const elapsed = now - start
+        debugVerbose(`attempt ${attemptCount} ${elapsed}ms ${error.message}`)
 
-        if (computedValue > timeout) {
-          debug('%s timed out', url)
-          console.error('%s timed out', url)
+        if (elapsed > timeout) {
+          debug('%s timed out after %dms, timeout was %dms',
+            url, elapsed, timeout)
+          console.error('%s timed out after %dms, timeout was %dms',
+            url, elapsed, timeout)
           return 0
         }
         return 1000

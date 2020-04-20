@@ -35,7 +35,7 @@
     "access": "public"
   },
   "devDependencies": {
-    "cypress": "4.4.0",
+    "cypress": "4.4.1",
     "netlify-cli": "2.47.0",
     "semantic-release": "^17.0.4",
     "serve": "11.3.0"

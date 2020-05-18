@@ -87,7 +87,7 @@ async function runCypressTests (baseUrl, record, spec, group, tag) {
   })
 }
 
-async function onInit(arg) {
+async function install(arg) {
   debug('installing Cypress binary just in case')
   const runOptions = debug.enabled ? {} : {stdio: 'ignore'}
   await arg.utils.run('cypress', ['install'], runOptions)
@@ -144,8 +144,9 @@ async function postBuild({ fullPublishFolder, record, spec, group, tag, buildUti
 const hasRecordKey = () => typeof process.env.CYPRESS_RECORD_KEY === 'string'
 
 module.exports = {
-    onInit,
     onPreBuild: async (arg) => {
+      install(arg)
+
       debug('cypress plugin preBuild inputs %o', arg.inputs)
       const preBuildInputs = arg.inputs && arg.inputs.preBuild
       if (!preBuildInputs) {

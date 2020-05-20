@@ -145,7 +145,7 @@ const hasRecordKey = () => typeof process.env.CYPRESS_RECORD_KEY === 'string'
 
 module.exports = {
     onPreBuild: async (arg) => {
-      install(arg)
+      await install(arg)
 
       debug('cypress plugin preBuild inputs %o', arg.inputs)
       const preBuildInputs = arg.inputs && arg.inputs.preBuild

@@ -89,8 +89,23 @@ async function runCypressTests (baseUrl, record, spec, group, tag) {
 
 async function install(arg) {
   debug('installing Cypress binary just in case')
-  const runOptions = debug.enabled ? {} : {stdio: 'ignore'}
-  await arg.utils.run('cypress', ['install'], runOptions)
+  const runOptions = debug.enabled ? {} : { stdio: 'ignore' }
+  try {
+    await arg.utils.run('cypress', ['install'], runOptions)
+  } catch (error) {
+    debug('error installing Cypress: %s', error.message)
+    const buildUtils = arg.utils.build
+    console.error('')
+    console.error('Failed to install Cypress')
+    console.error('Did you forget to add Cypress as a dev dependency?')
+    console.error('  npm i -D cypress')
+    console.error('or')
+    console.error(' yarn add -D cypress')
+    console.error('')
+    console.error('See https://github.com/cypress-io/netlify-plugin-cypress#readme')
+    console.error('')
+    buildUtils.failBuild('Failed to install Cypress. Did you forget to add Cypress as a dev dependency?', { error })
+  }
 }
 
 const processCypressResults = (results, buildUtils) => {

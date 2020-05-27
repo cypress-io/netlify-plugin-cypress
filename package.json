@@ -34,6 +34,9 @@
   "publishConfig": {
     "access": "public"
   },
+  "engines": {
+    "node": ">=10"
+  },
   "devDependencies": {
     "cypress": "4.7.0",
     "netlify-cli": "2.47.0",

@@ -114,7 +114,7 @@ const processCypressResults = (results, buildUtils) => {
     console.error('Problem running Cypress')
     console.error(results.message)
 
-    return buildUtils.failPlugin('Problem running Cypress', {
+    return buildUtils.failBuild('Problem running Cypress', {
       error: new Error(results.message)
     })
   }

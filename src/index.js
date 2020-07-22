@@ -7,7 +7,8 @@ const { ping } = require('./utils')
 function serveFolder (directory, port) {
   return LocalWebServer.create({
     directory,
-    port
+    port,
+    spa: "index.html"
   }).server
 }
 

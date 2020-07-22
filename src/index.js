@@ -1,15 +1,14 @@
 // @ts-check
-const ecstatic = require('ecstatic')
-const http = require('http')
+const LocalWebServer = require('local-web-server')
 const debug = require('debug')('netlify-plugin-cypress')
 const debugVerbose = require('debug')('netlify-plugin-cypress:verbose')
 const { ping } = require('./utils')
 
-function serveFolder (folder, port) {
-  const server = ecstatic({
-    root: folder
-  })
-  return http.createServer(server).listen(port)
+function serveFolder (directory, port) {
+  return LocalWebServer.create({
+    directory,
+    port
+  }).server
 }
 
 function startServerMaybe (run, options = {}) {

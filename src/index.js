@@ -100,9 +100,6 @@ async function runCypressTests (baseUrl, record, spec, group, tag) {
     spec,
     record,
     group,
-    // ignoring the TS error for now
-    // https://github.com/cypress-io/cypress/pull/6796
-    // @ts-ignore
     tag,
     ciBuildId
   })

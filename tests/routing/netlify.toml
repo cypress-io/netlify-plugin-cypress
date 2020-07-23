@@ -1,5 +1,5 @@
 [build]
-command = "echo 'Netlify build command ...'"
+command = "npm run build"
 publish = "public"
 
 [build.environment]
@@ -20,15 +20,11 @@ TERM = "xterm"
   # let's run tests against development server
   # before building it (and testing the built site)
   [plugins.inputs.preBuild]
-    start = 'npx react-scripts start'
-    wait-on = 'http://localhost:5000'
-    wait-on-timeout = '30' # seconds
-    record = true
-    group = "test twice: 1 - before build"
-    tag = "test twice"
+    start = 'npm start'
+    wait-on = 'http://localhost:3000'
 
-  # and test after
+  # and test the built site after
   [plugins.inputs]
-    record = true
-    group = "test twice: 2 - after build"
-    tag = "test twice"
+    # must allow our test server to redirect unknown routes to "/"
+    # so that client-side routing can correctly route them
+    spa = true

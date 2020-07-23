@@ -84,7 +84,7 @@ jobs:
           at: ~/
       - run:
           name: Netlify Build 🏗
-          command: npx netlify build
+          command: npm run netlify:build
           working_directory: tests/routing
           environment:
             DEBUG: netlify-plugin-cypress

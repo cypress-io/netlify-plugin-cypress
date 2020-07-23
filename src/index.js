@@ -1,15 +1,15 @@
 // @ts-check
-const ecstatic = require('ecstatic')
-const http = require('http')
+const LocalWebServer = require('local-web-server')
 const debug = require('debug')('netlify-plugin-cypress')
 const debugVerbose = require('debug')('netlify-plugin-cypress:verbose')
 const { ping } = require('./utils')
 
-function serveFolder (folder, port) {
-  const server = ecstatic({
-    root: folder
-  })
-  return http.createServer(server).listen(port)
+function serveFolder (directory, port, spa) {
+  return LocalWebServer.create({
+    directory,
+    port,
+    spa
+  }).server
 }
 
 function startServerMaybe (run, options = {}) {
@@ -134,9 +134,9 @@ const processCypressResults = (results, buildUtils) => {
   }
 }
 
-async function postBuild({ fullPublishFolder, record, spec, group, tag, buildUtils }) {
+async function postBuild({ fullPublishFolder, record, spec, group, tag, spa, buildUtils }) {
   const port = 8080
-  const server = serveFolder(fullPublishFolder, port)
+  const server = serveFolder(fullPublishFolder, port, spa)
   debug('local server listening on port %d', port)
 
   const baseUrl = `http://localhost:${port}`
@@ -220,6 +220,7 @@ module.exports = {
           tag = process.env.CONTEXT
         }
       }
+      const spa = arg.inputs.spa
 
       const buildUtils = arg.utils.build
 
@@ -229,6 +230,7 @@ module.exports = {
         spec,
         group,
         tag,
+        spa,
         buildUtils,
       })
     }

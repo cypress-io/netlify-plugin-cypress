@@ -157,6 +157,20 @@ package = "netlify-plugin-cypress"
 
 See [cypress-example-kitchensink](https://github.com/cypress-io/cypress-example-kitchensink) for instance.
 
+### testing SPA routes
+
+SPAs need catch-all redirect setup to make non-root paths accesssible by tests. You can enable this with `spa` parameter.
+
+```
+[[plugins]]
+# local Cypress plugin will test our site after it is built
+package = "netlify-plugin-cypress"
+  [plugins.inputs]
+  spa = "index.html"
+```
+
+See [lws-spa](https://github.com/lwsjs/spa) for more options.
+
 ### testing the site before build
 
 By default this plugin tests static site _after build_. But maybe you want to run end-to-end tests against the _local development server_. You can start local server, wait for it to respond and then run Cypress tests by passing parameters to this plugin. Here is a sample config file

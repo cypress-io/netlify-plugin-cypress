@@ -21,8 +21,8 @@
   "license": "ISC",
   "dependencies": {
     "debug": "4.1.1",
-    "ecstatic": "4.1.4",
-    "got": "10.7.0"
+    "got": "10.7.0",
+    "local-web-server": "^4.2.1"
   },
   "repository": {
     "type": "git",

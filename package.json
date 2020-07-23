@@ -40,6 +40,10 @@
   "devDependencies": {
     "cypress": "4.11.0",
     "netlify-cli": "2.47.0",
+    "react": "16.13.1",
+    "react-dom": "16.13.1",
+    "react-router-dom": "5.2.0",
+    "react-scripts": "3.4.1",
     "semantic-release": "^17.0.4",
     "serve": "11.3.0"
   }

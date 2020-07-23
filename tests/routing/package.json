@@ -7,7 +7,8 @@
     "build": "../../node_modules/.bin/react-scripts build",
     "cypress:open": "../../node_modules/.bin/cypress open",
     "cypress:run": "../../node_modules/.bin/cypress run",
-    "netlify:build": "../../node_modules/.bin/netlify build"
+    "netlify:build": "../../node_modules/.bin/netlify build",
+    "serve:built": "../../node_modules/.bin/ws --directory build --spa index.html"
   },
   "eslintConfig": {
     "extends": "react-app"

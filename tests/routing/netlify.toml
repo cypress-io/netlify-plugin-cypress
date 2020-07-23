@@ -1,6 +1,6 @@
 [build]
 command = "npm run build"
-publish = "public"
+publish = "build"
 
 [build.environment]
 # cache Cypress binary in local "node_modules" folder
@@ -27,4 +27,5 @@ TERM = "xterm"
   [plugins.inputs]
     # must allow our test server to redirect unknown routes to "/"
     # so that client-side routing can correctly route them
+    # can be set to true or "index.html" (or similar fallback filename in the built folder)
     spa = true

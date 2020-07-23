@@ -93,6 +93,9 @@ workflows:
       - 'test-twice':
           requires:
             - cypress/install
+      - routing:
+          requires:
+            - cypress/install
       - release:
           requires:
             - build
@@ -100,6 +103,7 @@ workflows:
             - 'recommended test'
             - 'recording test'
             - 'test-twice'
+            - 'routing'
           filters:
             branches:
               only:

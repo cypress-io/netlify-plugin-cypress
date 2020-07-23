@@ -1,0 +1,28 @@
+{
+  "name": "routing-example",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "../../node_modules/.bin/react-scripts start",
+    "build": "../../node_modules/.bin/react-scripts build",
+    "cypress:open": "../../node_modules/.bin/cypress open",
+    "cypress:run": "../../node_modules/.bin/cypress run",
+    "netlify:build": "../../node_modules/.bin/netlify build",
+    "serve:built": "../../node_modules/.bin/ws --directory build --spa index.html"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

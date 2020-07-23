@@ -166,10 +166,11 @@ SPAs need catch-all redirect setup to make non-root paths accesssible by tests. 
 # local Cypress plugin will test our site after it is built
 package = "netlify-plugin-cypress"
   [plugins.inputs]
+  # can also use "spa = true" to use "index.html" by default
   spa = "index.html"
 ```
 
-See [lws-spa](https://github.com/lwsjs/spa) for more options.
+See [lws-spa](https://github.com/lwsjs/spa) for more options and [tests/routing](tests/routing) example.
 
 ### testing the site before build
 

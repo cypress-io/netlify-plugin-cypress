@@ -191,6 +191,10 @@ Parameters you can place into `preBuild` inputs: `start`, `wait-on`, `wait-on-ti
 
 See [netlify-plugin-prebuild-example](https://github.com/cypress-io/netlify-plugin-prebuild-example) repo
 
+### parallelization
+
+Running tests in parallel **is not supported** because Netlify plugin system runs on a single machine. Thus you can record the tests on Cypress Dashboard, but not run tests in parallel. If Netlify expands its build offering by allowing multiple build machines, we could take advantage of it and run tests in parallel.
+
 ## Example repos
 
 Name | Description

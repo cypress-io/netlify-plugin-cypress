@@ -157,8 +157,14 @@ const processCypressResults = (results, buildUtils) => {
 
 async function postBuild({ fullPublishFolder, record, spec, group, tag, spa, buildUtils }) {
   const port = 8080
-  const server = serveFolder(fullPublishFolder, port, spa)
-  debug('local server listening on port %d', port)
+  let server
+
+  try {
+    server = serveFolder(fullPublishFolder, port, spa)
+    debug('local server listening on port %d', port)
+  } catch (err) {
+    return buildUtils.failBuild(`Could not serve folder ${fullPublishFolder}`, { error: err })
+  }
 
   const baseUrl = `http://localhost:${port}`
 

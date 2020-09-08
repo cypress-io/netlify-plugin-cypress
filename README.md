@@ -1,4 +1,4 @@
-# netlify-plugin-cypress [![CircleCI](https://circleci.com/gh/cypress-io/netlify-plugin-cypress/tree/master.svg?style=svg&circle-token=9cbb587a5a0ae4ce28b011dd03d10d66de906708)](https://circleci.com/gh/cypress-io/netlify-plugin-cypress/tree/master) [![renovate-app badge][renovate-badge]][renovate-app]
+# netlify-plugin-cypress [![CircleCI](https://circleci.com/gh/cypress-io/netlify-plugin-cypress/tree/master.svg?style=svg&circle-token=9cbb587a5a0ae4ce28b011dd03d10d66de906708)](https://circleci.com/gh/cypress-io/netlify-plugin-cypress/tree/master) [![renovate-app badge][renovate-badge]][renovate-app] [![cypress-example-kitchensink](https://img.shields.io/endpoint?url=https://dashboard.cypress.io/badge/simple/4b7344/master&style=flat&logo=cypress)](https://dashboard.cypress.io/projects/4b7344/runs)
 > Runs Cypress end-to-end tests after Netlify builds the site but before it is deployed
 
 **Note:** currently the built site is served statically and tested _without proxying redirects_.

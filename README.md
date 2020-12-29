@@ -5,11 +5,9 @@
 
 ## Install and use
 
-Enable Netlify Build Plugins Beta from `https://app.netlify.com/teams/<your team name>/enable-beta` for the projects that need to use this plugin. Here is the link from the Netlify UI
+You can install this plugin in the Netlify UI from this [direct in-app installation link](https://app.netlify.com/plugins/netlify-plugin-cypress/install) or from the [Plugins directory](https://app.netlify.com/plugins).
 
-![Enable beta button](images/beta.png)
-
-Add `netlify-plugin-cypress` NPM package as a dev dependency to your repository.
+For file based installation, add `netlify-plugin-cypress` NPM package as a dev dependency to your repository.
 
 ```shell
 npm install --save-dev netlify-plugin-cypress

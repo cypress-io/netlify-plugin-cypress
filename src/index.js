@@ -255,6 +255,12 @@ module.exports = {
       debugVerbose('postBuild arg %o', arg)
       debug('cypress plugin postBuild inputs %o', arg.inputs)
 
+      const skipTests = Boolean(arg.inputs.skip)
+      if (skipTests) {
+        console.log('Skipping tests because skip=true')
+        return
+      }
+
       const fullPublishFolder = arg.constants.PUBLISH_DIR
       debug('folder to publish is "%s"', fullPublishFolder)
 

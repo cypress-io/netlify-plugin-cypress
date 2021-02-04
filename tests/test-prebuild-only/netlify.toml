@@ -1,0 +1,28 @@
+[build]
+command = "echo 'Netlify build command ...'"
+publish = "public"
+
+[build.environment]
+# cache Cypress binary in local "node_modules" folder
+# so Netlify caches it
+CYPRESS_CACHE_FOLDER = "./node_modules/CypressBinary"
+# set TERM variable for terminal output
+TERM = "xterm"
+
+[[plugins]]
+  # local Cypress plugin will test our site after it is built
+  # in production, please use: package = "netlify-plugin-cypress"
+  package = "../../"
+
+  # run Cypress tests once on the site before it is built
+  # and do not run the tests after it was built
+
+  # let's run tests against development server
+  [plugins.inputs.preBuild]
+    start = 'npx serve public'
+    wait-on = 'http://localhost:5000'
+    wait-on-timeout = '30' # seconds
+
+  # and skip tests after building it
+  [plugins.inputs]
+    skip = true

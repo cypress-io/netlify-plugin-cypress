@@ -4,6 +4,11 @@ How to [code a plugin](https://github.com/netlify/build/blob/master/docs/creatin
 
 End-to-end tests are in folder [tests](tests) and they use this [plugin locally](https://github.com/netlify/build/blob/master/README.md#using-a-local-plugin) and build each subfolder using Netlify CLI on CircleCI. You can find the test recordings at [Cypress Dashboard](https://dashboard.cypress.io/projects/ixroqc/)
 
+To run locally:
+
+- `npx netlify link` once
+- from every subfolder of `tests` execute `npm run build`
+
 ### Authentication (local)
 
 - use `netlify-cli` to authenticate locally. It will also create a local site and store its ID in `.netlify` folder (ignored by `git`)

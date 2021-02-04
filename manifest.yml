@@ -8,6 +8,9 @@ inputs:
   - name: group
   - name: tag
   - name: spa
+  # by default run the tests
+  - name: skip
+    default: false
 
   # tells the plugin how to start the server using custom command
   # and waiting for an url, record to the dashboard, tag, etc

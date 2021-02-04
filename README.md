@@ -189,6 +189,17 @@ Parameters you can place into `preBuild` inputs: `start`, `wait-on`, `wait-on-ti
 
 See [netlify-plugin-prebuild-example](https://github.com/cypress-io/netlify-plugin-prebuild-example) repo
 
+### skipping tests
+
+If you are testing the site before building it, you probably want to skip testing it after the build. See [tests/test-prebuild-only](./tests/test-prebuild-only/netlify.toml):
+
+```toml
+[[plugins]]
+  package = "netlify-plugin-cypress"
+  [plugins.inputs]
+    skip = true
+```
+
 ### parallelization
 
 Running tests in parallel **is not supported** because Netlify plugin system runs on a single machine. Thus you can record the tests on Cypress Dashboard, but not run tests in parallel. If Netlify expands its build offering by allowing multiple build machines, we could take advantage of it and run tests in parallel.

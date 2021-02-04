@@ -126,7 +126,7 @@ async function install(arg) {
   }
 }
 
-async function verify(arg) {
+async function cypressVerify(arg) {
   debug('verifying Cypress can run')
   try {
     await arg.utils.run('cypress', ['verify'])
@@ -137,6 +137,20 @@ async function verify(arg) {
     console.error('Failed to verify Cypress')
     console.error('')
     buildUtils.failBuild('Failed to verify Cypress', { error })
+  }
+}
+
+async function cypressInfo(arg) {
+  debug('Cypress info')
+  try {
+    await arg.utils.run('cypress', ['info'])
+  } catch (error) {
+    debug('error in Cypress info command: %s', error.message)
+    const buildUtils = arg.utils.build
+    console.error('')
+    console.error('Failed to run Cypress info')
+    console.error('')
+    buildUtils.failBuild('Failed Cypress info', { error })
   }
 }
 
@@ -199,7 +213,8 @@ const hasRecordKey = () => typeof process.env.CYPRESS_RECORD_KEY === 'string'
 module.exports = {
     onPreBuild: async (arg) => {
       await install(arg)
-      await verify(arg)
+      await cypressVerify(arg)
+      await cypressInfo(arg)
 
       debug('cypress plugin preBuild inputs %o', arg.inputs)
       const preBuildInputs = arg.inputs && arg.inputs.preBuild

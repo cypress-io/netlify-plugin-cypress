@@ -102,7 +102,7 @@ See [cypress-example-kitchensink](https://github.com/cypress-io/cypress-example-
 
 If you are recording test results to Cypress Dashboard, you should also install [Cypress GitHub Integration App](https://on.cypress.io/github-integration) to see status checks from individual groups or from individual specs per commit. See [netlify-plugin-prebuild-example PR #8](https://github.com/cypress-io/netlify-plugin-prebuild-example/pull/8) pull request for an example.
 
-![Netlify to Cypress Dashboard to GH Integration checks](images/netlify-to-cy-gh-app-checks.png)
+![Netlify to Cypress Dashboard to GH Integration checks](./images/netlify-to-cy-gh-app-checks.png)
 
 #### group
 

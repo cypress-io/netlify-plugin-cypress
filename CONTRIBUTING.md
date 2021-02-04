@@ -4,6 +4,16 @@ How to [code a plugin](https://github.com/netlify/build/blob/master/docs/creatin
 
 End-to-end tests are in folder [tests](tests) and they use this [plugin locally](https://github.com/netlify/build/blob/master/README.md#using-a-local-plugin) and build each subfolder using Netlify CLI on CircleCI. You can find the test recordings at [Cypress Dashboard](https://dashboard.cypress.io/projects/ixroqc/)
 
+### Authentication (local)
+
+- use `netlify-cli` to authenticate locally. It will also create a local site and store its ID in `.netlify` folder (ignored by `git`)
+
+### Authentication (ci)
+
+To authenticate `netlify` on CircleCI:
+- grab the Settings > Site information > APP ID and set it as environment variable `NETLIFY_SITE_ID`
+- generate new authentication token for CI from User Settings > Applications > New Access Token and set it as environment variable `NETLIFY_AUTH_TOKEN`
+
 ## Releasing a new version
 
 Before releasing check that each CircleCI job has actually run the tests correctly. We don't have a way to check if Cypress _executed all tests_, other than looking at the CircleCI terminal output.

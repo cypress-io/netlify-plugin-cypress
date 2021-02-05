@@ -16,3 +16,5 @@ publish = "public"
   #   start = 'npm start'
   #   wait-on = 'http://localhost:5000'
   #   wait-on-timeout = '3' # seconds
+  [plugins.inputs.onSuccess]
+    group = 'deployed'

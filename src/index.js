@@ -342,10 +342,6 @@ module.exports = {
       isLocal,
     })
 
-    if (!deployPrimeUrl) {
-      return utils.build.failBuild('Missing DEPLOY_PRIME_URL')
-    }
-
     // extract test run parameters
     const onSuccessInputs = inputs.onSuccess
     if (!onSuccessInputs) {
@@ -360,6 +356,10 @@ module.exports = {
     }
 
     debug('onSuccessInputs %s %o', typeof onSuccessInputs, onSuccessInputs)
+
+    if (!deployPrimeUrl) {
+      return utils.build.failBuild('Missing DEPLOY_PRIME_URL')
+    }
 
     // only if the user wants to record the tests and has set the record key
     // then we should attempt recording

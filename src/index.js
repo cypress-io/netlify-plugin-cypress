@@ -329,7 +329,7 @@ module.exports = {
   onSuccess: async (arg) => {
     debugVerbose('onSuccess arg %o', arg)
 
-    const { inputs, constants } = arg
+    const { utils, inputs, constants } = arg
     debug('onSuccess inputs %o', inputs)
     debug('onSuccess constants %o', constants)
 
@@ -341,5 +341,13 @@ module.exports = {
       deployPrimeUrl,
       isLocal,
     })
+
+    if (!deployPrimeUrl) {
+      return utils.build.failBuild('Missing DEPLOY_PRIME_URL')
+    }
+
+    console.log('testing deployed url %s', deployPrimeUrl)
+    const results = await runCypressTests(deployPrimeUrl)
+    processCypressResults(results, utils.build)
   },
 }

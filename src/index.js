@@ -346,8 +346,44 @@ module.exports = {
       return utils.build.failBuild('Missing DEPLOY_PRIME_URL')
     }
 
+    // extract test run parameters
+    const skipTests = Boolean(arg.inputs.skip)
+    if (skipTests) {
+      console.log('Skipping tests because skip=true')
+      return
+    }
+
+    // only if the user wants to record the tests and has set the record key
+    // then we should attempt recording
+    const record = hasRecordKey() && Boolean(arg.inputs.record)
+
+    const spec = arg.inputs.spec
+    let group
+    let tag
+    if (record) {
+      group = arg.inputs.group || 'onSuccess'
+
+      if (arg.inputs.tag) {
+        tag = arg.inputs.tag
+      } else {
+        tag = process.env.CONTEXT
+      }
+    }
+    debug('deployed url test parameters %o', {
+      record,
+      spec,
+      group,
+      tag,
+    })
+
     console.log('testing deployed url %s', deployPrimeUrl)
-    const results = await runCypressTests(deployPrimeUrl)
+    const results = await runCypressTests(
+      deployPrimeUrl,
+      record,
+      spec,
+      group,
+      tag,
+    )
     processCypressResults(results, utils.build)
   },
 }

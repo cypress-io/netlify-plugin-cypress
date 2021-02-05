@@ -331,7 +331,6 @@ module.exports = {
 
     const { utils, inputs, constants } = arg
     debug('onSuccess inputs %o', inputs)
-    debug('onSuccess constants %o', constants)
 
     const isLocal = constants.IS_LOCAL
     const siteName = process.env.SITE_NAME

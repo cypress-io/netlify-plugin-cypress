@@ -16,3 +16,6 @@ inputs:
   # and waiting for an url, record to the dashboard, tag, etc
   # see README "testing the site before build"
   - name: preBuild
+
+  # you can control how the plugin runs the tests after deploy
+  - name: onSuccess

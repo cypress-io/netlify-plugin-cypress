@@ -17,9 +17,15 @@ function serveFolder(directory, port, spa) {
       spa = undefined
     }
   }
-  debug('serving local folder %o from working directory %s', {
-    directory, port, spa
-  }, process.cwd())
+  debug(
+    'serving local folder %o from working directory %s',
+    {
+      directory,
+      port,
+      spa,
+    },
+    process.cwd(),
+  )
 
   if (!fs.existsSync(directory)) {
     throw new Error(`Cannot find folder "${directory}" to serve`)
@@ -29,11 +35,11 @@ function serveFolder(directory, port, spa) {
     // @ts-ignore
     directory,
     port,
-    spa
+    spa,
   }).server
 }
 
-function startServerMaybe (run, options = {}) {
+function startServerMaybe(run, options = {}) {
   const startCommand = options.start
   if (!startCommand) {
     debug('No start command found')
@@ -42,7 +48,7 @@ function startServerMaybe (run, options = {}) {
 
   const serverProcess = run(startCommand, {
     detached: true,
-    shell: true
+    shell: true,
   })
 
   debug('detached the process and returning stop function')
@@ -52,7 +58,7 @@ function startServerMaybe (run, options = {}) {
   }
 }
 
-async function waitOnMaybe (buildUtils, options = {}) {
+async function waitOnMaybe(buildUtils, options = {}) {
   const waitOnUrl = options['wait-on']
   if (!waitOnUrl) {
     debug('no wait-on defined')
@@ -64,7 +70,7 @@ async function waitOnMaybe (buildUtils, options = {}) {
   console.log(
     'waiting on "%s" with timeout of %s seconds',
     waitOnUrl,
-    waitOnTimeout
+    waitOnTimeout,
   )
 
   const waitTimeoutMs = parseFloat(waitOnTimeout) * 1000
@@ -75,11 +81,14 @@ async function waitOnMaybe (buildUtils, options = {}) {
   } catch (err) {
     debug('pinging %s for %d ms failed', waitOnUrl, waitTimeoutMs)
     debug(err)
-    return buildUtils.failBuild(`Pinging ${waitOnUrl} for ${waitTimeoutMs} failed`, { error: err })
+    return buildUtils.failBuild(
+      `Pinging ${waitOnUrl} for ${waitTimeoutMs} failed`,
+      { error: err },
+    )
   }
 }
 
-async function runCypressTests (baseUrl, record, spec, group, tag) {
+async function runCypressTests(baseUrl, record, spec, group, tag) {
   // we will use Cypress via its NPM module API
   // https://on.cypress.io/module-api
   const cypress = require('cypress')
@@ -91,7 +100,14 @@ async function runCypressTests (baseUrl, record, spec, group, tag) {
     ciBuildId = process.env.BUILD_ID
   }
 
-  debug('run cypress params %o', { baseUrl, record, spec, group, tag, ciBuildId })
+  debug('run cypress params %o', {
+    baseUrl,
+    record,
+    spec,
+    group,
+    tag,
+    ciBuildId,
+  })
 
   return await cypress.run({
     config: {
@@ -101,7 +117,7 @@ async function runCypressTests (baseUrl, record, spec, group, tag) {
     record,
     group,
     tag,
-    ciBuildId
+    ciBuildId,
   })
 }
 
@@ -120,9 +136,14 @@ async function install(arg) {
     console.error('or')
     console.error(' yarn add -D cypress')
     console.error('')
-    console.error('See https://github.com/cypress-io/netlify-plugin-cypress#readme')
+    console.error(
+      'See https://github.com/cypress-io/netlify-plugin-cypress#readme',
+    )
     console.error('')
-    buildUtils.failBuild('Failed to install Cypress. Did you forget to add Cypress as a dev dependency?', { error })
+    buildUtils.failBuild(
+      'Failed to install Cypress. Did you forget to add Cypress as a dev dependency?',
+      { error },
+    )
   }
 }
 
@@ -161,12 +182,12 @@ const processCypressResults = (results, buildUtils) => {
     console.error(results.message)
 
     return buildUtils.failBuild('Problem running Cypress', {
-      error: new Error(results.message)
+      error: new Error(results.message),
     })
   }
 
   debug('Cypress run results')
-  Object.keys(results).forEach(key => {
+  Object.keys(results).forEach((key) => {
     if (key.startsWith('total')) {
       debug('%s:', key, results[key])
     }
@@ -175,12 +196,20 @@ const processCypressResults = (results, buildUtils) => {
   // results.totalFailed gives total number of failed tests
   if (results.totalFailed) {
     return buildUtils.failBuild('Failed Cypress tests', {
-      error: new Error(`${results.totalFailed} test(s) failed`)
+      error: new Error(`${results.totalFailed} test(s) failed`),
     })
   }
 }
 
-async function postBuild({ fullPublishFolder, record, spec, group, tag, spa, buildUtils }) {
+async function postBuild({
+  fullPublishFolder,
+  record,
+  spec,
+  group,
+  tag,
+  spa,
+  buildUtils,
+}) {
   const port = 8080
   let server
 
@@ -188,7 +217,9 @@ async function postBuild({ fullPublishFolder, record, spec, group, tag, spa, bui
     server = serveFolder(fullPublishFolder, port, spa)
     debug('local server listening on port %d', port)
   } catch (err) {
-    return buildUtils.failBuild(`Could not serve folder ${fullPublishFolder}`, { error: err })
+    return buildUtils.failBuild(`Could not serve folder ${fullPublishFolder}`, {
+      error: err,
+    })
   }
 
   const baseUrl = `http://localhost:${port}`
@@ -196,7 +227,7 @@ async function postBuild({ fullPublishFolder, record, spec, group, tag, spa, bui
   const results = await runCypressTests(baseUrl, record, spec, group, tag)
 
   await new Promise((resolve, reject) => {
-    server.close(err => {
+    server.close((err) => {
       if (err) {
         return reject(err)
       }
@@ -211,92 +242,104 @@ async function postBuild({ fullPublishFolder, record, spec, group, tag, spa, bui
 const hasRecordKey = () => typeof process.env.CYPRESS_RECORD_KEY === 'string'
 
 module.exports = {
-    onPreBuild: async (arg) => {
-      await install(arg)
-      await cypressVerify(arg)
-      await cypressInfo(arg)
+  onPreBuild: async (arg) => {
+    await install(arg)
+    await cypressVerify(arg)
+    await cypressInfo(arg)
 
-      debug('cypress plugin preBuild inputs %o', arg.inputs)
-      const preBuildInputs = arg.inputs && arg.inputs.preBuild
-      if (!preBuildInputs) {
-        debug('there are no preBuild inputs')
-        return
-      }
-
-      const closeServer = startServerMaybe(arg.utils.run, preBuildInputs)
-      await waitOnMaybe(arg.utils.build, preBuildInputs)
-
-      const baseUrl = preBuildInputs['wait-on']
-      const record = hasRecordKey() && Boolean(preBuildInputs.record)
-      const spec = preBuildInputs.spec
-      let group
-      let tag
-      if (record) {
-        group = preBuildInputs.group || 'preBuild'
-
-        if (preBuildInputs.tag) {
-          tag = preBuildInputs.tag
-        } else {
-          tag = process.env.CONTEXT
-        }
-      }
-
-      const results = await runCypressTests(baseUrl, record, spec, group, tag)
-
-      if (closeServer) {
-        debug('closing server')
-        closeServer()
-      }
-
-      processCypressResults(results, arg.utils.build)
-    },
-
-    onPostBuild: async (arg) => {
-      debugVerbose('postBuild arg %o', arg)
-      debug('cypress plugin postBuild inputs %o', arg.inputs)
-
-      const skipTests = Boolean(arg.inputs.skip)
-      if (skipTests) {
-        console.log('Skipping tests because skip=true')
-        return
-      }
-
-      const fullPublishFolder = arg.constants.PUBLISH_DIR
-      debug('folder to publish is "%s"', fullPublishFolder)
-
-      // only if the user wants to record the tests and has set the record key
-      // then we should attempt recording
-      const record = hasRecordKey() && Boolean(arg.inputs.record)
-
-      const spec = arg.inputs.spec
-      let group
-      let tag
-      if (record) {
-        group = arg.inputs.group || 'postBuild'
-
-        if (arg.inputs.tag) {
-          tag = arg.inputs.tag
-        } else {
-          tag = process.env.CONTEXT
-        }
-      }
-      const spa = arg.inputs.spa
-
-      const buildUtils = arg.utils.build
-
-      await postBuild({
-        fullPublishFolder,
-        record,
-        spec,
-        group,
-        tag,
-        spa,
-        buildUtils,
-      })
-    },
-
-    onSuccess: async (arg) => {
-      debugVerbose('onSuccess arg %o', arg)
-      debug('cypress plugin onSuccess inputs %o', arg.inputs)
+    debug('cypress plugin preBuild inputs %o', arg.inputs)
+    const preBuildInputs = arg.inputs && arg.inputs.preBuild
+    if (!preBuildInputs) {
+      debug('there are no preBuild inputs')
+      return
     }
+
+    const closeServer = startServerMaybe(arg.utils.run, preBuildInputs)
+    await waitOnMaybe(arg.utils.build, preBuildInputs)
+
+    const baseUrl = preBuildInputs['wait-on']
+    const record = hasRecordKey() && Boolean(preBuildInputs.record)
+    const spec = preBuildInputs.spec
+    let group
+    let tag
+    if (record) {
+      group = preBuildInputs.group || 'preBuild'
+
+      if (preBuildInputs.tag) {
+        tag = preBuildInputs.tag
+      } else {
+        tag = process.env.CONTEXT
+      }
+    }
+
+    const results = await runCypressTests(baseUrl, record, spec, group, tag)
+
+    if (closeServer) {
+      debug('closing server')
+      closeServer()
+    }
+
+    processCypressResults(results, arg.utils.build)
+  },
+
+  onPostBuild: async (arg) => {
+    debugVerbose('postBuild arg %o', arg)
+    debug('cypress plugin postBuild inputs %o', arg.inputs)
+
+    const skipTests = Boolean(arg.inputs.skip)
+    if (skipTests) {
+      console.log('Skipping tests because skip=true')
+      return
+    }
+
+    const fullPublishFolder = arg.constants.PUBLISH_DIR
+    debug('folder to publish is "%s"', fullPublishFolder)
+
+    // only if the user wants to record the tests and has set the record key
+    // then we should attempt recording
+    const record = hasRecordKey() && Boolean(arg.inputs.record)
+
+    const spec = arg.inputs.spec
+    let group
+    let tag
+    if (record) {
+      group = arg.inputs.group || 'postBuild'
+
+      if (arg.inputs.tag) {
+        tag = arg.inputs.tag
+      } else {
+        tag = process.env.CONTEXT
+      }
+    }
+    const spa = arg.inputs.spa
+
+    const buildUtils = arg.utils.build
+
+    await postBuild({
+      fullPublishFolder,
+      record,
+      spec,
+      group,
+      tag,
+      spa,
+      buildUtils,
+    })
+  },
+
+  onSuccess: async (arg) => {
+    debugVerbose('onSuccess arg %o', arg)
+
+    const { inputs, constants } = arg
+    debug('onSuccess inputs %o', inputs)
+    debug('onSuccess constants %o', constants)
+
+    const isLocal = constants.IS_LOCAL
+    const siteName = process.env.SITE_NAME
+    const deployPrimeUrl = process.env.DEPLOY_PRIME_URL
+    debug('onSuccess against %o', {
+      siteName,
+      deployPrimeUrl,
+      isLocal,
+    })
+  },
 }

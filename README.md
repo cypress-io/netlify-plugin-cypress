@@ -1,4 +1,5 @@
-# netlify-plugin-cypress [![CircleCI](https://circleci.com/gh/cypress-io/netlify-plugin-cypress/tree/master.svg?style=svg&circle-token=9cbb587a5a0ae4ce28b011dd03d10d66de906708)](https://circleci.com/gh/cypress-io/netlify-plugin-cypress/tree/master) [![renovate-app badge][renovate-badge]][renovate-app] [![netlify-plugin-cypress](https://img.shields.io/endpoint?url=https://dashboard.cypress.io/badge/simple/ixroqc/master&style=flat&logo=cypress)](https://dashboard.cypress.io/projects/ixroqc/runs)
+# netlify-plugin-cypress
+[![CircleCI](https://circleci.com/gh/cypress-io/netlify-plugin-cypress/tree/master.svg?style=svg&circle-token=9cbb587a5a0ae4ce28b011dd03d10d66de906708)](https://circleci.com/gh/cypress-io/netlify-plugin-cypress/tree/master) [![renovate-app badge][renovate-badge]][renovate-app] [![netlify-plugin-cypress](https://img.shields.io/endpoint?url=https://dashboard.cypress.io/badge/simple/ixroqc/master&style=flat&logo=cypress)](https://dashboard.cypress.io/projects/ixroqc/runs) [![Netlify Status](https://api.netlify.com/api/v1/badges/76892baf-2ad8-4642-b283-f2135963ff51/deploy-status)](https://app.netlify.com/sites/sad-lumiere-6a00a5/deploys)
 > Runs Cypress end-to-end tests after Netlify builds the site but before it is deployed
 
 **Note:** currently the built site is served statically and tested _without proxying redirects_.
@@ -71,6 +72,19 @@ publish = "build"
 
 # ...remaining configuration...
 ```
+
+### testing deployed url
+
+After successful deployment you can run tests against the `DEPLOY_PRIME_URL` provided by the Netlify system.
+
+```toml
+[[plugins]]
+package = "netlify-plugin-cypress"
+  [plugins.inputs.onSuccess]
+  enable = true
+```
+
+The following parameters can be used with "onSuccess" tests: `record`, `group`, `tag`, `spec`.
 
 ### recording
 

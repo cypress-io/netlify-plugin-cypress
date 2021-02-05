@@ -73,6 +73,19 @@ publish = "build"
 # ...remaining configuration...
 ```
 
+### testing deployed url
+
+After successful deployment you can run tests against the `DEPLOY_PRIME_URL` provided by the Netlify system.
+
+```toml
+[[plugins]]
+package = "netlify-plugin-cypress"
+  [plugins.inputs.onSuccess]
+  enable = true
+```
+
+The following parameters can be used with "onSuccess" tests: `record`, `group`, `tag`, `spec`.
+
 ### recording
 
 To record test results and artifacts on Cypress Dashboard, set `record: true` plugin input and set `CYPRESS_RECORD_KEY` as an environment variable via Netlify Deploy settings.

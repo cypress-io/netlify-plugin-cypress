@@ -293,5 +293,10 @@ module.exports = {
         spa,
         buildUtils,
       })
+    },
+
+    onSuccess: async (arg) => {
+      debugVerbose('onSuccess arg %o', arg)
+      debug('cypress plugin onSuccess inputs %o', arg.inputs)
     }
 }

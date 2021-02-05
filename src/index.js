@@ -347,7 +347,7 @@ module.exports = {
     }
 
     // extract test run parameters
-    const onSuccessInputs = arg.inputs.onSuccess
+    const onSuccessInputs = inputs.onSuccess
     if (!onSuccessInputs) {
       debug('no onSuccess inputs, skipping testing the deployed url')
       return
@@ -358,6 +358,8 @@ module.exports = {
       console.log('Skipping tests because enable=false')
       return
     }
+
+    debug('onSuccessInputs %s %o', typeof onSuccessInputs, onSuccessInputs)
 
     // only if the user wants to record the tests and has set the record key
     // then we should attempt recording

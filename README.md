@@ -86,6 +86,8 @@ package = "netlify-plugin-cypress"
 
 The following parameters can be used with "onSuccess" tests: `record`, `group`, `tag`, `spec`.
 
+**Note:** if any tests against the deployed URL fail, the Netlify build still considers it a success. Thus if you want to have a test check against the deploy, install [Cypress GitHub App](https://on.cypress.io/github-integration). The app will provide its own failing status check in this case.
+
 ### recording
 
 To record test results and artifacts on Cypress Dashboard, set `record: true` plugin input and set `CYPRESS_RECORD_KEY` as an environment variable via Netlify Deploy settings.

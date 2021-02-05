@@ -175,13 +175,13 @@ async function cypressInfo(arg) {
   }
 }
 
-const processCypressResults = (results, buildUtils) => {
+const processCypressResults = (results, errorCallback) => {
   if (results.failures) {
     // Cypress failed without even running the tests
     console.error('Problem running Cypress')
     console.error(results.message)
 
-    return buildUtils.failBuild('Problem running Cypress', {
+    return errorCallback('Problem running Cypress', {
       error: new Error(results.message),
     })
   }
@@ -195,7 +195,7 @@ const processCypressResults = (results, buildUtils) => {
 
   // results.totalFailed gives total number of failed tests
   if (results.totalFailed) {
-    return buildUtils.failBuild('Failed Cypress tests', {
+    return errorCallback('Failed Cypress tests', {
       error: new Error(`${results.totalFailed} test(s) failed`),
     })
   }
@@ -208,7 +208,7 @@ async function postBuild({
   group,
   tag,
   spa,
-  buildUtils,
+  errorCallback,
 }) {
   const port = 8080
   let server
@@ -217,7 +217,7 @@ async function postBuild({
     server = serveFolder(fullPublishFolder, port, spa)
     debug('local server listening on port %d', port)
   } catch (err) {
-    return buildUtils.failBuild(`Could not serve folder ${fullPublishFolder}`, {
+    return errorCallback(`Could not serve folder ${fullPublishFolder}`, {
       error: err,
     })
   }
@@ -236,7 +236,7 @@ async function postBuild({
     })
   })
 
-  processCypressResults(results, buildUtils)
+  processCypressResults(results, errorCallback)
 }
 
 const hasRecordKey = () => typeof process.env.CYPRESS_RECORD_KEY === 'string'
@@ -313,7 +313,7 @@ module.exports = {
     }
     const spa = arg.inputs.spa
 
-    const buildUtils = arg.utils.build
+    const errorCallback = arg.utils.build.failBuild.bind(arg.utils.build)
 
     await postBuild({
       fullPublishFolder,
@@ -322,7 +322,7 @@ module.exports = {
       group,
       tag,
       spa,
-      buildUtils,
+      errorCallback,
     })
   },
 
@@ -356,8 +356,10 @@ module.exports = {
 
     debug('onSuccessInputs %s %o', typeof onSuccessInputs, onSuccessInputs)
 
+    const errorCallback = utils.build.failPlugin.bind(utils.build)
+
     if (!deployPrimeUrl) {
-      return utils.build.failBuild('Missing DEPLOY_PRIME_URL')
+      return errorCallback('Missing DEPLOY_PRIME_URL')
     }
 
     // only if the user wants to record the tests and has set the record key
@@ -393,6 +395,6 @@ module.exports = {
       group,
       tag,
     )
-    processCypressResults(results, utils.build)
+    processCypressResults(results, errorCallback)
   },
 }

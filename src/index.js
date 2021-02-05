@@ -347,24 +347,30 @@ module.exports = {
     }
 
     // extract test run parameters
-    const skipTests = Boolean(arg.inputs.skip)
-    if (skipTests) {
-      console.log('Skipping tests because skip=true')
+    const onSuccessInputs = arg.inputs.onSuccess
+    if (!onSuccessInputs) {
+      debug('no onSuccess inputs, skipping testing the deployed url')
+      return
+    }
+
+    const enableTests = Boolean(onSuccessInputs.enable)
+    if (!enableTests) {
+      console.log('Skipping tests because enable=false')
       return
     }
 
     // only if the user wants to record the tests and has set the record key
     // then we should attempt recording
-    const record = hasRecordKey() && Boolean(arg.inputs.record)
+    const record = hasRecordKey() && Boolean(onSuccessInputs.record)
 
-    const spec = arg.inputs.spec
+    const spec = onSuccessInputs.spec
     let group
     let tag
     if (record) {
-      group = arg.inputs.group || 'onSuccess'
+      group = onSuccessInputs.group || 'onSuccess'
 
-      if (arg.inputs.tag) {
-        tag = arg.inputs.tag
+      if (onSuccessInputs.tag) {
+        tag = onSuccessInputs.tag
       } else {
         tag = process.env.CONTEXT
       }

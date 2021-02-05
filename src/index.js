@@ -363,7 +363,8 @@ module.exports = {
 
     // only if the user wants to record the tests and has set the record key
     // then we should attempt recording
-    const record = hasRecordKey() && Boolean(onSuccessInputs.record)
+    const hasKey = hasRecordKey()
+    const record = hasKey && Boolean(onSuccessInputs.record)
 
     const spec = onSuccessInputs.spec
     let group
@@ -378,6 +379,7 @@ module.exports = {
       }
     }
     debug('deployed url test parameters %o', {
+      hasRecordKey: hasKey,
       record,
       spec,
       group,

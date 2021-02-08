@@ -1,0 +1,40 @@
+# this Netlify project uses both functions
+# and API redirects
+
+[build]
+command = "echo 'Netlify build command ...'"
+publish = "public"
+functions = "src/functions"
+
+[build.environment]
+# cache Cypress binary in local "node_modules" folder
+# so Netlify caches it
+CYPRESS_CACHE_FOLDER = "./node_modules/CypressBinary"
+# set TERM variable for terminal output
+TERM = "xterm"
+
+[dev]
+  command = "npx serve public"
+  targetPort = 5000
+  framework = "#custom"
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+[[plugins]]
+  # local Cypress plugin will test our site after it is built
+  # in production, please use: package = "netlify-plugin-cypress"
+  package = "../../"
+
+  # the local site uses Netlify API redirects
+  # and Netlify functions
+  # let's run tests against Netlify Dev server
+  [plugins.inputs.preBuild]
+    start = 'npx netlify dev'
+    wait-on = 'http://localhost:8888'
+
+  # and skip tests after building it
+  [plugins.inputs]
+    skip = true

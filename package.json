@@ -35,7 +35,7 @@
     "access": "public"
   },
   "engines": {
-    "node": ">=10"
+    "node": ">=10.18.1"
   },
   "devDependencies": {
     "cypress": "6.4.0",

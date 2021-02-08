@@ -232,6 +232,25 @@ Parameters you can place into `preBuild` inputs: `start`, `wait-on`, `wait-on-ti
 
 See [netlify-plugin-prebuild-example](https://github.com/cypress-io/netlify-plugin-prebuild-example) repo
 
+### using Netlify CLI
+
+Even better when testing the prebuilt site is to run the [Netlify CLI](https://cli.netlify.com/) to make sure the local API redirects and Netlify functions work in addition to the web site. Add `netlify-cli` as a dev dependency and start it during testing.
+
+```shell
+$ npm i -D netlify-cli
+```
+
+```toml
+[[plugins]]
+  package = "netlify-plugin-cypress"
+  # start Netlify server
+  [plugins.inputs.preBuild]
+    start = 'npx netlify dev'
+    wait-on = 'http://localhost:8888'
+```
+
+For more, see [tests/test-netlify-dev](./tests/test-netlify-dev) example and read [Testing Netlify Function](https://glebbahmutov.com/blog/test-netlify/#testing-netlify-functions) section.
+
 ### skipping tests
 
 If you are testing the site before building it, you probably want to skip testing it after the build. See [tests/test-prebuild-only](./tests/test-prebuild-only/netlify.toml):

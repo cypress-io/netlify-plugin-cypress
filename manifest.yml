@@ -11,6 +11,11 @@ inputs:
   # by default run the tests
   - name: skip
     default: false
+  # by default the tests run in Electron
+  # but because of the dependency we download Chromium
+  # so you can set "browser = electron"
+  - name: browser
+    default: electron
 
   # tells the plugin how to start the server using custom command
   # and waiting for an url, record to the dashboard, tag, etc

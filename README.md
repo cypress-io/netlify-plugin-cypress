@@ -20,6 +20,10 @@ And then add the plugin's name to the list of build plugins in `netlify.toml` fi
 
 *note:* this plugin assumes you have already installed Cypress as a dev NPM dependency.
 
+### Chromium install
+
+This plugin installs [via Puppeteer](https://github.com/puppeteer/puppeteer) Chromium browser, which is also cached inside `./node_modules` folder.
+
 ## How does it work
 
 When Netlify Build runs, it "knows" the output folder name and calls the `netlify-plugin-cypress` after the build has finished with that folder. Then the plugin runs Cypress tests using its [NPM module API](https://on.cypress.io/module-api). If the tests pass, the plugin finishes and the Netlify deploy starts.
@@ -172,6 +176,27 @@ package = "netlify-plugin-cypress"
 ```
 
 See [cypress-example-kitchensink](https://github.com/cypress-io/cypress-example-kitchensink) for instance.
+
+### Chromium
+
+By default all tests run using built-in Electron browser. If you want to use Chromium:
+
+```toml
+[build]
+command = "npm run build"
+publish = "build"
+  [build.environment]
+  # cache Cypress binary in local "node_modules" folder
+  # so Netlify caches it
+  CYPRESS_CACHE_FOLDER = "./node_modules/CypressBinary"
+  # set TERM variable for terminal output
+  TERM = "xterm"
+
+[[plugins]]
+package = "netlify-plugin-cypress"
+  [plugins.inputs]
+  browser = "chromium"
+```
 
 ### testing SPA routes
 

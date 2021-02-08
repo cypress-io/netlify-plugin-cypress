@@ -2,7 +2,7 @@
 const LocalWebServer = require('local-web-server')
 const debug = require('debug')('netlify-plugin-cypress')
 const debugVerbose = require('debug')('netlify-plugin-cypress:verbose')
-const { ping } = require('./utils')
+const { ping, getBrowserPath } = require('./utils')
 const fs = require('fs')
 
 function serveFolder(directory, port, spa) {
@@ -109,6 +109,7 @@ async function runCypressTests(baseUrl, record, spec, group, tag) {
     ciBuildId,
   })
 
+  const browserPath = await getBrowserPath()
   return await cypress.run({
     config: {
       baseUrl,
@@ -118,6 +119,8 @@ async function runCypressTests(baseUrl, record, spec, group, tag) {
     group,
     tag,
     ciBuildId,
+    browser: browserPath,
+    headless: true,
   })
 }
 

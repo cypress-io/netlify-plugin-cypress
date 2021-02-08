@@ -1,4 +1,5 @@
 // @ts-check
+const puppeteer = require('puppeteer')
 const got = require('got')
 const debug = require('debug')('netlify-plugin-cypress')
 const debugVerbose = require('debug')('netlify-plugin-cypress:verbose')
@@ -32,6 +33,18 @@ const ping = (url, timeout) => {
   })
 }
 
+const getBrowserPath = async () => {
+  const browserFetcher = puppeteer.createBrowserFetcher()
+  const revisions = await browserFetcher.localRevisions()
+  if (revisions.length <= 0) {
+    throw new Error('Could not find local browser')
+  }
+  const info = await browserFetcher.revisionInfo(revisions[0])
+  return info.executablePath
+}
+
+
 module.exports = {
-  ping
+  ping,
+  getBrowserPath
 }

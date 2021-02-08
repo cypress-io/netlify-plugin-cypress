@@ -22,7 +22,8 @@
   "dependencies": {
     "debug": "4.1.1",
     "got": "10.7.0",
-    "local-web-server": "^4.2.1"
+    "local-web-server": "^4.2.1",
+    "puppeteer": "^7.0.1"
   },
   "repository": {
     "type": "git",

@@ -108,6 +108,9 @@ async function runCypressTests(baseUrl, record, spec, group, tag, browser) {
     ciBuildId = process.env.BUILD_ID
   }
 
+  const browserPath =
+    browser === 'electron' ? 'electron' : await getBrowserPath()
+
   debug('run cypress params %o', {
     baseUrl,
     record,
@@ -115,10 +118,9 @@ async function runCypressTests(baseUrl, record, spec, group, tag, browser) {
     group,
     tag,
     ciBuildId,
+    browser: browserPath,
   })
 
-  const browserPath =
-    browser === 'electron' ? 'electron' : await getBrowserPath()
   return await cypress.run({
     config: {
       baseUrl,

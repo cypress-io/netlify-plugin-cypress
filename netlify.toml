@@ -11,8 +11,8 @@ publish = "public"
   # local Cypress plugin will test our site after it is built
   package = "."
   [plugins.inputs]
-    browser = "electron"
-  # spec = 'cypress/integration/spec.js'
+    # browser = "electron"
+    # spec = 'cypress/integration/spec.js'
   # [plugins.inputs.preBuild]
   #   start = 'npm start'
   #   wait-on = 'http://localhost:5000'

@@ -5,6 +5,8 @@ const debugVerbose = require('debug')('netlify-plugin-cypress:verbose')
 const { ping, getBrowserPath } = require('./utils')
 const fs = require('fs')
 
+const DEFAULT_BROWSER = 'electron'
+
 function serveFolder(directory, port, spa) {
   if (typeof spa === 'boolean') {
     if (spa) {
@@ -88,7 +90,13 @@ async function waitOnMaybe(buildUtils, options = {}) {
   }
 }
 
-async function runCypressTests(baseUrl, record, spec, group, tag) {
+const isValidBrowser = (name) => name === 'electron' || name === 'chromium'
+
+async function runCypressTests(baseUrl, record, spec, group, tag, browser) {
+  if (!isValidBrowser(browser)) {
+    throw new Error(`Invalid browser name "${browser}"`)
+  }
+
   // we will use Cypress via its NPM module API
   // https://on.cypress.io/module-api
   const cypress = require('cypress')
@@ -109,7 +117,8 @@ async function runCypressTests(baseUrl, record, spec, group, tag) {
     ciBuildId,
   })
 
-  const browserPath = await getBrowserPath()
+  const browserPath =
+    browser === 'electron' ? 'electron' : await getBrowserPath()
   return await cypress.run({
     config: {
       baseUrl,
@@ -211,6 +220,7 @@ async function postBuild({
   group,
   tag,
   spa,
+  browser,
   errorCallback,
 }) {
   const port = 8080
@@ -227,7 +237,14 @@ async function postBuild({
 
   const baseUrl = `http://localhost:${port}`
 
-  const results = await runCypressTests(baseUrl, record, spec, group, tag)
+  const results = await runCypressTests(
+    baseUrl,
+    record,
+    spec,
+    group,
+    tag,
+    browser,
+  )
 
   await new Promise((resolve, reject) => {
     server.close((err) => {
@@ -257,6 +274,8 @@ module.exports = {
       return
     }
 
+    const browser = arg.inputs.browser || DEFAULT_BROWSER
+
     const closeServer = startServerMaybe(arg.utils.run, preBuildInputs)
     await waitOnMaybe(arg.utils.build, preBuildInputs)
 
@@ -275,7 +294,14 @@ module.exports = {
       }
     }
 
-    const results = await runCypressTests(baseUrl, record, spec, group, tag)
+    const results = await runCypressTests(
+      baseUrl,
+      record,
+      spec,
+      group,
+      tag,
+      browser,
+    )
 
     if (closeServer) {
       debug('closing server')
@@ -297,6 +323,8 @@ module.exports = {
 
     const fullPublishFolder = arg.constants.PUBLISH_DIR
     debug('folder to publish is "%s"', fullPublishFolder)
+
+    const browser = arg.inputs.browser || DEFAULT_BROWSER
 
     // only if the user wants to record the tests and has set the record key
     // then we should attempt recording
@@ -325,6 +353,7 @@ module.exports = {
       group,
       tag,
       spa,
+      browser,
       errorCallback,
     })
   },
@@ -365,6 +394,8 @@ module.exports = {
       return errorCallback('Missing DEPLOY_PRIME_URL')
     }
 
+    const browser = arg.inputs.browser || DEFAULT_BROWSER
+
     // only if the user wants to record the tests and has set the record key
     // then we should attempt recording
     const hasKey = hasRecordKey()
@@ -397,6 +428,7 @@ module.exports = {
       spec,
       group,
       tag,
+      browser,
     )
     processCypressResults(results, errorCallback)
   },

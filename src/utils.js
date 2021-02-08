@@ -15,36 +15,45 @@ const ping = (url, timeout) => {
   return got(url, {
     retry: {
       limit: 30,
-      calculateDelay({attemptCount, retryOptions, error}) {
+      calculateDelay({ attemptCount, retryOptions, error }) {
         const now = +new Date()
         const elapsed = now - start
         debugVerbose(`attempt ${attemptCount} ${elapsed}ms ${error.message}`)
 
         if (elapsed > timeout) {
-          debug('%s timed out after %dms, timeout was %dms',
-            url, elapsed, timeout)
-          console.error('%s timed out after %dms, timeout was %dms',
-            url, elapsed, timeout)
+          debug(
+            '%s timed out after %dms, timeout was %dms',
+            url,
+            elapsed,
+            timeout,
+          )
+          console.error(
+            '%s timed out after %dms, timeout was %dms',
+            url,
+            elapsed,
+            timeout,
+          )
           return 0
         }
         return 1000
-      }
-    }
+      },
+    },
   })
 }
 
 const getBrowserPath = async () => {
   const browserFetcher = puppeteer.createBrowserFetcher()
   const revisions = await browserFetcher.localRevisions()
+  debug('local Chromium revisions %o', revisions)
   if (revisions.length <= 0) {
     throw new Error('Could not find local browser')
   }
   const info = await browserFetcher.revisionInfo(revisions[0])
+  debug('found Chromium %o', info)
   return info.executablePath
 }
 
-
 module.exports = {
   ping,
-  getBrowserPath
+  getBrowserPath,
 }

@@ -102,6 +102,19 @@ jobs:
           environment:
             DEBUG: netlify-plugin-cypress
 
+  'test-netlify-dev':
+    executor: cypress/base-12-14-0
+    steps:
+      # all dependencies were installed in previous job
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Netlify Build 🏗
+          command: npx netlify build
+          working_directory: tests/test-netlify-dev
+          environment:
+            DEBUG: netlify-plugin-cypress
+
   routing:
     executor: cypress/base-12-14-0
     steps:
@@ -139,6 +152,9 @@ workflows:
       - test-using-chromium:
           requires:
             - cypress/install
+      - test-netlify-dev:
+          requires:
+            - cypress/install
       - routing:
           requires:
             - cypress/install
@@ -151,6 +167,7 @@ workflows:
             - 'test-twice'
             - 'test-prebuild-only'
             - test-using-chromium
+            - test-netlify-dev
             - 'routing'
           filters:
             branches:

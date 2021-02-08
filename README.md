@@ -249,7 +249,7 @@ $ npm i -D netlify-cli
     wait-on = 'http://localhost:8888'
 ```
 
-For more, read [Testing Netlify Function](https://glebbahmutov.com/blog/test-netlify/#testing-netlify-functions) section
+For more, see [tests/test-netlify-dev](./tests/test-netlify-dev) example and read [Testing Netlify Function](https://glebbahmutov.com/blog/test-netlify/#testing-netlify-functions) section.
 
 ### skipping tests
 

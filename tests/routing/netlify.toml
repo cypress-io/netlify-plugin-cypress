@@ -22,6 +22,7 @@ TERM = "xterm"
   [plugins.inputs.preBuild]
     start = 'npm start'
     wait-on = 'http://localhost:3000'
+    wait-on-timeout = '45' # seconds
 
   # and test the built site after
   [plugins.inputs]

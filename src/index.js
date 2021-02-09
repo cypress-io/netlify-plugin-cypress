@@ -190,6 +190,12 @@ async function cypressInfo(arg) {
 }
 
 const processCypressResults = (results, errorCallback) => {
+  if (typeof errorCallback !== 'function') {
+    debug('Typeof of error callback %s', errorCallback)
+    throw new Error(
+      `Expected error callback to be a function, it was ${typeof errorCallback}`,
+    )
+  }
   if (results.failures) {
     // Cypress failed without even running the tests
     console.error('Problem running Cypress')
@@ -310,7 +316,9 @@ module.exports = {
       closeServer()
     }
 
-    processCypressResults(results, arg.utils.build)
+    const errorCallback = arg.utils.build.failBuild.bind(arg.utils.build)
+
+    processCypressResults(results, errorCallback)
   },
 
   onPostBuild: async (arg) => {

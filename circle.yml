@@ -115,6 +115,19 @@ jobs:
           environment:
             DEBUG: netlify-plugin-cypress
 
+  'html-pages':
+    executor: cypress/base-12-14-0
+    steps:
+      # all dependencies were installed in previous job
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Netlify Build 🏗
+          command: npx netlify build
+          working_directory: tests/html-pages
+          environment:
+            DEBUG: netlify-plugin-cypress
+
   routing:
     executor: cypress/base-12-14-0
     steps:
@@ -135,6 +148,9 @@ workflows:
       - build
       - cypress/install
       - 'basic test':
+          requires:
+            - cypress/install
+      - 'html-pages':
           requires:
             - cypress/install
       - 'recommended test':
@@ -162,6 +178,7 @@ workflows:
           requires:
             - build
             - 'basic test'
+            - 'html-pages'
             - 'recommended test'
             - 'recording test'
             - 'test-twice'

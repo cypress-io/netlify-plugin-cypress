@@ -1,45 +1,9 @@
 // @ts-check
-const LocalWebServer = require('local-web-server')
 const debug = require('debug')('netlify-plugin-cypress')
 const debugVerbose = require('debug')('netlify-plugin-cypress:verbose')
-const { ping, getBrowserPath } = require('./utils')
-const fs = require('fs')
+const { ping, getBrowserPath, serveFolder } = require('./utils')
 
 const DEFAULT_BROWSER = 'electron'
-
-function serveFolder(directory, port, spa) {
-  if (typeof spa === 'boolean') {
-    if (spa) {
-      // spa parameter should be the name of the
-      // fallback file in the directory to serve
-      // typically it is "index.html"
-      spa = 'index.html'
-    } else {
-      // do not use fallback mechanism for routing
-      spa = undefined
-    }
-  }
-  debug(
-    'serving local folder %o from working directory %s',
-    {
-      directory,
-      port,
-      spa,
-    },
-    process.cwd(),
-  )
-
-  if (!fs.existsSync(directory)) {
-    throw new Error(`Cannot find folder "${directory}" to serve`)
-  }
-
-  return LocalWebServer.create({
-    // @ts-ignore
-    directory,
-    port,
-    spa,
-  }).server
-}
 
 function startServerMaybe(run, options = {}) {
   const startCommand = options.start

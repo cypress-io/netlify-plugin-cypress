@@ -266,6 +266,24 @@ If you are testing the site before building it, you probably want to skip testin
 
 Running tests in parallel **is not supported** because Netlify plugin system runs on a single machine. Thus you can record the tests on Cypress Dashboard, but not run tests in parallel. If Netlify expands its build offering by allowing multiple build machines, we could take advantage of it and run tests in parallel.
 
+### HTML files
+
+When serving the built folder, we automatically serve `.html` files. For example, if your folder has the following structure:
+
+```
+public/
+  index.html
+  pages/
+    about.html
+```
+
+The `public` folder is served automatically and the following test successfully visits both the root and the `about.html` pages:
+
+```js
+cy.visit('/')
+cy.visit('/pages/about') // visits the about.html
+```
+
 ## Example repos
 
 Name | Description
@@ -305,6 +323,11 @@ Set environment variable `DEBUG=netlify-plugin-cypress` to see the debug logs. T
   <summary>Term message warnings in the Cypress output</summary>
   If you see messages like <code>tput: No value for $TERM and no -T specified</code> during
   Cypress run, add an environment variable <code>TERM = xterm</code>.
+</details>
+
+<details>
+  <summary>Electron browser crashes while running tests</summary>
+  Switch to using Chromium browser that seems to be a bit more reliable. Use <code>browser = "chromium"</code> setting.
 </details>
 
 ## License

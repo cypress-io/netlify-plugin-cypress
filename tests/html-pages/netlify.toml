@@ -1,0 +1,8 @@
+[build]
+command = "echo 'Netlify build command ...'"
+publish = "public"
+
+[[plugins]]
+  # local Cypress plugin will test our site after it is built
+  # in production, please use: package = "netlify-plugin-cypress"
+  package = "../../"

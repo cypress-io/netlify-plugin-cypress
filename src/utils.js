@@ -55,7 +55,9 @@ function serveFolder(directory, port, spa) {
     directory,
     port,
     spa,
-    staticExtensions: 'html',
+    // to debug use
+    // DEBUG=koa-send
+    staticExtensions: ['html'],
   }).server
 }
 

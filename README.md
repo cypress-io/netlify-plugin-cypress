@@ -298,6 +298,8 @@ Name | Description
 
 Set environment variable `DEBUG=netlify-plugin-cypress` to see the debug logs. To see even more information, set `DEBUG=netlify-plugin-cypress,netlify-plugin-cypress:verbose`
 
+**Warning:** be careful with verbose logging, since it can print all environment variables passed to the plugin, including tokens, API keys, and other secrets.
+
 ## Common problems
 
 <details>

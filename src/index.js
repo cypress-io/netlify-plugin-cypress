@@ -1,8 +1,10 @@
 // @ts-check
+const { stripIndent } = require('common-tags')
 const debug = require('debug')('netlify-plugin-cypress')
 const debugVerbose = require('debug')('netlify-plugin-cypress:verbose')
 const { ping, getBrowserPath, serveFolder } = require('./utils')
 
+const PLUGIN_NAME = 'netlify-plugin-cypress'
 const DEFAULT_BROWSER = 'electron'
 
 function startServerMaybe(run, options = {}) {
@@ -153,13 +155,28 @@ async function cypressInfo(arg) {
   }
 }
 
-const processCypressResults = (results, errorCallback) => {
+/**
+ * Reports the number of successful and failed tests.
+ * If there are failed tests, uses the `errorCallback` to
+ * fail the build step.
+ * @param {*} results
+ * @param {function} errorCallback
+ * @param {function} summaryCallback
+ */
+const processCypressResults = (results, errorCallback, summaryCallback) => {
   if (typeof errorCallback !== 'function') {
     debug('Typeof of error callback %s', errorCallback)
     throw new Error(
       `Expected error callback to be a function, it was ${typeof errorCallback}`,
     )
   }
+  if (typeof summaryCallback !== 'function') {
+    debug('Typeof of summary callback %s', summaryCallback)
+    throw new Error(
+      `Expected summary callback to be a function, it was ${typeof summaryCallback}`,
+    )
+  }
+
   if (results.failures) {
     // Cypress failed without even running the tests
     console.error('Problem running Cypress')
@@ -175,6 +192,27 @@ const processCypressResults = (results, errorCallback) => {
     if (key.startsWith('total')) {
       debug('%s:', key, results[key])
     }
+  })
+
+  let text = stripIndent`
+    ✅ Passed tests: ${results.totalPassed}
+    🔥 Failed tests: ${results.totalFailed}
+    ⭕️ Pending tests: ${results.totalPending}
+    🚫 Skipped tests: ${results.totalSkipped}
+  `
+  if (results.runUrl) {
+    text += `\n🔗 Dashboard url: ${results.runUrl}`
+  }
+  summaryCallback({
+    title: PLUGIN_NAME,
+    summary: [
+      'tests:',
+      `✅ ${results.totalPassed}`,
+      `🔥 ${results.totalFailed}`,
+      `⭕️ ${results.totalPending}`,
+      `🚫 ${results.totalSkipped}`,
+    ].join(' '),
+    text,
   })
 
   // results.totalFailed gives total number of failed tests
@@ -194,6 +232,7 @@ async function postBuild({
   spa,
   browser,
   errorCallback,
+  summaryCallback,
 }) {
   const port = 8080
   let server
@@ -228,7 +267,7 @@ async function postBuild({
     })
   })
 
-  processCypressResults(results, errorCallback)
+  processCypressResults(results, errorCallback, summaryCallback)
 }
 
 const hasRecordKey = () => typeof process.env.CYPRESS_RECORD_KEY === 'string'
@@ -281,8 +320,9 @@ module.exports = {
     }
 
     const errorCallback = arg.utils.build.failBuild.bind(arg.utils.build)
+    const summaryCallback = arg.utils.status.show.bind(arg.utils.status)
 
-    processCypressResults(results, errorCallback)
+    processCypressResults(results, errorCallback, summaryCallback)
   },
 
   onPostBuild: async (arg) => {
@@ -319,6 +359,7 @@ module.exports = {
     const spa = arg.inputs.spa
 
     const errorCallback = arg.utils.build.failBuild.bind(arg.utils.build)
+    const summaryCallback = arg.utils.status.show.bind(arg.utils.status)
 
     await postBuild({
       fullPublishFolder,
@@ -329,9 +370,14 @@ module.exports = {
       spa,
       browser,
       errorCallback,
+      summaryCallback,
     })
   },
 
+  /**
+   * Executes after successful Netlify deployment.
+   * @param {any} arg
+   */
   onSuccess: async (arg) => {
     debugVerbose('onSuccess arg %o', arg)
 
@@ -363,6 +409,7 @@ module.exports = {
     debug('onSuccessInputs %s %o', typeof onSuccessInputs, onSuccessInputs)
 
     const errorCallback = utils.build.failPlugin.bind(utils.build)
+    const summaryCallback = utils.status.show.bind(utils.status)
 
     if (!deployPrimeUrl) {
       return errorCallback('Missing DEPLOY_PRIME_URL')
@@ -404,6 +451,6 @@ module.exports = {
       tag,
       browser,
     )
-    processCypressResults(results, errorCallback)
+    processCypressResults(results, errorCallback, summaryCallback)
   },
 }

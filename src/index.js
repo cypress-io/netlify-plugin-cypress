@@ -3,6 +3,7 @@ const debug = require('debug')('netlify-plugin-cypress')
 const debugVerbose = require('debug')('netlify-plugin-cypress:verbose')
 const { ping, getBrowserPath, serveFolder } = require('./utils')
 
+const PLUGIN_NAME = 'netlify-plugin-cypress'
 const DEFAULT_BROWSER = 'electron'
 
 function startServerMaybe(run, options = {}) {
@@ -371,6 +372,7 @@ module.exports = {
     }
 
     summaryCallback({
+      title: PLUGIN_NAME,
       summary: `Testing url ${deployPrimeUrl}`,
       text: 'Lots of stuff to show here 202 https://on.cypress.io',
     })

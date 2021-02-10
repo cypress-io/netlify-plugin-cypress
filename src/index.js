@@ -205,7 +205,13 @@ const processCypressResults = (results, errorCallback, summaryCallback) => {
   }
   summaryCallback({
     title: PLUGIN_NAME,
-    summary: `tests: ✅ ${results.totalPassed} 🔥 ${results.totalFailed}`,
+    summary: [
+      'tests:',
+      `✅ ${results.totalPassed}`,
+      `🔥 ${results.totalFailed}`,
+      `⭕️ ${results.totalPending}`,
+      `🚫 ${results.totalSkipped}`,
+    ].join(' '),
     text,
   })
 

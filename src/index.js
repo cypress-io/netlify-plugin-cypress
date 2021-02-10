@@ -1,4 +1,5 @@
 // @ts-check
+const { stripIndent } = require('common-tags')
 const debug = require('debug')('netlify-plugin-cypress')
 const debugVerbose = require('debug')('netlify-plugin-cypress:verbose')
 const { ping, getBrowserPath, serveFolder } = require('./utils')
@@ -154,11 +155,25 @@ async function cypressInfo(arg) {
   }
 }
 
-const processCypressResults = (results, errorCallback) => {
+/**
+ * Reports the number of successful and failed tests.
+ * If there are failed tests, uses the `errorCallback` to
+ * fail the build step.
+ * @param {*} results
+ * @param {function} errorCallback
+ * @param {function} summaryCallback
+ */
+const processCypressResults = (results, errorCallback, summaryCallback) => {
   if (typeof errorCallback !== 'function') {
     debug('Typeof of error callback %s', errorCallback)
     throw new Error(
       `Expected error callback to be a function, it was ${typeof errorCallback}`,
+    )
+  }
+  if (typeof summaryCallback !== 'function') {
+    debug('Typeof of summary callback %s', summaryCallback)
+    throw new Error(
+      `Expected summary callback to be a function, it was ${typeof summaryCallback}`,
     )
   }
 
@@ -179,6 +194,21 @@ const processCypressResults = (results, errorCallback) => {
     }
   })
 
+  let text = stripIndent`
+    ✅ Passed tests: ${results.totalPassed}
+    🔥 Failed tests: ${results.totalFailed}
+    ⭕️ Pending tests: ${results.totalPending}
+    🚫 Skipped tests: ${results.totalSkipped}
+  `
+  if (results.runUrl) {
+    text += `\n🔗 Dashboard url: ${results.runUrl}`
+  }
+  summaryCallback({
+    title: PLUGIN_NAME,
+    summary: `tests: ✅ ${results.totalPassed} 🔥 ${results.totalFailed}`,
+    text,
+  })
+
   // results.totalFailed gives total number of failed tests
   if (results.totalFailed) {
     return errorCallback('Failed Cypress tests', {
@@ -196,6 +226,7 @@ async function postBuild({
   spa,
   browser,
   errorCallback,
+  summaryCallback,
 }) {
   const port = 8080
   let server
@@ -230,7 +261,7 @@ async function postBuild({
     })
   })
 
-  processCypressResults(results, errorCallback)
+  processCypressResults(results, errorCallback, summaryCallback)
 }
 
 const hasRecordKey = () => typeof process.env.CYPRESS_RECORD_KEY === 'string'
@@ -283,8 +314,9 @@ module.exports = {
     }
 
     const errorCallback = arg.utils.build.failBuild.bind(arg.utils.build)
+    const summaryCallback = arg.utils.status.show.bind(arg.utils.status)
 
-    processCypressResults(results, errorCallback)
+    processCypressResults(results, errorCallback, summaryCallback)
   },
 
   onPostBuild: async (arg) => {
@@ -321,6 +353,7 @@ module.exports = {
     const spa = arg.inputs.spa
 
     const errorCallback = arg.utils.build.failBuild.bind(arg.utils.build)
+    const summaryCallback = arg.utils.status.show.bind(arg.utils.status)
 
     await postBuild({
       fullPublishFolder,
@@ -331,9 +364,14 @@ module.exports = {
       spa,
       browser,
       errorCallback,
+      summaryCallback,
     })
   },
 
+  /**
+   * Executes after successful Netlify deployment.
+   * @param {any} arg
+   */
   onSuccess: async (arg) => {
     debugVerbose('onSuccess arg %o', arg)
 
@@ -371,12 +409,6 @@ module.exports = {
       return errorCallback('Missing DEPLOY_PRIME_URL')
     }
 
-    summaryCallback({
-      title: PLUGIN_NAME,
-      summary: `Testing url ${deployPrimeUrl}`,
-      text: 'Lots of stuff to show here 202 https://on.cypress.io',
-    })
-
     const browser = arg.inputs.browser || DEFAULT_BROWSER
 
     // only if the user wants to record the tests and has set the record key
@@ -413,6 +445,6 @@ module.exports = {
       tag,
       browser,
     )
-    processCypressResults(results, errorCallback)
+    processCypressResults(results, errorCallback, summaryCallback)
   },
 }

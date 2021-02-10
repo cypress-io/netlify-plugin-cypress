@@ -160,6 +160,7 @@ const processCypressResults = (results, errorCallback) => {
       `Expected error callback to be a function, it was ${typeof errorCallback}`,
     )
   }
+
   if (results.failures) {
     // Cypress failed without even running the tests
     console.error('Problem running Cypress')
@@ -363,10 +364,16 @@ module.exports = {
     debug('onSuccessInputs %s %o', typeof onSuccessInputs, onSuccessInputs)
 
     const errorCallback = utils.build.failPlugin.bind(utils.build)
+    const summaryCallback = utils.status.show.bind(utils.status)
 
     if (!deployPrimeUrl) {
       return errorCallback('Missing DEPLOY_PRIME_URL')
     }
+
+    summaryCallback({
+      summary: `Testing url ${deployPrimeUrl}`,
+      text: 'Lots of stuff to show here 202 https://on.cypress.io',
+    })
 
     const browser = arg.inputs.browser || DEFAULT_BROWSER
 

@@ -2,5 +2,6 @@
   "supportFile": false,
   "pluginsFile": false,
   "fixturesFolder": false,
-  "baseUrl": "http://localhost:5000"
+  "baseUrl": "http://localhost:5000",
+  "projectId": "vghvje"
 }

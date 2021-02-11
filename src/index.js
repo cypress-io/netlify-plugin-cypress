@@ -194,6 +194,14 @@ const processCypressResults = (results, errorCallback, summaryCallback) => {
     }
   })
 
+  const summary = [
+    'tests:',
+    `✅ ${results.totalPassed}`,
+    `🔥 ${results.totalFailed}`,
+    `⭕️ ${results.totalPending}`,
+    `🚫 ${results.totalSkipped}`,
+  ]
+
   let text = stripIndent`
     ✅ Passed tests: ${results.totalPassed}
     🔥 Failed tests: ${results.totalFailed}
@@ -201,17 +209,12 @@ const processCypressResults = (results, errorCallback, summaryCallback) => {
     🚫 Skipped tests: ${results.totalSkipped}
   `
   if (results.runUrl) {
-    text += `\n🔗 Dashboard url: ${results.runUrl}`
+    summary.push(`🔗 [dashboard run](${results.runUrl})`)
+    text += `\n🔗 Dashboard url: [${results.runUrl}](${results.runUrl})`
   }
   summaryCallback({
     title: PLUGIN_NAME,
-    summary: [
-      'tests:',
-      `✅ ${results.totalPassed}`,
-      `🔥 ${results.totalFailed}`,
-      `⭕️ ${results.totalPending}`,
-      `🚫 ${results.totalSkipped}`,
-    ].join(' '),
+    summary: summary.join(' '),
     text,
   })
 

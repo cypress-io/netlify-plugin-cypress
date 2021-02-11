@@ -194,23 +194,24 @@ const processCypressResults = (results, errorCallback, summaryCallback) => {
     }
   })
 
+  // Note: text looks nice with double space after the emoji
   const summary = [
     'tests:',
-    `✅ ${results.totalPassed}`,
-    `🔥 ${results.totalFailed}`,
-    `⭕️ ${results.totalPending}`,
-    `🚫 ${results.totalSkipped}`,
+    `✅  ${results.totalPassed}`,
+    `🔥  ${results.totalFailed}`,
+    `⭕️  ${results.totalPending}`,
+    `🚫  ${results.totalSkipped}`,
   ]
 
   let text = stripIndent`
-    ✅ Passed tests: ${results.totalPassed}
-    🔥 Failed tests: ${results.totalFailed}
-    ⭕️ Pending tests: ${results.totalPending}
-    🚫 Skipped tests: ${results.totalSkipped}
+    ✅  Passed tests: ${results.totalPassed}
+    🔥  Failed tests: ${results.totalFailed}
+    ⭕️  Pending tests: ${results.totalPending}
+    🚫  Skipped tests: ${results.totalSkipped}
   `
   if (results.runUrl) {
     summary.push(`🔗 [dashboard run](${results.runUrl})`)
-    text += `\n🔗 Dashboard url: [${results.runUrl}](${results.runUrl})`
+    text += `\n🔗 Cypress Dashboard url: [${results.runUrl}](${results.runUrl})`
   }
   summaryCallback({
     title: PLUGIN_NAME,

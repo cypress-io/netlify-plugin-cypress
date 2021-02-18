@@ -177,9 +177,9 @@ package = "netlify-plugin-cypress"
 
 See [cypress-example-kitchensink](https://github.com/cypress-io/cypress-example-kitchensink) for instance.
 
-### Chromium
+### browser
 
-By default all tests run using built-in Electron browser. If you want to use Chromium:
+By default all tests run using Chromium browser. If you want to use Electron:
 
 ```toml
 [build]
@@ -195,7 +195,8 @@ publish = "build"
 [[plugins]]
 package = "netlify-plugin-cypress"
   [plugins.inputs]
-  browser = "chromium"
+  # allowed values: electron, chromium
+  browser = "electron"
 ```
 
 ### testing SPA routes
@@ -293,6 +294,12 @@ Name | Description
 [cypress-example-kitchensink](https://github.com/cypress-io/cypress-example-kitchensink) | Runs only a subset of all tests before publishing the folder to Netlify
 [bahmutov/eleventyone](https://github.com/bahmutov/eleventyone) | Example used in [Test Sites Deployed To Netlify Using netlify-plugin-cypress](https://glebbahmutov.com/blog/test-netlify/) tutorial
 [gatsby-starter-portfolio-cara](https://github.com/bahmutov/gatsby-starter-portfolio-cara) | A Gatsby site example
+
+## Major upgrades
+
+### v1 to v2
+
+- The default browser has been switched to Chromium. If you want to use the built-in Electron use an explicit option [browser](#browser)
 
 ## Debugging
 

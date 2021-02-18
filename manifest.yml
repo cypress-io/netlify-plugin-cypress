@@ -1,26 +1,44 @@
 name: netlify-plugin-cypress
 inputs:
-  # these settings apply during postBuild step
-  # when we are testing the site served from the distribution folder
+  # these settings apply during onSuccess step
+  - name: enable
+    description: Run tests against the preview or production deploy
+    default: true
+
   - name: record
+    description: Record test results to Cypress Dashboard
     default: false
+
   - name: spec
+    description: |
+      Run just the given spec or spec pattern,
+      equivalent to "cypress run --spec ..."
+
   - name: group
+    description: |
+      If recording to Cypress Dashboard,
+      pass the group name with "cypress run --record --group ..."
+
   - name: tag
-  - name: spa
-  # by default run the tests
-  - name: skip
-    default: false
-  # by default the tests run in Electron
-  # but because of the dependency we download Chromium
-  # so you can set "browser = electron"
+    description: |
+      If recording to Cypress Dashboard,
+      pass the tag with "cypress run --record --tag ..."
+
+  # Cypress comes with built-in Electron browser
+  # and this NPM package installs Chromium browser
   - name: browser
-    default: electron
+    description: Allowed values are chromium, electron
+    default: chromium
 
   # tells the plugin how to start the server using custom command
   # and waiting for an url, record to the dashboard, tag, etc
   # see README "testing the site before build"
   - name: preBuild
+    description: Run tests before building the site
 
-  # you can control how the plugin runs the tests after deploy
-  - name: onSuccess
+  # tells the plugin to start a static server during postBuild
+  # and test just the built static site.
+  # see README "testing the site after build"
+  # NOTE: does not execute Netlify API redirects or functions
+  - name: postBuild
+    description: Run tests against the built static site

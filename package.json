@@ -41,7 +41,7 @@
   },
   "devDependencies": {
     "cypress": "6.5.0",
-    "netlify-cli": "3.8.6",
+    "netlify-cli": "3.9.0",
     "prettier": "2.2.1",
     "react": "16.13.1",
     "react-dom": "16.13.1",

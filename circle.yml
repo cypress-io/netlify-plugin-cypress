@@ -175,6 +175,8 @@ workflows:
           requires:
             - cypress/install
       - release:
+          # run the release job on all branches
+          # since we might want to release a beta version
           requires:
             - build
             - 'basic test'
@@ -186,8 +188,3 @@ workflows:
             - test-using-chromium
             - test-netlify-dev
             - 'routing'
-          filters:
-            branches:
-              only:
-                - master
-                - beta

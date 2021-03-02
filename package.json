@@ -50,5 +50,14 @@
     "react-scripts": "3.4.1",
     "semantic-release": "^17.0.4",
     "serve": "11.3.0"
+  },
+  "release": {
+    "branches": [
+      "main",
+      {
+        "name": "prepare-v2",
+        "prerelease": true
+      }
+    ]
   }
 }

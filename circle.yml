@@ -22,7 +22,16 @@ jobs:
       - node/with-cache:
           steps:
             - run: npm ci
-      - run: npx semantic-release
+      # allow CircleCI to release beta versions
+      # from pull request build jobs
+      - run:
+          name: Semantic release 🚀
+          command: npx semantic-release
+          # by tricking Circle and removing the environment variables
+          environment:
+            CIRCLE_PR_NUMBER:
+            CIRCLE_PULL_REQUEST:
+            CI_PULL_REQUEST:
 
   'basic test':
     executor: cypress/base-12-14-0

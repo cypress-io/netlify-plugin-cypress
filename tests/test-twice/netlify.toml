@@ -17,9 +17,14 @@ TERM = "xterm"
   # run Cypress tests once on the site before it is built
   # and then after building the static folder
 
+  # do not run tests after deploy
+  [plugins.inputs]
+    enable = false
+
   # let's run tests against development server
   # before building it (and testing the built site)
   [plugins.inputs.preBuild]
+    enable = true
     start = 'npx serve public'
     wait-on = 'http://localhost:5000'
     wait-on-timeout = '30' # seconds
@@ -27,8 +32,8 @@ TERM = "xterm"
     group = "test twice: 1 - before build"
     tag = "test twice"
 
-  # and test after
-  [plugins.inputs]
+  # and test after build
+  [plugins.inputs.postBuild]
     record = true
     group = "test twice: 2 - after build"
     tag = "test twice"

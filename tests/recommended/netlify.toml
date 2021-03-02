@@ -13,3 +13,15 @@ TERM = "xterm"
   # local Cypress plugin will test our site after it is built
   # in production, please use: package = "netlify-plugin-cypress"
   package = "../../"
+
+  # this is a testing situation
+  # in the real system we recommend running tests post deploy
+  # by default and enable preBuild and postBuild if needed
+
+  # do not run tests after deploy (testing)
+  [plugins.inputs]
+    enable = false
+
+  # run tests postBuild
+  [plugins.inputs.postBuild]
+    enable = true

@@ -8,6 +8,8 @@ publish = "public"
 CYPRESS_CACHE_FOLDER = "./node_modules/CypressBinary"
 # set TERM variable for terminal output
 TERM = "xterm"
+# do not print too many progress messages
+CI = "1"
 
 [[plugins]]
   # local Cypress plugin will test our site after it is built
@@ -17,12 +19,14 @@ TERM = "xterm"
   # run Cypress tests once on the site before it is built
   # and do not run the tests after it was built
 
+  [plugins.inputs]
+    # these settings apply to the default step onSuccess
+    # in this case, we do not want to run any tests after deploy
+    enable = false
+
   # let's run tests against development server
   [plugins.inputs.preBuild]
+    enable = true
     start = 'npx serve public'
     wait-on = 'http://localhost:5000'
     wait-on-timeout = '30' # seconds
-
-  # and skip tests after building it
-  [plugins.inputs]
-    skip = true

@@ -17,6 +17,10 @@ jobs:
     executor:
       name: node/default
       tag: '12'
+    environment:
+      # since we do not need Cypress to publish the NPM package
+      # we can skip the binary download
+      CYPRESS_INSTALL_BINARY: 0
     steps:
       - checkout
       - node/with-cache:
@@ -188,12 +192,13 @@ workflows:
           # since we might want to release a beta version
           requires:
             - build
-            - 'basic test'
-            - 'html-pages'
-            - 'recommended test'
-            - 'recording test'
-            - 'test-twice'
-            - 'test-prebuild-only'
-            - test-using-chromium
-            - test-netlify-dev
-            - 'routing'
+            # temporary while publishing pre-release
+            # - 'basic test'
+            # - 'html-pages'
+            # - 'recommended test'
+            # - 'recording test'
+            # - 'test-twice'
+            # - 'test-prebuild-only'
+            # - test-using-chromium
+            # - test-netlify-dev
+            # - 'routing'

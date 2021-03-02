@@ -12,6 +12,8 @@ functions = "src/functions"
 CYPRESS_CACHE_FOLDER = "./node_modules/CypressBinary"
 # set TERM variable for terminal output
 TERM = "xterm"
+# do not print too many progress messages
+CI = "1"
 
 [dev]
   command = "npx serve public"
@@ -32,9 +34,10 @@ TERM = "xterm"
   # and Netlify functions
   # let's run tests against Netlify Dev server
   [plugins.inputs.preBuild]
+    enable = true
     start = 'npx netlify dev'
     wait-on = 'http://localhost:8888'
 
-  # and skip tests after building it
+  # do no run tests after deploy
   [plugins.inputs]
-    skip = true
+    enable = false

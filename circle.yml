@@ -84,7 +84,7 @@ jobs:
           at: ~/
       - run:
           name: Netlify Build 🏗
-          command: npx netlify build
+          command: npm run netlify:build
           working_directory: tests/test-prebuild-only
           environment:
             DEBUG: netlify-plugin-cypress
@@ -110,7 +110,7 @@ jobs:
           at: ~/
       - run:
           name: Netlify Build 🏗
-          command: npx netlify build
+          command: npm run netlify:build
           working_directory: tests/test-netlify-dev
           environment:
             DEBUG: netlify-plugin-cypress

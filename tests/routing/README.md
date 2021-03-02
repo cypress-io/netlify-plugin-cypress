@@ -5,6 +5,11 @@ This example tests the redirect fallback that makes client-side routing defined 
 
 ![Test screenshot](images/routing.png)
 
+These tests run:
+- [x] before the build
+- [x] after the build
+- [ ] on deploy success
+
 ## Local build
 
-Use command `npm run netlify:build` to try the plugin locally
+Use command `DEBUG=netlify-plugin-cypress npm run netlify:build` to try the plugin locally

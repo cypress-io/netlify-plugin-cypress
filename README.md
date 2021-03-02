@@ -339,6 +339,12 @@ Set environment variable `DEBUG=netlify-plugin-cypress` to see the debug logs. T
   Switch to using Chromium browser that seems to be a bit more reliable. Use <code>browser = "chromium"</code> setting.
 </details>
 
+## Changelog
+
+### v1 to v2
+
+- We have changed the default testing phase. In v1 the tests executed after building the site by default. In v2 the tests run against the deployed URL by default, and you need to enable the testing during `preBuild` or `postBuild` steps.
+
 ## License
 
 This project is licensed under the terms of the [MIT license](LICENSE.md).

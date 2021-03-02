@@ -1,9 +1,16 @@
 name: netlify-plugin-cypress
 inputs:
-  # these settings apply during onSuccess step
+  # by default the Cypress tests run against the deployed URL
+  # and these settings apply during the "onSuccess" step
   - name: enable
     description: Run tests against the preview or production deploy
     default: true
+
+  # Cypress comes with built-in Electron browser
+  # and this NPM package installs Chromium browser
+  - name: browser
+    description: Allowed values are chromium, electron
+    default: chromium
 
   - name: record
     description: Record test results to Cypress Dashboard
@@ -23,12 +30,6 @@ inputs:
     description: |
       If recording to Cypress Dashboard,
       pass the tag with "cypress run --record --tag ..."
-
-  # Cypress comes with built-in Electron browser
-  # and this NPM package installs Chromium browser
-  - name: browser
-    description: Allowed values are chromium, electron
-    default: chromium
 
   # tells the plugin how to start the server using custom command
   # and waiting for an url, record to the dashboard, tag, etc

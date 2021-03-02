@@ -6,7 +6,7 @@ const debugVerbose = require('debug')('netlify-plugin-cypress:verbose')
 const { ping, getBrowserPath, serveFolder } = require('./utils')
 
 const PLUGIN_NAME = 'netlify-plugin-cypress'
-const DEFAULT_BROWSER = 'electron'
+const DEFAULT_BROWSER = 'chromium'
 
 function startServerMaybe(run, options = {}) {
   const startCommand = options.start

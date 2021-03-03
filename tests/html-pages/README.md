@@ -9,3 +9,8 @@ Test locally with
 ```
 $ DEBUG=netlify-plugin-cypress ../../node_modules/.bin/netlify build
 ```
+
+These tests run:
+- [ ] before the build
+- [x] after the build
+- [ ] on deploy success

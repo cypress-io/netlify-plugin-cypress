@@ -17,12 +17,25 @@ jobs:
     executor:
       name: node/default
       tag: '12'
+    environment:
+      # since we do not need Cypress to publish the NPM package
+      # we can skip the binary download
+      CYPRESS_INSTALL_BINARY: 0
     steps:
       - checkout
       - node/with-cache:
           steps:
             - run: npm ci
-      - run: npx semantic-release
+      # allow CircleCI to release beta versions
+      # from pull request build jobs
+      - run:
+          name: Semantic release 🚀
+          command: npx semantic-release
+          # by tricking Circle and removing the environment variables
+          environment:
+            CIRCLE_PR_NUMBER:
+            CIRCLE_PULL_REQUEST:
+            CI_PULL_REQUEST:
 
   'basic test':
     executor: cypress/base-12-14-0
@@ -84,7 +97,7 @@ jobs:
           at: ~/
       - run:
           name: Netlify Build 🏗
-          command: npx netlify build
+          command: npm run netlify:build
           working_directory: tests/test-prebuild-only
           environment:
             DEBUG: netlify-plugin-cypress
@@ -110,7 +123,7 @@ jobs:
           at: ~/
       - run:
           name: Netlify Build 🏗
-          command: npx netlify build
+          command: npm run netlify:build
           working_directory: tests/test-netlify-dev
           environment:
             DEBUG: netlify-plugin-cypress
@@ -175,19 +188,17 @@ workflows:
           requires:
             - cypress/install
       - release:
+          # run the release job on all branches
+          # since we might want to release a beta version
           requires:
             - build
-            - 'basic test'
-            - 'html-pages'
-            - 'recommended test'
-            - 'recording test'
-            - 'test-twice'
-            - 'test-prebuild-only'
-            - test-using-chromium
-            - test-netlify-dev
-            - 'routing'
-          filters:
-            branches:
-              only:
-                - master
-                - beta
+            # temporary while publishing pre-release
+            # - 'basic test'
+            # - 'html-pages'
+            # - 'recommended test'
+            # - 'recording test'
+            # - 'test-twice'
+            # - 'test-prebuild-only'
+            # - test-using-chromium
+            # - test-netlify-dev
+            # - 'routing'

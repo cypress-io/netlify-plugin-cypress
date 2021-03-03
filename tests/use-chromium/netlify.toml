@@ -6,5 +6,12 @@ publish = "public"
   # local Cypress plugin will test our site after it is built
   # in production, please use: package = "netlify-plugin-cypress"
   package = "../../"
+
   [plugins.inputs]
+    # do not run tests after deploy
+    enable = false
+
+  # only run tests postBuild before deploy
+  [plugins.inputs.postBuild]
+    enable = true
     browser = "chromium"

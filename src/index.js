@@ -1,11 +1,12 @@
 // @ts-check
 const { stripIndent } = require('common-tags')
+const R = require('ramda')
 const debug = require('debug')('netlify-plugin-cypress')
 const debugVerbose = require('debug')('netlify-plugin-cypress:verbose')
 const { ping, getBrowserPath, serveFolder } = require('./utils')
 
 const PLUGIN_NAME = 'netlify-plugin-cypress'
-const DEFAULT_BROWSER = 'electron'
+const DEFAULT_BROWSER = 'chromium'
 
 function startServerMaybe(run, options = {}) {
   const startCommand = options.start
@@ -278,21 +279,26 @@ const hasRecordKey = () => typeof process.env.CYPRESS_RECORD_KEY === 'string'
 
 module.exports = {
   onPreBuild: async (arg) => {
+    // we need to install everything to be ready
     await install(arg)
     await cypressVerify(arg)
     await cypressInfo(arg)
 
-    debug('cypress plugin preBuild inputs %o', arg.inputs)
-    const preBuildInputs = arg.inputs && arg.inputs.preBuild
-    if (!preBuildInputs) {
-      debug('there are no preBuild inputs')
+    const { inputs, utils } = arg
+
+    const preBuildInputs = inputs.preBuild || {}
+    debug('preBuild inputs %o', preBuildInputs)
+
+    const enablePreBuildTests = Boolean(preBuildInputs.enable)
+    if (!enablePreBuildTests) {
+      debug('Skipping preBuild tests')
       return
     }
 
-    const browser = arg.inputs.browser || DEFAULT_BROWSER
+    const browser = preBuildInputs.browser || DEFAULT_BROWSER
 
-    const closeServer = startServerMaybe(arg.utils.run, preBuildInputs)
-    await waitOnMaybe(arg.utils.build, preBuildInputs)
+    const closeServer = startServerMaybe(utils.run, preBuildInputs)
+    await waitOnMaybe(utils.build, preBuildInputs)
 
     const baseUrl = preBuildInputs['wait-on']
     const record = hasRecordKey() && Boolean(preBuildInputs.record)
@@ -323,47 +329,49 @@ module.exports = {
       closeServer()
     }
 
-    const errorCallback = arg.utils.build.failBuild.bind(arg.utils.build)
-    const summaryCallback = arg.utils.status.show.bind(arg.utils.status)
+    const errorCallback = utils.build.failBuild.bind(utils.build)
+    const summaryCallback = utils.status.show.bind(utils.status)
 
     processCypressResults(results, errorCallback, summaryCallback)
   },
 
-  onPostBuild: async (arg) => {
-    debugVerbose('postBuild arg %o', arg)
-    debug('cypress plugin postBuild inputs %o', arg.inputs)
+  onPostBuild: async ({ inputs, constants, utils }) => {
+    debugVerbose('===postBuild===')
 
-    const skipTests = Boolean(arg.inputs.skip)
-    if (skipTests) {
-      console.log('Skipping tests because skip=true')
+    const postBuildInputs = inputs.postBuild || {}
+    debug('cypress plugin postBuild inputs %o', postBuildInputs)
+
+    const enablePostBuildTests = Boolean(postBuildInputs.enable)
+    if (!enablePostBuildTests) {
+      debug('Skipping postBuild tests')
       return
     }
 
-    const fullPublishFolder = arg.constants.PUBLISH_DIR
+    const fullPublishFolder = constants.PUBLISH_DIR
     debug('folder to publish is "%s"', fullPublishFolder)
 
-    const browser = arg.inputs.browser || DEFAULT_BROWSER
+    const browser = postBuildInputs.browser || DEFAULT_BROWSER
 
     // only if the user wants to record the tests and has set the record key
     // then we should attempt recording
-    const record = hasRecordKey() && Boolean(arg.inputs.record)
+    const record = hasRecordKey() && Boolean(postBuildInputs.record)
 
-    const spec = arg.inputs.spec
+    const spec = postBuildInputs.spec
     let group
     let tag
     if (record) {
-      group = arg.inputs.group || 'postBuild'
+      group = postBuildInputs.group || 'postBuild'
 
-      if (arg.inputs.tag) {
-        tag = arg.inputs.tag
+      if (postBuildInputs.tag) {
+        tag = postBuildInputs.tag
       } else {
         tag = process.env.CONTEXT
       }
     }
-    const spa = arg.inputs.spa
+    const spa = postBuildInputs.spa
 
-    const errorCallback = arg.utils.build.failBuild.bind(arg.utils.build)
-    const summaryCallback = arg.utils.status.show.bind(arg.utils.status)
+    const errorCallback = utils.build.failBuild.bind(utils.build)
+    const summaryCallback = utils.status.show.bind(utils.status)
 
     await postBuild({
       fullPublishFolder,
@@ -382,11 +390,12 @@ module.exports = {
    * Executes after successful Netlify deployment.
    * @param {any} arg
    */
-  onSuccess: async (arg) => {
-    debugVerbose('onSuccess arg %o', arg)
+  onSuccess: async ({ utils, inputs, constants }) => {
+    debugVerbose('onSuccess arg %o', { utils, inputs, constants })
 
-    const { utils, inputs, constants } = arg
-    debug('onSuccess inputs %o', inputs)
+    // extract test run parameters
+    const onSuccessInputs = R.omit(['preBuild', 'postBuild'], inputs || {})
+    debug('onSuccess inputs %o', onSuccessInputs)
 
     const isLocal = constants.IS_LOCAL
     const siteName = process.env.SITE_NAME
@@ -397,16 +406,9 @@ module.exports = {
       isLocal,
     })
 
-    // extract test run parameters
-    const onSuccessInputs = inputs.onSuccess
-    if (!onSuccessInputs) {
-      debug('no onSuccess inputs, skipping testing the deployed url')
-      return
-    }
-
-    const enableTests = Boolean(onSuccessInputs.enable)
-    if (!enableTests) {
-      console.log('Skipping tests because enable=false')
+    const enableOnSuccessTests = Boolean(onSuccessInputs.enable)
+    if (!enableOnSuccessTests) {
+      debug('Skipping onSuccess tests')
       return
     }
 
@@ -419,7 +421,7 @@ module.exports = {
       return errorCallback('Missing DEPLOY_PRIME_URL')
     }
 
-    const browser = arg.inputs.browser || DEFAULT_BROWSER
+    const browser = onSuccessInputs.browser || DEFAULT_BROWSER
 
     // only if the user wants to record the tests and has set the record key
     // then we should attempt recording

@@ -1,8 +1,6 @@
 # netlify-plugin-cypress
 [![CircleCI](https://circleci.com/gh/cypress-io/netlify-plugin-cypress/tree/master.svg?style=svg&circle-token=9cbb587a5a0ae4ce28b011dd03d10d66de906708)](https://circleci.com/gh/cypress-io/netlify-plugin-cypress/tree/master) [![renovate-app badge][renovate-badge]][renovate-app] [![netlify-plugin-cypress](https://img.shields.io/endpoint?url=https://dashboard.cypress.io/badge/simple/ixroqc/master&style=flat&logo=cypress)](https://dashboard.cypress.io/projects/ixroqc/runs) [![Netlify Status](https://api.netlify.com/api/v1/badges/76892baf-2ad8-4642-b283-f2135963ff51/deploy-status)](https://app.netlify.com/sites/sad-lumiere-6a00a5/deploys)
-> Runs Cypress end-to-end tests after Netlify builds the site but before it is deployed
-
-**Note:** currently the built site is served statically and tested _without proxying redirects_.
+> Runs Cypress end-to-end tests on Netlify Build
 
 ## Install and use
 
@@ -26,7 +24,7 @@ This plugin installs [via Puppeteer](https://github.com/puppeteer/puppeteer) Chr
 
 ## How does it work
 
-When Netlify Build runs, it "knows" the output folder name and calls the `netlify-plugin-cypress` after the build has finished with that folder. Then the plugin runs Cypress tests using its [NPM module API](https://on.cypress.io/module-api). If the tests pass, the plugin finishes and the Netlify deploy starts.
+When Netlify Build runs, it calls the plugin `netlify-plugin-cypress` before and after the build, and after the deployment. The plugin runs the Cypress tests using its [NPM module API](https://on.cypress.io/module-api) against the local folder or against the deployed URL.
 
 ## Examples
 
@@ -36,7 +34,7 @@ Here is the most basic [Netlify config file](https://docs.netlify.com/configure-
 
 ```toml
 [[plugins]]
-  # local Cypress plugin will test our site after it is built
+  # runs Cypress tests against the deployed URL
   package = "netlify-plugin-cypress"
 ```
 
@@ -61,7 +59,7 @@ CYPRESS_CACHE_FOLDER = "./node_modules/CypressBinary"
 TERM = "xterm"
 
 [[plugins]]
-# local Cypress plugin will test our site after it is built
+# runs Cypress tests against the deployed URL
 package = "netlify-plugin-cypress"
 ```
 
@@ -77,22 +75,15 @@ publish = "build"
 # ...remaining configuration...
 ```
 
-### testing deployed url
+### tutorial
 
-After successful deployment you can run tests against the `DEPLOY_PRIME_URL` provided by the Netlify system.
-
-```toml
-[[plugins]]
-package = "netlify-plugin-cypress"
-  [plugins.inputs.onSuccess]
-  enable = true
-```
-
-The following parameters can be used with "onSuccess" tests: `record`, `group`, `tag`, `spec`.
-
-Read the full tutorial [Test Sites Deployed To Netlify Using netlify-plugin-cypress](https://glebbahmutov.com/blog/test-netlify/).
+Read the full tutorial at [Test Sites Deployed To Netlify Using netlify-plugin-cypress](https://glebbahmutov.com/blog/test-netlify/).
 
 **Note:** if any tests against the deployed URL fail, the Netlify build still considers it a success. Thus if you want to have a test check against the deploy, install [Cypress GitHub App](https://on.cypress.io/github-integration). The app will provide its own failing status check in this case.
+
+### options
+
+You can control the browser, the specs to run, record tests on Cypress Dashboard, etc, see [manifest.yml](./manifest.yml) file.
 
 ### recording
 
@@ -110,7 +101,7 @@ publish = "build"
   TERM = "xterm"
 
 [[plugins]]
-# local Cypress plugin will test our site after it is built
+# runs Cypress tests against the deployed URL
 package = "netlify-plugin-cypress"
   [plugins.inputs]
   record = true
@@ -132,7 +123,7 @@ You can change the group name for the recorded run using `group` parameter
 
 ```toml
 [[plugins]]
-# local Cypress plugin will test our site after it is built
+# runs Cypress tests against the deployed URL
 package = "netlify-plugin-cypress"
   [plugins.inputs]
   record = true
@@ -145,7 +136,7 @@ You can give recorded run [tags](https://on.cypress.io/module-api#cypress-run) u
 
 ```toml
 [[plugins]]
-# local Cypress plugin will test our site after it is built
+# runs Cypress tests against the deployed URL
 package = "netlify-plugin-cypress"
   [plugins.inputs]
   record = true
@@ -169,7 +160,7 @@ publish = "build"
   TERM = "xterm"
 
 [[plugins]]
-# local Cypress plugin will test our site after it is built
+# runs Cypress tests against the deployed URL
 package = "netlify-plugin-cypress"
   [plugins.inputs]
   spec = "cypress/integration/smoke*.js"
@@ -179,7 +170,7 @@ See [cypress-example-kitchensink](https://github.com/cypress-io/cypress-example-
 
 ### browser
 
-By default all tests run using Chromium browser. If you want to use Electron:
+By default all tests run using the Chromium browser. If you want to use Electron:
 
 ```toml
 [build]
@@ -201,7 +192,7 @@ package = "netlify-plugin-cypress"
 
 ### testing SPA routes
 
-SPAs need catch-all redirect setup to make non-root paths accesssible by tests. You can enable this with `spa` parameter.
+SPAs need catch-all redirect setup to make non-root paths accessible by tests. You can enable this with `spa` parameter.
 
 ```
 [[plugins]]
@@ -216,7 +207,7 @@ See [lws-spa](https://github.com/lwsjs/spa) for more options and [tests/routing]
 
 ### testing the site before build
 
-By default this plugin tests static site _after build_. But maybe you want to run end-to-end tests against the _local development server_. You can start local server, wait for it to respond and then run Cypress tests by passing parameters to this plugin. Here is a sample config file
+By default this plugin tests static site _after deploy_. But maybe you want to run end-to-end tests against the _local development server_. You can start the local server, wait for it to respond and then run Cypress tests by passing parameters to this plugin. Here is a sample config file
 
 ```toml
 [[plugins]]
@@ -229,9 +220,41 @@ By default this plugin tests static site _after build_. But maybe you want to ru
     wait-on-timeout = '30' # seconds
 ```
 
-Parameters you can place into `preBuild` inputs: `start`, `wait-on`, `wait-on-timeout`, `spec`, `record`, `group`, and `tag`. If there is `preBuild` and `postBuild` testing with different tags, the first one wins :)
+Parameters you can place into `preBuild` inputs: `start`, `wait-on`, `wait-on-timeout`, `spec`, `record`, `group`, and `tag`.
 
 See [netlify-plugin-prebuild-example](https://github.com/cypress-io/netlify-plugin-prebuild-example) repo
+
+### testing the site after build
+
+By default this plugin tests static site _after deploy_. But maybe you want to run end-to-end tests locally after building the static site. Cypress includes a local static server for this case. Here is a sample config file
+
+```toml
+[[plugins]]
+  package = "netlify-plugin-cypress"
+  # let's run tests against the built site
+  [plugins.inputs.postBuild]
+    enable = true
+```
+
+Parameters you can place into `postBuild` inputs: `spec`, `record`, `group`, `tag`, and `spa`.
+
+#### The SPA parameter
+
+If your site requires all unknown URLs to redirect back to the index page, use the `spa` parameter
+
+```toml
+[[plugins]]
+  package = "netlify-plugin-cypress"
+  # let's run tests against the built site
+  [plugins.inputs.postBuild]
+    enable = true
+    # must allow our test server to redirect unknown routes to "/"
+    # so that client-side routing can correctly route them
+    # can be set to true or "index.html" (or similar fallback filename in the built folder)
+    spa = true
+```
+
+See [the routing example](./tests/routing/netlify.toml).
 
 ### using Netlify CLI
 
@@ -254,13 +277,17 @@ For more, see [tests/test-netlify-dev](./tests/test-netlify-dev) example and rea
 
 ### skipping tests
 
-If you are testing the site before building it, you probably want to skip testing it after the build. See [tests/test-prebuild-only](./tests/test-prebuild-only/netlify.toml):
+If you are testing the site before building it and want to skip testing the deployed URL
 
 ```toml
 [[plugins]]
   package = "netlify-plugin-cypress"
+  # do not test the deployed URL
   [plugins.inputs]
-    skip = true
+    enable = false
+  # test the local site
+  [plugins.inputs.preBuild]
+    enable = true
 ```
 
 ### parallelization
@@ -300,6 +327,7 @@ Name | Description
 ### v1 to v2
 
 - The default browser has been switched to Chromium. If you want to use the built-in Electron use an explicit option [browser](#browser)
+- We have changed the default testing phase. In v1 the tests executed after building the site by default. In v2 the tests run against the deployed URL by default, and you need to enable the testing during `preBuild` or `postBuild` steps.
 
 ## Debugging
 
@@ -339,11 +367,10 @@ Set environment variable `DEBUG=netlify-plugin-cypress` to see the debug logs. T
   Switch to using Chromium browser that seems to be a bit more reliable. Use <code>browser = "chromium"</code> setting.
 </details>
 
-## Changelog
-
-### v1 to v2
-
-- We have changed the default testing phase. In v1 the tests executed after building the site by default. In v2 the tests run against the deployed URL by default, and you need to enable the testing during `preBuild` or `postBuild` steps.
+<details>
+  <summary>You want to skip Puppeteer download</summary>
+  If you do not plan on using Chromium to run the tests, if you want to use the built-in Electron browser, you can save time by skipping the Puppeteer download. Set the environment variable <code>PUPPETEER_SKIP_DOWNLOAD = 1</code> on your CI.
+</details>
 
 ## License
 

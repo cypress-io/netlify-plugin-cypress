@@ -53,7 +53,9 @@
   },
   "release": {
     "branches": [
-      { "name": "master" },
+      {
+        "name": "master"
+      },
       {
         "name": "prepare-v2",
         "prerelease": true

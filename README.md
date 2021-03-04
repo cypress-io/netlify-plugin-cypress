@@ -24,7 +24,31 @@ This plugin installs [via Puppeteer](https://github.com/puppeteer/puppeteer) Chr
 
 ## How does it work
 
-When Netlify Build runs, it calls the plugin `netlify-plugin-cypress` before and after the build, and after the deployment. The plugin runs the Cypress tests using its [NPM module API](https://on.cypress.io/module-api) against the local folder or against the deployed URL.
+### Build steps
+
+When Netlify Build system runs it performs 2 steps essentially:
+
+1. builds the site
+2. deploys the site
+
+Every plugin that wants to perform some actions can do so before the build, after the build (but before the deploy), and after the deploy. The Netlify uses the following names for these events
+
+```
+"preBuild"
+1. builds the site
+"postBuild"
+2. deploys the site
+"onSuccess"
+"onFailure"
+```
+
+Thus every plugin can register itself to be executed before a site is built using "preBuild" event, or after a successful deploy using "onSuccess" event name, etc.
+
+### This plugin
+
+This plugin `netlify-plugin-cypress` by default runs during the "onSuccess" event, testing the deployed site. The Netlify Build system gives the URL to the plugin and it runs Cypress against that URL using the [Cypress NPM module API](https://on.cypress.io/module-api).
+
+Optionally, you can also run tests during "preBuild" and "postBuild" steps. This is useful if you want to ensure the site is working even before deploying it to Netlify servers. Finally, this plugin does not use "onFailure" event which happens only if Netlify fails to deploy the site.
 
 ## Examples
 

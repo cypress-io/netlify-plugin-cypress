@@ -16,9 +16,17 @@ publish = "public"
     record = true
     group = 'deployed'
 
+  # run tests before building the site
+  [plugins.inputs.preBuild]
+    enable = true
+    start = 'npm start -- -p 5000'
+    record = true
+    group = 'preBuild'
+
   # run tests after building the site
   [plugins.inputs.postBuild]
     enable = true
+    start = 'netlify dev -p 8080'
     record = true
     group = 'postBuild'
 

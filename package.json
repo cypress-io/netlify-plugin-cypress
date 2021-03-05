@@ -6,6 +6,7 @@
   "main": "src",
   "scripts": {
     "test": "cypress run",
+    "test:unit": "jest",
     "semantic-release": "semantic-release",
     "start": "serve public"
   },
@@ -42,6 +43,7 @@
   },
   "devDependencies": {
     "cypress": "6.6.0",
+    "jest": "^24.9.0",
     "netlify-cli": "3.10.8",
     "prettier": "2.2.1",
     "react": "16.13.1",
@@ -61,5 +63,8 @@
         "prerelease": true
       }
     ]
+  },
+  "jest": {
+    "rootDir": "./src"
   }
 }

@@ -2,6 +2,7 @@ node_modules/
 **/cypress/screenshots
 **/cypress/videos
 build
+.DS_Store
 
 # Local Netlify folder
 .netlify

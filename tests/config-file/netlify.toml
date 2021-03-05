@@ -1,0 +1,18 @@
+[build]
+command = "echo 'Netlify build command ...'"
+publish = "public"
+
+[[plugins]]
+  # local Cypress plugin will test our site after it is built
+  # in production, please use: package = "netlify-plugin-cypress"
+  package = "../../"
+
+  # do not run tests after deploy (testing)
+  [plugins.inputs]
+    enable = false
+    configFile = "cypress.netlify.json"
+
+  # run tests postBuild
+  [plugins.inputs.postBuild]
+    enable = true
+    configFile = "cypress.netlify.json"

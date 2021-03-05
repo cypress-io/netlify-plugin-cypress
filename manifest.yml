@@ -12,6 +12,9 @@ inputs:
     description: Allowed values are chromium, electron
     default: chromium
 
+  - name: configFile
+    description: Path to the Cypress config file to use
+
   - name: record
     description: Record test results to Cypress Dashboard
     default: false

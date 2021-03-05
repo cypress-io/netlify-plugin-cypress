@@ -214,6 +214,27 @@ package = "netlify-plugin-cypress"
   browser = "electron"
 ```
 
+### configFile
+
+If you would like to use a different Cypress config file instead of `cypress.json`, specify it using the `configFile` option
+
+```toml
+[build]
+command = "npm run build"
+publish = "build"
+  [build.environment]
+  # cache Cypress binary in local "node_modules" folder
+  # so Netlify caches it
+  CYPRESS_CACHE_FOLDER = "./node_modules/CypressBinary"
+  # set TERM variable for terminal output
+  TERM = "xterm"
+
+[[plugins]]
+package = "netlify-plugin-cypress"
+  [plugins.inputs]
+  configFile = "cypress.netlify.json"
+```
+
 ### testing SPA routes
 
 SPAs need catch-all redirect setup to make non-root paths accessible by tests. You can enable this with `spa` parameter.

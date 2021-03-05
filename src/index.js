@@ -464,6 +464,8 @@ module.exports = {
       tag,
     })
 
+    const configFile = onSuccessInputs.configFile
+
     console.log('testing deployed url %s', deployPrimeUrl)
     const results = await runCypressTests(
       deployPrimeUrl,
@@ -472,6 +474,7 @@ module.exports = {
       group,
       tag,
       browser,
+      configFile,
     )
     processCypressResults(results, errorCallback, summaryCallback)
   },

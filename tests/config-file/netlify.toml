@@ -10,6 +10,7 @@ publish = "public"
   # do not run tests after deploy (testing)
   [plugins.inputs]
     enable = false
+    configFile = "cypress.netlify.json"
 
   # run tests postBuild
   [plugins.inputs.postBuild]

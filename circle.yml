@@ -21,6 +21,9 @@ jobs:
       # since we do not need Cypress to publish the NPM package
       # we can skip the binary download
       CYPRESS_INSTALL_BINARY: 0
+      # we also skip Puppeteer Chromium download
+      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true
+
     steps:
       - checkout
       - node/with-cache:

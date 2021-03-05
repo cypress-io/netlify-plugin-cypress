@@ -59,7 +59,15 @@ async function waitOnMaybe(buildUtils, options = {}) {
 
 const isValidBrowser = (name) => name === 'electron' || name === 'chromium'
 
-async function runCypressTests(baseUrl, record, spec, group, tag, browser) {
+async function runCypressTests(
+  baseUrl,
+  record,
+  spec,
+  group,
+  tag,
+  browser,
+  configFile,
+) {
   if (!isValidBrowser(browser)) {
     throw new Error(`Invalid browser name "${browser}"`)
   }
@@ -99,6 +107,7 @@ async function runCypressTests(baseUrl, record, spec, group, tag, browser) {
     ciBuildId,
     browser: browserPath,
     headless: true,
+    configFile,
   })
 }
 
@@ -236,6 +245,7 @@ async function postBuild({
   tag,
   spa,
   browser,
+  configFile,
   errorCallback,
   summaryCallback,
 }) {
@@ -260,6 +270,7 @@ async function postBuild({
     group,
     tag,
     browser,
+    configFile,
   )
 
   await new Promise((resolve, reject) => {
@@ -315,6 +326,8 @@ module.exports = {
       }
     }
 
+    const configFile = preBuildInputs.configFile
+
     const results = await runCypressTests(
       baseUrl,
       record,
@@ -322,6 +335,7 @@ module.exports = {
       group,
       tag,
       browser,
+      configFile,
     )
 
     if (closeServer) {
@@ -369,6 +383,7 @@ module.exports = {
       }
     }
     const spa = postBuildInputs.spa
+    const configFile = postBuildInputs.configFile
 
     const errorCallback = utils.build.failBuild.bind(utils.build)
     const summaryCallback = utils.status.show.bind(utils.status)
@@ -381,6 +396,7 @@ module.exports = {
       tag,
       spa,
       browser,
+      configFile,
       errorCallback,
       summaryCallback,
     })

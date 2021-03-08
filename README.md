@@ -50,6 +50,14 @@ This plugin `netlify-plugin-cypress` by default runs during the "onSuccess" even
 
 Optionally, you can also run tests during "preBuild" and "postBuild" steps. This is useful if you want to ensure the site is working even before deploying it to Netlify servers. Finally, this plugin does not use "onFailure" event which happens only if Netlify fails to deploy the site.
 
+### Failing the deploy
+
+Running Cypress tests by default uses the "onSuccess" step of the build pipeline. By this point Netlify has already deployed the site. Even if the tests fail now, the Netlify shows the successful deployment - the site is live! To really prevent the broken deploys, we suggest using [Cypress GitHub / GitLab / Bitbucket integration](https://on.cypress.io/github-integration) to fail the _status checks_ on a pull request.
+
+We also suggest running tests during the "preBuild" and/or "postBuild" steps. If the tests fail during these steps, the Netlify fails the entire build and does not deploy the broken site.
+
+Finally, you can set up [Slack notifications](https://on.cypress.io/slack-integration) on failed tests against the deployed site. At least you will quickly find out if the deployed site fails the E2E tests and would be able to roll back the deploy.
+
 ## Examples
 
 ### basic

@@ -7,6 +7,7 @@ const {
   runCypressTests,
   processCypressResults,
   hasRecordKey,
+  waitOnMaybe,
 } = require('./utils')
 const { DEFAULT_BROWSER } = require('./constants')
 
@@ -16,6 +17,8 @@ async function postBuild({
   record,
   spec,
   start,
+  waitOn,
+  waitOnTimeout,
   group,
   tag,
   spa,
@@ -30,6 +33,10 @@ async function postBuild({
 
   if (start) {
     closeServer = startServerMaybe(utils.run, { start })
+    await waitOnMaybe(utils.build, {
+      'wait-on': waitOn,
+      'wait-on-timeout': waitOnTimeout,
+    })
   } else {
     try {
       server = serveFolder(fullPublishFolder, port, spa)
@@ -41,7 +48,7 @@ async function postBuild({
     }
   }
 
-  const baseUrl = `http://localhost:${port}`
+  const baseUrl = waitOn || `http://localhost:${port}`
 
   const results = await runCypressTests(
     baseUrl,
@@ -119,6 +126,8 @@ module.exports = async ({ inputs, constants, utils }) => {
     record,
     spec: postBuildInputs.spec,
     start: postBuildInputs.start,
+    waitOn: postBuildInputs['wait-on'],
+    waitOnTimeout: postBuildInputs['wait-on-timeout'],
     group,
     tag,
     spa,

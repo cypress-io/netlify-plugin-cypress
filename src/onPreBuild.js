@@ -6,38 +6,9 @@ const {
   runCypressTests,
   processCypressResults,
   hasRecordKey,
+  waitOnMaybe,
 } = require('./utils')
 const { DEFAULT_BROWSER } = require('./constants')
-
-async function waitOnMaybe(buildUtils, options = {}) {
-  const waitOnUrl = options['wait-on']
-  if (!waitOnUrl) {
-    debug('no wait-on defined')
-    return
-  }
-
-  const waitOnTimeout = options['wait-on-timeout'] || '60'
-
-  console.log(
-    'waiting on "%s" with timeout of %s seconds',
-    waitOnUrl,
-    waitOnTimeout,
-  )
-
-  const waitTimeoutMs = parseFloat(waitOnTimeout) * 1000
-
-  try {
-    await ping(waitOnUrl, waitTimeoutMs)
-    debug('url %s responds', waitOnUrl)
-  } catch (err) {
-    debug('pinging %s for %d ms failed', waitOnUrl, waitTimeoutMs)
-    debug(err)
-    return buildUtils.failBuild(
-      `Pinging ${waitOnUrl} for ${waitTimeoutMs} failed`,
-      { error: err },
-    )
-  }
-}
 
 async function install(arg) {
   debug('installing Cypress binary just in case')

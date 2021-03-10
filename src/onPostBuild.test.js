@@ -4,6 +4,7 @@ const {
   serveFolder,
   runCypressTests,
   processCypressResults,
+  waitOnMaybe,
 } = require('./utils')
 
 jest.mock('./utils')
@@ -77,6 +78,24 @@ describe('onPostBuild', () => {
       })
     })
 
+    it('waits for the specified url before continuing', async () => {
+      const startCommand = 'a start command'
+      const { testFunction, utils, inputs } = setup({
+        postBuildInputs: {
+          enable: true,
+          start: startCommand,
+          'wait-on': 'URL',
+          'wait-on-timeout': 10,
+        },
+      })
+
+      await expect(testFunction()).resolves.toBe(undefined)
+      expect(waitOnMaybe).toHaveBeenCalledWith(utils.build, {
+        'wait-on': inputs.postBuild['wait-on'],
+        'wait-on-timeout': inputs.postBuild['wait-on-timeout'],
+      })
+    })
+
     it('kills the process when tests are complete', async () => {
       const { testFunction } = setup({
         postBuildInputs: {
@@ -121,6 +140,7 @@ describe('onPostBuild', () => {
         undefined,
         undefined,
         'chromium',
+        undefined,
       )
     })
 

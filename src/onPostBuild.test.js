@@ -56,12 +56,6 @@ describe('onPostBuild', () => {
     expect(serveFolder).not.toHaveBeenCalled()
   })
 
-  describe('recording', () => {
-    it.todo('records the test run when enabled and record key is specified')
-    it.todo('does not record the test run when record key is missing')
-    it.todo('does not record when recording is disabled')
-  })
-
   describe('start option', () => {
     it('runs the specified command', async () => {
       const startCommand = 'a start command'
@@ -233,8 +227,44 @@ describe('onPostBuild', () => {
       await expect(testFunction()).rejects.toBe(error)
     })
 
-    it.todo('runs the cypress tests')
+    it('runs the cypress tests', async () => {
+      const { testFunction, inputs } = setup({
+        postBuildInputs: {
+          enable: true,
+        },
+      })
 
-    it.todo('processes the cypress test results')
+      await expect(testFunction()).resolves.toBe(undefined)
+      // TODO: Improve this assertion
+      expect(runCypressTests).toHaveBeenCalledWith(
+        'http://localhost:8080',
+        inputs.postBuild.record,
+        inputs.postBuild.spec,
+        undefined,
+        undefined,
+        'chromium',
+        undefined,
+      )
+    })
+
+    it('processes the cypress test results', async () => {
+      const { testFunction, inputs, utils } = setup({
+        postBuildInputs: {
+          enable: true,
+          start: 'a start command',
+        },
+      })
+
+      const testResults = 'RESULTS'
+      runCypressTests.mockReturnValue(testResults)
+
+      await expect(testFunction()).resolves.toBe(undefined)
+      // TODO: Improve assertion
+      expect(processCypressResults).toHaveBeenCalledWith(
+        testResults,
+        expect.any(Function),
+        expect.any(Function),
+      )
+    })
   })
 })

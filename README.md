@@ -279,7 +279,7 @@ See [netlify-plugin-prebuild-example](https://github.com/cypress-io/netlify-plug
 
 ### testing the site after build
 
-By default this plugin tests static site _after deploy_. But maybe you want to run end-to-end tests locally after building the static site. Cypress includes a local static server for this case. Here is a sample config file
+By default this plugin tests static site _after deploy_. But maybe you want to run end-to-end tests locally after building the static site. Cypress includes a local static server for this case but you can specify your own command if needed by using the `start` argument. Here is a sample config file
 
 ```toml
 [[plugins]]
@@ -289,7 +289,7 @@ By default this plugin tests static site _after deploy_. But maybe you want to r
     enable = true
 ```
 
-Parameters you can place into `postBuild` inputs: `spec`, `record`, `group`, `tag`, and `spa`.
+Parameters you can place into `postBuild` inputs: `spec`, `record`, `group`, `tag`, `start` and `spa`.
 
 #### The SPA parameter
 
@@ -305,6 +305,7 @@ If your site requires all unknown URLs to redirect back to the index page, use t
     # so that client-side routing can correctly route them
     # can be set to true or "index.html" (or similar fallback filename in the built folder)
     spa = true
+    start = 'npm start'
 ```
 
 See [the routing example](./tests/routing/netlify.toml).

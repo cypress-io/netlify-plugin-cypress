@@ -105,6 +105,19 @@ jobs:
           environment:
             DEBUG: netlify-plugin-cypress
 
+  'test-postbuild-start':
+    executor: cypress/base-12-14-0
+    steps:
+      # all dependencies were installed in previous job
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Netlify Build 🏗
+          command: npm run netlify:build
+          working_directory: tests/test-postbuild-start
+          environment:
+            DEBUG: netlify-plugin-cypress
+
   'test-using-chromium':
     executor: cypress/base-12-14-0
     steps:
@@ -194,6 +207,9 @@ workflows:
       - 'test-prebuild-only':
           requires:
             - cypress/install
+      - 'test-postbuild-start':
+          requires:
+            - cypress/install
       - test-using-chromium:
           requires:
             - cypress/install
@@ -217,6 +233,7 @@ workflows:
             - 'recording test'
             - 'test-twice'
             - 'test-prebuild-only'
+            - 'test-postbuild-start'
             - test-using-chromium
             - test-netlify-dev
             - 'routing'

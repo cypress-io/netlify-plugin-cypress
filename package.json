@@ -17,7 +17,8 @@
   "author": "Gleb Bahmutov <gleb@cypress.io>",
   "files": [
     "manifest.yml",
-    "src"
+    "src",
+    "!src/**/*.test.js"
   ],
   "license": "ISC",
   "dependencies": {

@@ -15,6 +15,9 @@ jobs:
             - run:
                 name: show package contents 📦
                 command: npm pack --dry
+            - run:
+                name: unit tests 🧪
+                command: npm run test:unit
 
   release:
     executor:

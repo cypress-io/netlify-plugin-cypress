@@ -268,6 +268,7 @@ By default this plugin tests static site _after deploy_. But maybe you want to r
   # let's run tests against development server
   # before building it (and testing the built site)
   [plugins.inputs.preBuild]
+    enable = true
     start = 'npm start'
     wait-on = 'http://localhost:5000'
     wait-on-timeout = '30' # seconds

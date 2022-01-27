@@ -46,3 +46,9 @@ inputs:
   # NOTE: does not execute Netlify API redirects or functions
   - name: postBuild
     description: Run tests against the built static site
+
+  # See Netlify docs for available values:
+  # https://docs.netlify.com/configure-builds/environment-variables/#deploy-urls-and-metadata
+  - name: deployUrlEnvVar
+    description: The Netlify environment variable containing the URL Cypress should test
+    default: DEPLOY_PRIME_URL

@@ -2,6 +2,6 @@
   "supportFile": false,
   "pluginsFile": false,
   "fixturesFolder": false,
-  "baseUrl": "http://localhost:5000",
+  "baseUrl": "https://aquamarine-alfajores-7a3581.netlify.app/",
   "projectId": "ixroqc"
 }

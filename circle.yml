@@ -9,7 +9,7 @@ jobs:
       tag: '16'
     steps:
       - checkout
-      - node/with-cache:
+      - node/run:
           steps:
             - run: npm ci
             - run:
@@ -32,7 +32,7 @@ jobs:
 
     steps:
       - checkout
-      - node/with-cache:
+      - node/run:
           steps:
             - run: npm ci
       # allow CircleCI to release beta versions

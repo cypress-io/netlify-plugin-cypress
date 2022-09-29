@@ -1,6 +1,6 @@
 version: 2.1
 orbs:
-  node: node: circleci/node@5.0.3
+  node: circleci/node@5.0.3
   cypress: cypress-io/cypress@1
 jobs:
   build:

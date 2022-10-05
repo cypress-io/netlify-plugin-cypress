@@ -24,10 +24,10 @@
   "dependencies": {
     "common-tags": "1.8.0",
     "debug": "4.1.1",
-    "got": "10.7.0",
+    "got": "11.8.5",
     "local-web-server": "^4.2.1",
     "puppeteer": "^7.0.1",
-    "ramda": "0.27.1"
+    "ramda": "0.27.2"
   },
   "repository": {
     "type": "git",

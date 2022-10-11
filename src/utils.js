@@ -1,11 +1,12 @@
-// @ts-check
-const puppeteer = require('puppeteer')
-const debug = require('debug')('netlify-plugin-cypress')
-const LocalWebServer = require('local-web-server')
-const fs = require('fs')
-const { stripIndent } = require('common-tags')
-const { ping } = require('./ping')
-const { PLUGIN_NAME } = require('./constants')
+import puppeteer from 'puppeteer'
+import debugModule from 'debug'
+import LocalWebServer from 'local-web-server'
+import fs from 'fs'
+import { stripIndent } from 'common-tags'
+import { ping }from './ping.js'
+import { PLUGIN_NAME } from './constants.js'
+
+const debug = debugModule('netlify-plugin-cypress')
 
 const getBrowserPath = async () => {
   const browserFetcher = puppeteer.createBrowserFetcher()
@@ -240,7 +241,7 @@ const processCypressResults = (results, errorCallback, summaryCallback) => {
 
 const hasRecordKey = () => typeof process.env.CYPRESS_RECORD_KEY === 'string'
 
-module.exports = {
+export {
   ping,
   getBrowserPath,
   serveFolder,

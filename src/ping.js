@@ -1,13 +1,15 @@
-const got = require('got')
-const debug = require('debug')('netlify-plugin-cypress')
-const debugVerbose = require('debug')('netlify-plugin-cypress:verbose')
+import got from 'got'
+import debugModule from 'debug'
+
+const debug = debugModule('netlify-plugin-cypress')
+const debugVerbose = debugModule('netlify-plugin-cypress:verbose')
 
 /**
  * A small utility for checking when an URL responds, kind of
  * a poor man's https://www.npmjs.com/package/wait-on. This version
  * is implemented using https://github.com/sindresorhus/got
  */
-const ping = (url, timeout) => {
+export const ping = (url, timeout) => {
   if (!timeout) {
     throw new Error('Expected timeout in ms')
   }
@@ -71,5 +73,3 @@ const ping = (url, timeout) => {
     debug(`pinging ${url} has finished ok after ${elapsed}ms`)
   })
 }
-
-module.exports = { ping }

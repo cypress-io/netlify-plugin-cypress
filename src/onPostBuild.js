@@ -1,15 +1,16 @@
-// @ts-check
-const debug = require('debug')('netlify-plugin-cypress')
-const debugVerbose = require('debug')('netlify-plugin-cypress:verbose')
-const {
+import debugModule from'debug'
+import {
   startServerMaybe,
   serveFolder,
   runCypressTests,
   processCypressResults,
   hasRecordKey,
   waitOnMaybe,
-} = require('./utils')
-const { DEFAULT_BROWSER } = require('./constants')
+} from './utils.js'
+import { DEFAULT_BROWSER } from './constants.js'
+
+const debug = debugModule('netlify-plugin-cypress')
+const debugVerbose = debugModule('netlify-plugin-cypress:verbose')
 
 async function postBuild({
   utils,
@@ -81,7 +82,7 @@ async function postBuild({
   processCypressResults(results, errorCallback, summaryCallback)
 }
 
-module.exports = async ({ inputs, constants, utils }) => {
+export default async ({ inputs, constants, utils }) => {
   debugVerbose('===postBuild===')
 
   const postBuildInputs = inputs.postBuild || {}

@@ -1,9 +1,9 @@
 // @ts-check
-const onPreBuild = require('./onPreBuild')
-const onPostBuild = require('./onPostBuild')
-const onSuccess = require('./onSuccess')
+import onPreBuild from './onPreBuild.js'
+import onPostBuild from './onPostBuild.js'
+import onSuccess from './onSuccess.js'
 
-module.exports = {
+export {
   onPreBuild,
   onPostBuild,
   onSuccess,

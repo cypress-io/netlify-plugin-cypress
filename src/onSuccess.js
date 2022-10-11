@@ -1,19 +1,21 @@
 // @ts-check
-const R = require('ramda')
-const debug = require('debug')('netlify-plugin-cypress')
-const debugVerbose = require('debug')('netlify-plugin-cypress:verbose')
-const {
+import { omit } from 'ramda'
+import debugModule from 'debug'
+import {
   runCypressTests,
   processCypressResults,
   hasRecordKey,
-} = require('./utils')
-const { DEFAULT_BROWSER } = require('./constants')
+} from './utils.js'
+import { DEFAULT_BROWSER } from './constants.js'
 
-module.exports = async ({ utils, inputs, constants }) => {
+const debug = debugModule('netlify-plugin-cypress')
+const debugVerbose = debugModule('netlify-plugin-cypress:verbose')
+
+export default async ({ utils, inputs, constants }) => {
   debugVerbose('onSuccess arg %o', { utils, inputs, constants })
 
   // extract test run parameters
-  const onSuccessInputs = R.omit(['preBuild', 'postBuild'], inputs || {})
+  const onSuccessInputs = omit(['preBuild', 'postBuild'], inputs || {})
   debug('onSuccess inputs %o', onSuccessInputs)
 
   const isLocal = constants.IS_LOCAL

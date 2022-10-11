@@ -1,4 +1,4 @@
 // a little utility to debug our static file server
-const { serveFolder } = require('./utils')
+import { serveFolder } from './utils.js'
 
 serveFolder('./public', '8080', false)

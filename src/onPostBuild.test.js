@@ -1,11 +1,11 @@
-const onPostBuild = require('./onPostBuild.js')
-const {
+import onPostBuild from './onPostBuild.js'
+import {
   startServerMaybe,
   serveFolder,
   runCypressTests,
   processCypressResults,
   waitOnMaybe,
-} = require('./utils')
+} from './utils.js'
 
 jest.mock('./utils')
 

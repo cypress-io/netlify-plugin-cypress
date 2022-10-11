@@ -1,4 +1,3 @@
-module.exports = {
-  PLUGIN_NAME: 'netlify-plugin-cypress',
-  DEFAULT_BROWSER: 'chromium',
-}
+
+export const PLUGIN_NAME = 'netlify-plugin-cypress';
+export const DEFAULT_BROWSER = 'chromium';

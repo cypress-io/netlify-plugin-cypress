@@ -1,7 +1,7 @@
 // a little CLI utility for testing pinging websites
 // node ./src/ping-cli <url>
 
-const { ping } = require('./utils')
+import { ping } from './utils.js'
 const timeoutSeconds = 60
 const url = process.argv[2]
 console.log('pinging url %s for %d seconds', url, timeoutSeconds)

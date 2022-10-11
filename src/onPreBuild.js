@@ -1,14 +1,15 @@
-// @ts-check
-const debug = require('debug')('netlify-plugin-cypress')
-const {
-  ping,
+import debugModule from 'debug'
+
+import {
   startServerMaybe,
   runCypressTests,
   processCypressResults,
   hasRecordKey,
   waitOnMaybe,
-} = require('./utils')
-const { DEFAULT_BROWSER } = require('./constants')
+} from './utils.js'
+import { DEFAULT_BROWSER } from './constants.js'
+
+const debug = debugModule('netlify-plugin-cypress')
 
 async function install(arg) {
   debug('installing Cypress binary just in case')
@@ -64,7 +65,7 @@ async function cypressInfo(arg) {
   }
 }
 
-module.exports = async (arg) => {
+export default async (arg) => {
   // we need to install everything to be ready
   await install(arg)
   await cypressVerify(arg)

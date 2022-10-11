@@ -10,14 +10,26 @@ executors:
     docker:
       - image: 'cypress/base:16.17.1'
 
+commands:
+  install:
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+          - node_modules-{{ .Environment.CACHE_VERSION }}-{{ checksum "package.json" }}-{{ checksum "package-lock.json"}}
+          - node_modules-{{ .Environment.CACHE_VERSION }}-{{ checksum "package.json" }}
+          - node_modules-{{ .Environment.CACHE_VERSION }}-
+      - run: npm ci
+      - save_cache:
+          paths:
+            - $HOME/.npm
+          key: node_modules-{{ .Environment.CACHE_VERSION }}-{{ checksum "package.json" }}-{{ checksum "package-lock.json"}}
+
 jobs:
   build:
     executor: node-executor
     steps:
-      - checkout
-      - run: 
-          name: install dependencies
-          command: npm ci
+      - install
       - run:
           name: show package contents 📦
           command: npm pack --dry
@@ -36,10 +48,7 @@ jobs:
       PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true
 
     steps:
-      - checkout
-      - run: 
-          name: install dependencies
-          command: npm ci
+      - install
       # allow CircleCI to release beta versions
       # from pull request build jobs
       - run:

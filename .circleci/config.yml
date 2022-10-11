@@ -1,28 +1,33 @@
 version: 2.1
 orbs:
-  node: circleci/node@5.0.3
-  cypress: cypress-io/cypress@1
+  cypress: cypress-io/cypress@2
+
+executors:
+  node-executor:
+    docker:
+      - image: cimg/node:16.15.1
+  base-executor:
+    docker:
+      - image: 'cypress/base:16.17.1'
+
 jobs:
   build:
-    executor:
-      name: node/default
-      tag: '16'
+    executor: node-executor
     steps:
       - checkout
-      - node/run:
-          steps:
-            - run: npm ci
-            - run:
-                name: show package contents 📦
-                command: npm pack --dry
-            - run:
-                name: unit tests 🧪
-                command: npm run test:unit
+      - run: 
+          name: install dependencies
+          command: npm ci
+      - run:
+          name: show package contents 📦
+          command: npm pack --dry
+      - run:
+          name: unit tests 🧪
+          command: npm run test:unit
+            
 
   release:
-    executor:
-      name: node/default
-      tag: '16'
+    executor: node-executor
     environment:
       # since we do not need Cypress to publish the NPM package
       # we can skip the binary download
@@ -32,9 +37,9 @@ jobs:
 
     steps:
       - checkout
-      - node/run:
-          steps:
-            - run: npm ci
+      - run: 
+          name: install dependencies
+          command: npm ci
       # allow CircleCI to release beta versions
       # from pull request build jobs
       - run:
@@ -47,7 +52,7 @@ jobs:
             CI_PULL_REQUEST:
 
   'basic test':
-    executor: cypress/base:16.14.2-slim
+    executor: base-executor
     steps:
       # all dependencies were installed in previous job
       - attach_workspace:
@@ -60,7 +65,7 @@ jobs:
             DEBUG: netlify-plugin-cypress
 
   'recommended test':
-    executor: cypress/base:16.14.2-slim
+    executor: base-executor
     steps:
       # all dependencies were installed in previous job
       - attach_workspace:
@@ -73,7 +78,7 @@ jobs:
             DEBUG: netlify-plugin-cypress
 
   'recording test':
-    executor: cypress/base:16.14.2-slim
+    executor: base-executor
     steps:
       # all dependencies were installed in previous job
       - attach_workspace:
@@ -86,7 +91,7 @@ jobs:
             DEBUG: netlify-plugin-cypress
 
   'test-twice':
-    executor: cypress/base:16.14.2-slim
+    executor: base-executor
     steps:
       # all dependencies were installed in previous job
       - attach_workspace:
@@ -99,7 +104,7 @@ jobs:
             DEBUG: netlify-plugin-cypress
 
   'test-prebuild-only':
-    executor: cypress/base:16.14.2-slim
+    executor: base-executor
     steps:
       # all dependencies were installed in previous job
       - attach_workspace:
@@ -112,7 +117,7 @@ jobs:
             DEBUG: netlify-plugin-cypress
 
   'test-postbuild-start':
-    executor: cypress/base:16.14.2-slim
+    executor: base-executor
     steps:
       # all dependencies were installed in previous job
       - attach_workspace:
@@ -125,7 +130,7 @@ jobs:
             DEBUG: netlify-plugin-cypress
 
   'test-using-chromium':
-    executor: cypress/base:16.14.2-slim
+    executor: base-executor
     steps:
       # all dependencies were installed in previous job
       - attach_workspace:
@@ -138,7 +143,7 @@ jobs:
             DEBUG: netlify-plugin-cypress
 
   'test-netlify-dev':
-    executor: cypress/base:16.14.2-slim
+    executor: base-executor
     steps:
       # all dependencies were installed in previous job
       - attach_workspace:
@@ -151,7 +156,7 @@ jobs:
             DEBUG: netlify-plugin-cypress
 
   'html-pages':
-    executor: cypress/base:16.14.2-slim
+    executor: base-executor
     steps:
       # all dependencies were installed in previous job
       - attach_workspace:
@@ -164,7 +169,7 @@ jobs:
             DEBUG: netlify-plugin-cypress
 
   routing:
-    executor: cypress/base:16.14.2-slim
+    executor: base-executor
     steps:
       # all dependencies were installed in previous job
       - attach_workspace:
@@ -177,7 +182,7 @@ jobs:
             DEBUG: netlify-plugin-cypress
 
   config-file:
-    executor: cypress/base:16.14.2-slim
+    executor: base-executor
     steps:
       # all dependencies were installed in previous job
       - attach_workspace:
@@ -191,7 +196,7 @@ jobs:
 
 workflows:
   version: 2
-  test_and_release:
+  test-and-release:
     jobs:
       - build
       - cypress/install

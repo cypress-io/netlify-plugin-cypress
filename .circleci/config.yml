@@ -9,7 +9,9 @@ jobs:
       tag: '16.18'
     steps:
       - checkout
-      - node/install-packages
+      - node/install-packages:
+          cache-path: ~/project/node_modules
+          override-ci-command: npm install
       - run:
           name: show package contents 📦
           command: npm pack --dry
@@ -30,7 +32,9 @@ jobs:
 
     steps:
       - checkout
-      - node/install-packages
+      - node/install-packages:
+        cache-path: ~/project/node_modules
+        override-ci-command: npm install
       # allow CircleCI to release beta versions
       # from pull request build jobs
       - run:

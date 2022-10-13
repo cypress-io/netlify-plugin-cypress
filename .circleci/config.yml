@@ -6,7 +6,7 @@ jobs:
   build:
     executor:
       name: node/default
-      tag: '16'
+      tag: '16.18'
     steps:
       - checkout
       - node/install-packages
@@ -20,7 +20,7 @@ jobs:
   release:
     executor:
       name: node/default
-      tag: '16'
+      tag: '16.18'
     environment:
       # since we do not need Cypress to publish the NPM package
       # we can skip the binary download

@@ -33,8 +33,8 @@ jobs:
     steps:
       - checkout
       - node/install-packages:
-        cache-path: ~/project/node_modules
-        override-ci-command: npm install
+          cache-path: ~/project/node_modules
+          override-ci-command: npm install
       # allow CircleCI to release beta versions
       # from pull request build jobs
       - run:

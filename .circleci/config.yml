@@ -231,8 +231,6 @@ workflows:
       - release:
           # run the release job on all branches
           # since we might want to release a beta version
-          context:
-            - test-runner:npm-release
           requires:
             - build
             - 'basic test'

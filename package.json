@@ -51,7 +51,7 @@
     "react-dom": "16.13.1",
     "react-router-dom": "5.2.0",
     "react-scripts": "3.4.1",
-    "semantic-release": "^17.0.4",
+    "semantic-release": "^20.0.2",
     "serve": "11.3.0"
   },
   "release": {

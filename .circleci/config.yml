@@ -22,7 +22,7 @@ jobs:
   release:
     executor:
       name: node/default
-      tag: '16.18'
+      tag: '18.12.1'
     environment:
       # since we do not need Cypress to publish the NPM package
       # we can skip the binary download

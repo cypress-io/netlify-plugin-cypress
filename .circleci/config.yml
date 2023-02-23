@@ -194,37 +194,35 @@ workflows:
       - build
       - 'basic test':
           requires:
-            - cypress-install
+            - build
       - 'html-pages':
           requires:
-            - cypress-install
+            - build
       - 'recommended test':
           requires:
-            - cypress-install
+            - build
       - 'recording test':
           requires:
-            - cypress-install
+            - build
       - 'test-twice':
           requires:
-            - cypress-install
+            - build
       - 'test-prebuild-only':
           requires:
-            - cypress-install
+            - build
       - 'test-postbuild-start':
           requires:
-            - cypress-install
+            - build
       - test-using-chromium:
           requires:
-            - cypress-install
+            - build
       - test-netlify-dev:
           requires:
-            - cypress-install
+            - build
       - routing:
           requires:
-            - cypress-install
+            - build
       - config-file:
-          requires:
-            - cypress-install
       - release:
           # run the release job on all branches
           # since we might want to release a beta version

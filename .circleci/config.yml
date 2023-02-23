@@ -18,6 +18,15 @@ jobs:
       - run:
           name: unit tests 🧪
           command: npm run test:unit
+  cypress-install:
+    executor:
+      name: node/default
+      tag: '16.18'
+    steps:
+      - checkout
+      - cypress/install:
+          executor: cypress/base-16-14-2-slim
+
 
   release:
     executor:
@@ -194,41 +203,40 @@ workflows:
   test_and_release:
     jobs:
       - build
-      - cypress/install
-          executor: cypress/base-16-14-2-slim
+      - cypress-install
       - 'basic test':
           requires:
-            - cypress/install
+            - cypress-install
       - 'html-pages':
           requires:
-            - cypress/install
+            - cypress-install
       - 'recommended test':
           requires:
-            - cypress/install
+            - cypress-install
       - 'recording test':
           requires:
-            - cypress/install
+            - cypress-install
       - 'test-twice':
           requires:
-            - cypress/install
+            - cypress-install
       - 'test-prebuild-only':
           requires:
-            - cypress/install
+            - cypress-install
       - 'test-postbuild-start':
           requires:
-            - cypress/install
+            - cypress-install
       - test-using-chromium:
           requires:
-            - cypress/install
+            - cypress-install
       - test-netlify-dev:
           requires:
-            - cypress/install
+            - cypress-install
       - routing:
           requires:
-            - cypress/install
+            - cypress-install
       - config-file:
           requires:
-            - cypress/install
+            - cypress-install
       - release:
           # run the release job on all branches
           # since we might want to release a beta version

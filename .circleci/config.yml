@@ -195,7 +195,10 @@ workflows:
     jobs:
       - build
       - cypress/install:
+          # Node 16 is needed to support later version of the netlify CLI
           executor: cypress/base-16-14-2-slim
+          # --force is needed to avoid unsupported platform issues with netlify cli dependencies on @esbuild/android-arm
+          install-command: npm ci --force
       - 'basic test':
           requires:
             - cypress/install

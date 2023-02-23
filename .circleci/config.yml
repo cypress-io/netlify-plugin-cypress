@@ -18,7 +18,7 @@ jobs:
       - run:
           name: unit tests 🧪
           command: npm run test:unit
-          
+
   release:
     executor:
       name: node/default
@@ -225,6 +225,8 @@ workflows:
           requires:
             - build
       - config-file:
+          requires:
+            - build
       - release:
           # run the release job on all branches
           # since we might want to release a beta version

@@ -194,39 +194,41 @@ workflows:
   test_and_release:
     jobs:
       - build
+      - cypress/install:
+          executor: cypress/base-16-14-2-slim
       - 'basic test':
           requires:
-            - build
+            - cypress/install
       - 'html-pages':
           requires:
-            - build
+            - cypress/install
       - 'recommended test':
           requires:
-            - build
+            - cypress/install
       - 'recording test':
           requires:
-            - build
+            - cypress/install
       - 'test-twice':
           requires:
-            - build
+            - cypress/install
       - 'test-prebuild-only':
           requires:
-            - build
+            - cypress/install
       - 'test-postbuild-start':
           requires:
-            - build
+            - cypress/install
       - test-using-chromium:
           requires:
-            - build
+            - cypress/install
       - test-netlify-dev:
           requires:
-            - build
+            - cypress/install
       - routing:
           requires:
-            - build
+            - cypress/install
       - config-file:
           requires:
-            - build
+            - cypress/install
       - release:
           # run the release job on all branches
           # since we might want to release a beta version

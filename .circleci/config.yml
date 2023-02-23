@@ -1,7 +1,6 @@
 version: 2.1
 orbs:
   node: circleci/node@5.0.3
-  cypress: cypress-io/cypress@2.2.0
 jobs:
   build:
     executor:
@@ -18,16 +17,6 @@ jobs:
       - run:
           name: unit tests 🧪
           command: npm run test:unit
-  cypress-install:
-    executor:
-      name: node/default
-      tag: '16.18'
-    steps:
-      - checkout
-      - cypress/install:
-          executor: cypress/base-16-14-2-slim
-
-
   release:
     executor:
       name: node/default
@@ -203,7 +192,6 @@ workflows:
   test_and_release:
     jobs:
       - build
-      - cypress-install
       - 'basic test':
           requires:
             - cypress-install

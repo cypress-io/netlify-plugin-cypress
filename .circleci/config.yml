@@ -18,6 +18,7 @@ jobs:
       - run:
           name: unit tests 🧪
           command: npm run test:unit
+          
   release:
     executor:
       name: node/default

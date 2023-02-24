@@ -240,7 +240,7 @@ publish = "build"
 [[plugins]]
 package = "netlify-plugin-cypress"
   [plugins.inputs]
-  configFile = "cypress.netlify.json"
+  configFile = "cypress.netlify.config.js"
 ```
 
 ### testing SPA routes

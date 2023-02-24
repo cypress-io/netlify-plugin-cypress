@@ -1,3 +1,12 @@
+# Set the default executor for cypress-io/cypress@2.2.0 orb to 16.14.2
+# this executor node version should also be in parity with the node version
+# in netlify: https://app.netlify.com/sites/netlify-plugin-cypress
+# To update, be sure to set the NODE_VERSION inside netlify when updating this
+# executor. 
+# @see https://docs.netlify.com/configure-builds/environment-variables/#netlify-configuration-variables
+defaultCypressOrbConfig: &defaultCypressOrbConfig
+  executor: cypress/base-16-14-2-slim
+
 version: 2.1
 orbs:
   node: circleci/node@5.0.3
@@ -47,7 +56,7 @@ jobs:
             CI_PULL_REQUEST:
 
   'basic test':
-    executor: cypress/base-16-14-2-slim
+    <<: *defaultCypressOrbConfig
     steps:
       # all dependencies were installed in previous job
       - attach_workspace:
@@ -60,7 +69,7 @@ jobs:
             DEBUG: netlify-plugin-cypress
 
   'recommended test':
-    executor: cypress/base-16-14-2-slim
+    <<: *defaultCypressOrbConfig
     steps:
       # all dependencies were installed in previous job
       - attach_workspace:
@@ -73,7 +82,7 @@ jobs:
             DEBUG: netlify-plugin-cypress
 
   'recording test':
-    executor: cypress/base-16-14-2-slim
+    <<: *defaultCypressOrbConfig
     steps:
       # all dependencies were installed in previous job
       - attach_workspace:
@@ -86,7 +95,7 @@ jobs:
             DEBUG: netlify-plugin-cypress
 
   'test-twice':
-    executor: cypress/base-16-14-2-slim
+    <<: *defaultCypressOrbConfig
     steps:
       # all dependencies were installed in previous job
       - attach_workspace:
@@ -99,7 +108,7 @@ jobs:
             DEBUG: netlify-plugin-cypress
 
   'test-prebuild-only':
-    executor: cypress/base-16-14-2-slim
+    <<: *defaultCypressOrbConfig
     steps:
       # all dependencies were installed in previous job
       - attach_workspace:
@@ -112,7 +121,7 @@ jobs:
             DEBUG: netlify-plugin-cypress
 
   'test-postbuild-start':
-    executor: cypress/base-16-14-2-slim
+    <<: *defaultCypressOrbConfig
     steps:
       # all dependencies were installed in previous job
       - attach_workspace:
@@ -125,7 +134,7 @@ jobs:
             DEBUG: netlify-plugin-cypress
 
   'test-using-chromium':
-    executor: cypress/base-16-14-2-slim
+    <<: *defaultCypressOrbConfig
     steps:
       # all dependencies were installed in previous job
       - attach_workspace:
@@ -138,7 +147,7 @@ jobs:
             DEBUG: netlify-plugin-cypress
 
   'test-netlify-dev':
-    executor: cypress/base-16-14-2-slim
+    <<: *defaultCypressOrbConfig
     steps:
       # all dependencies were installed in previous job
       - attach_workspace:
@@ -151,7 +160,7 @@ jobs:
             DEBUG: netlify-plugin-cypress
 
   'html-pages':
-    executor: cypress/base-16-14-2-slim
+    <<: *defaultCypressOrbConfig
     steps:
       # all dependencies were installed in previous job
       - attach_workspace:
@@ -164,7 +173,7 @@ jobs:
             DEBUG: netlify-plugin-cypress
 
   routing:
-    executor: cypress/base-16-14-2-slim
+    <<: *defaultCypressOrbConfig
     steps:
       # all dependencies were installed in previous job
       - attach_workspace:
@@ -177,7 +186,7 @@ jobs:
             DEBUG: netlify-plugin-cypress
 
   config-file:
-    executor: cypress/base-16-14-2-slim
+    <<: *defaultCypressOrbConfig
     steps:
       # all dependencies were installed in previous job
       - attach_workspace:
@@ -196,7 +205,7 @@ workflows:
       - build
       - cypress/install:
           # Node 16 is needed to support later version of the netlify CLI
-          executor: cypress/base-16-14-2-slim
+          <<: *defaultCypressOrbConfig
           # --force is needed to avoid unsupported platform issues with netlify cli dependencies on @esbuild/android-arm
           install-command: npm ci --force
       - 'basic test':

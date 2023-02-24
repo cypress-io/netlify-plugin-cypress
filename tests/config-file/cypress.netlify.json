@@ -1,8 +1,0 @@
-{
-  "pluginsFile": false,
-  "supportFile": false,
-  "fixturesFolder": false,
-  "env": {
-    "CUSTOM_FILE": 42
-  }
-}

@@ -240,7 +240,7 @@ publish = "build"
 [[plugins]]
 package = "netlify-plugin-cypress"
   [plugins.inputs]
-  configFile = "cypress.netlify.json"
+  configFile = "cypress.netlify.config.js"
 ```
 
 ### testing SPA routes
@@ -270,7 +270,7 @@ By default this plugin tests static site _after deploy_. But maybe you want to r
   [plugins.inputs.preBuild]
     enable = true
     start = 'npm start'
-    wait-on = 'http://localhost:5000'
+    wait-on = 'http://localhost:3000'
     wait-on-timeout = '30' # seconds
 ```
 

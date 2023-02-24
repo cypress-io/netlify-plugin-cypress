@@ -28,5 +28,5 @@ CI = "1"
   [plugins.inputs.postBuild]
     enable = true
     start = 'npx serve public'
-    wait-on = 'http://localhost:5000'
+    wait-on = 'http://localhost:3000'
     wait-on-timeout = '30' # seconds

@@ -24,10 +24,10 @@
   "dependencies": {
     "common-tags": "1.8.0",
     "debug": "4.1.1",
-    "got": "10.7.0",
+    "got": "11.8.6",
     "local-web-server": "^4.2.1",
     "puppeteer": "18.1.0",
-    "ramda": "0.27.1"
+    "ramda": "0.28.0"
   },
   "repository": {
     "type": "git",
@@ -52,7 +52,7 @@
     "react-router-dom": "5.2.0",
     "react-scripts": "3.4.1",
     "semantic-release": "^20.0.2",
-    "serve": "11.3.0"
+    "serve": "14.2.0"
   },
   "release": {
     "branches": [

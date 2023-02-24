@@ -17,7 +17,7 @@ CI = "1"
 
 [dev]
   command = "npx serve public"
-  targetPort = 5000
+  targetPort = 3000
   framework = "#custom"
 
 [[redirects]]

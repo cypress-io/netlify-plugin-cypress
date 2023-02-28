@@ -1,16 +1,16 @@
-# Set the default executor for cypress-io/cypress@2.2.0 orb to 16.14.2
+# The default executor for cypress-io/cypress@3.0.0 orb is 16.16.0
 # this executor node version should also be in parity with the node version
 # in netlify: https://app.netlify.com/sites/netlify-plugin-cypress
 # To update, be sure to set the NODE_VERSION inside netlify when updating this
 # executor. 
 # @see https://docs.netlify.com/configure-builds/environment-variables/#netlify-configuration-variables
 defaultCypressOrbConfig: &defaultCypressOrbConfig
-  executor: cypress/base-16-14-2-slim
+  executor: cypress/default
 
 version: 2.1
 orbs:
   node: circleci/node@5.0.3
-  cypress: cypress-io/cypress@2.2.0
+  cypress: cypress-io/cypress@3.0.0
 jobs:
   build:
     executor:
@@ -27,6 +27,17 @@ jobs:
       - run:
           name: unit tests 🧪
           command: npm run test:unit
+  install_and_persist:
+    <<: *defaultCypressOrbConfig
+    steps:
+      - cypress/install:
+          # --force is needed to avoid unsupported platform issues with netlify cli dependencies on @esbuild/android-arm
+          install-command: npm ci --force
+      - persist_to_workspace:
+          paths:
+              - .cache/Cypress
+              - project
+          root: ~/
 
   release:
     executor:
@@ -203,44 +214,40 @@ workflows:
   test_and_release:
     jobs:
       - build
-      - cypress/install:
-          # Node 16 is needed to support later version of the netlify CLI
-          <<: *defaultCypressOrbConfig
-          # --force is needed to avoid unsupported platform issues with netlify cli dependencies on @esbuild/android-arm
-          install-command: npm ci --force
+      - install_and_persist
       - 'basic test':
           requires:
-            - cypress/install
+            - install_and_persist
       - 'html-pages':
           requires:
-            - cypress/install
+            - install_and_persist
       - 'recommended test':
           requires:
-            - cypress/install
+            - install_and_persist
       - 'recording test':
           requires:
-            - cypress/install
+            - install_and_persist
       - 'test-twice':
           requires:
-            - cypress/install
+            - install_and_persist
       - 'test-prebuild-only':
           requires:
-            - cypress/install
+            - install_and_persist
       - 'test-postbuild-start':
           requires:
-            - cypress/install
+            - install_and_persist
       - test-using-chromium:
           requires:
-            - cypress/install
+            - install_and_persist
       - test-netlify-dev:
           requires:
-            - cypress/install
+            - install_and_persist
       - routing:
           requires:
-            - cypress/install
+            - install_and_persist
       - config-file:
           requires:
-            - cypress/install
+            - install_and_persist
       - release:
           # run the release job on all branches
           # since we might want to release a beta version

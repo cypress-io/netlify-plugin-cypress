@@ -14,7 +14,7 @@
     "netlify",
     "netlify-plugin"
   ],
-  "author": "Gleb Bahmutov <gleb@cypress.io>",
+  "author": "Cypress-io",
   "files": [
     "manifest.yml",
     "src",

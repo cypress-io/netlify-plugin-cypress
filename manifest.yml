@@ -50,5 +50,5 @@ inputs:
   # See Netlify docs for available values:
   # https://docs.netlify.com/configure-builds/environment-variables/#deploy-urls-and-metadata
   - name: deployUrlEnvVar
-    description: The Netlify environment variable containing the URL Cypress should test
+    description: The Netlify environment variable containing the URL Cypress will set as the baseUrl for tests
     default: DEPLOY_PRIME_URL

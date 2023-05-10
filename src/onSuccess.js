@@ -37,7 +37,7 @@ module.exports = async ({ utils, inputs, constants }) => {
   const summaryCallback = utils.status.show.bind(utils.status)
 
   if (!deployUrl) {
-    return errorCallback('Missing deployUrl')
+    return errorCallback('Missing deploy URL. Please set a valid Netlify environment variable as the deploy URL to set the baseUrl in your cypress configuration. For example, set deployUrlEnvVar to DEPLOY_PRIME_URL.\nSee https://docs.netlify.com/configure-builds/environment-variables/#deploy-urls-and-metadata for more details on which environment variables can be used.')
   }
 
   const browser = onSuccessInputs.browser || DEFAULT_BROWSER

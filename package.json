@@ -24,7 +24,7 @@
   "dependencies": {
     "common-tags": "1.8.0",
     "debug": "4.1.1",
-    "got": "11.8.6",
+    "got": "13.0.0",
     "local-web-server": "^4.2.1",
     "puppeteer": "18.1.0",
     "ramda": "0.28.0"

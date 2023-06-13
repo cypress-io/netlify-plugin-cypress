@@ -34,6 +34,12 @@ inputs:
       If recording to Cypress Dashboard,
       pass the tag with "cypress run --record --tag ..."
 
+  # See Netlify docs for available values:
+  # https://docs.netlify.com/configure-builds/environment-variables/#deploy-urls-and-metadata
+  - name: deployUrlEnvVar
+    description: The Netlify environment variable containing the URL Cypress should set as the baseUrl to test
+    default: DEPLOY_PRIME_URL
+
   # tells the plugin how to start the server using custom command
   # and waiting for an url, record to the dashboard, tag, etc
   # see README "testing the site before build"

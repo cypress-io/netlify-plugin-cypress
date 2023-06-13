@@ -209,6 +209,19 @@ jobs:
           environment:
             DEBUG: netlify-plugin-cypress
 
+  alternate-deploy-url:
+    <<: *defaultCypressOrbConfig
+    steps:
+      # all dependencies were installed in previous job
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Netlify Build 🏗
+          command: npm run netlify:build
+          working_directory: tests/alternate-deploy-url
+          environment:
+            DEBUG: netlify-plugin-cypress
+
 workflows:
   version: 2
   test_and_release:
@@ -248,6 +261,9 @@ workflows:
       - config-file:
           requires:
             - install_and_persist
+      - alternate-deploy-url:
+          requires:
+            - install_and_persist
       - release:
           # run the release job on all branches
           # since we might want to release a beta version
@@ -263,3 +279,5 @@ workflows:
             - test-using-chromium
             - test-netlify-dev
             - 'routing'
+            - 'config-file'
+            - alternate-deploy-url

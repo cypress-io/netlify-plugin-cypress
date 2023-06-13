@@ -18,10 +18,10 @@ module.exports = async ({ utils, inputs, constants }) => {
 
   const isLocal = constants.IS_LOCAL
   const siteName = process.env.SITE_NAME
-  const deployPrimeUrl = process.env.DEPLOY_PRIME_URL
+  const deployUrl = process.env[onSuccessInputs.deployUrlEnvVar]
   debug('onSuccess against %o', {
     siteName,
-    deployPrimeUrl,
+    deployUrl,
     isLocal,
   })
 
@@ -36,7 +36,7 @@ module.exports = async ({ utils, inputs, constants }) => {
   const errorCallback = utils.build.failPlugin.bind(utils.build)
   const summaryCallback = utils.status.show.bind(utils.status)
 
-  if (!deployPrimeUrl) {
+  if (!deployUrl) {
     return errorCallback('Missing DEPLOY_PRIME_URL')
   }
 
@@ -69,9 +69,9 @@ module.exports = async ({ utils, inputs, constants }) => {
 
   const configFile = onSuccessInputs.configFile
 
-  console.log('testing deployed url %s', deployPrimeUrl)
+  console.log('testing deployed url %s', deployUrl)
   const results = await runCypressTests(
-    deployPrimeUrl,
+    deployUrl,
     record,
     spec,
     group,

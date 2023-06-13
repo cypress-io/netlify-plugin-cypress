@@ -217,7 +217,7 @@ jobs:
           at: ~/
       - run:
           name: Netlify Build 🏗
-          command: npm run netlify:build
+          command: npx netlify build
           working_directory: tests/alternate-deploy-url
           environment:
             DEBUG: netlify-plugin-cypress

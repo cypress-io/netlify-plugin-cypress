@@ -18,7 +18,7 @@ module.exports = async ({ utils, inputs, constants }) => {
 
   const isLocal = constants.IS_LOCAL
   const siteName = process.env.SITE_NAME
-  const deployUrl = process.env[onSuccessInputs.deployUrlEnvVar] || process.env.DEPLOY_PRIME_URL;
+  const deployUrl = onSuccessInputs.deployUrlEnvVar ? process.env[onSuccessInputs.deployUrlEnvVar] : process.env.DEPLOY_PRIME_URL;
   debug('onSuccess against %o', {
     siteName,
     deployUrl,

@@ -18,10 +18,10 @@ module.exports = async ({ utils, inputs, constants }) => {
 
   const isLocal = constants.IS_LOCAL
   const siteName = process.env.SITE_NAME
-  const deployPrimeUrl = process.env.DEPLOY_PRIME_URL
+  const deployUrl = process.env[onSuccessInputs.deployUrlEnvVar] || process.env.DEPLOY_PRIME_URL;
   debug('onSuccess against %o', {
     siteName,
-    deployPrimeUrl,
+    deployUrl,
     isLocal,
   })
 
@@ -36,8 +36,8 @@ module.exports = async ({ utils, inputs, constants }) => {
   const errorCallback = utils.build.failPlugin.bind(utils.build)
   const summaryCallback = utils.status.show.bind(utils.status)
 
-  if (!deployPrimeUrl) {
-    return errorCallback('Missing DEPLOY_PRIME_URL')
+  if (!deployUrl) {
+    return errorCallback('Missing Deploy URL. Please set a valid Netlify environment variable to pull the deploy URL from to set as the baseUrl in your cypress configuration. For example, set deployUrlEnvVar to DEPLOY_PRIME_URL.\nSee https://docs.netlify.com/configure-builds/environment-variables/#deploy-urls-and-metadata for more details on which ENVs can be used')
   }
 
   const browser = onSuccessInputs.browser || DEFAULT_BROWSER
@@ -69,9 +69,9 @@ module.exports = async ({ utils, inputs, constants }) => {
 
   const configFile = onSuccessInputs.configFile
 
-  console.log('testing deployed url %s', deployPrimeUrl)
+  console.log('testing deployed url %s', deployUrl)
   const results = await runCypressTests(
-    deployPrimeUrl,
+    deployUrl,
     record,
     spec,
     group,

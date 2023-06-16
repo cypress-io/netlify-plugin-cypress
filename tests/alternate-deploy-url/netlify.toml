@@ -7,6 +7,5 @@ publish = "public"
   # in production, please use: package = "netlify-plugin-cypress"
   package = "../../"
 
-  # do not run tests after deploy (testing)
   [plugins.inputs]
     deployUrlEnvVar = "DEPLOY_URL"

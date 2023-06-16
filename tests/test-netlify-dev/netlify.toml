@@ -40,4 +40,4 @@ CI = "1"
 
   # do no run tests after deploy
   [plugins.inputs]
-    enable = false
+    deployUrlEnvVar = "DEPLOY_URL"

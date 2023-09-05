@@ -40,17 +40,17 @@
     "access": "public"
   },
   "engines": {
-    "node": ">=10.18.1"
+    "node": ">=18"
   },
   "devDependencies": {
     "jest": "^24.9.0",
     "cypress": "13.1.0",
-    "netlify-cli": "13.2.2",
+    "netlify-cli": "16.2.0",
     "prettier": "2.2.1",
     "react": "16.13.1",
     "react-dom": "16.13.1",
     "react-router-dom": "5.2.0",
-    "react-scripts": "3.4.1",
+    "react-scripts": "5.0.1",
     "semantic-release": "^20.0.2",
     "serve": "14.2.0"
   },

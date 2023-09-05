@@ -5,6 +5,7 @@
 command = "echo 'Netlify build command ...'"
 publish = "public"
 functions = "src/functions"
+base = "tests/test-netlify-dev"
 
 [build.environment]
 # cache Cypress binary in local "node_modules" folder

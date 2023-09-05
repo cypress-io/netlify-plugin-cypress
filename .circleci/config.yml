@@ -5,7 +5,9 @@
 # executor. 
 # @see https://docs.netlify.com/configure-builds/environment-variables/#netlify-configuration-variables
 defaultCypressOrbConfig: &defaultCypressOrbConfig
-  executor: cypress/default
+  executor: 
+    name: cypress/default
+    node-version: '18.17.1'
 
 version: 2.1
 orbs:
@@ -15,7 +17,7 @@ jobs:
   build:
     executor:
       name: node/default
-      tag: '16.18'
+      tag: '18.17.1'
     steps:
       - checkout
       - node/install-packages:
@@ -42,7 +44,7 @@ jobs:
   release:
     executor:
       name: node/default
-      tag: '18.12.1'
+      tag: '18.17.1'
     environment:
       # since we do not need Cypress to publish the NPM package
       # we can skip the binary download
@@ -74,7 +76,7 @@ jobs:
           at: ~/
       - run:
           name: Netlify Build 🏗
-          command: npx netlify build
+          command: BUILD_ID=$CIRCLE_BUILD_NUM npx netlify build
           working_directory: tests/basic
           environment:
             DEBUG: netlify-plugin-cypress
@@ -87,7 +89,7 @@ jobs:
           at: ~/
       - run:
           name: Netlify Build 🏗
-          command: npx netlify build
+          command: BUILD_ID=$CIRCLE_BUILD_NUM npx netlify build
           working_directory: tests/recommended
           environment:
             DEBUG: netlify-plugin-cypress
@@ -100,7 +102,7 @@ jobs:
           at: ~/
       - run:
           name: Netlify Build 🏗
-          command: npx netlify build
+          command: BUILD_ID=$CIRCLE_BUILD_NUM npx netlify build
           working_directory: tests/recording
           environment:
             DEBUG: netlify-plugin-cypress
@@ -113,7 +115,7 @@ jobs:
           at: ~/
       - run:
           name: Netlify Build 🏗
-          command: npx netlify build
+          command: BUILD_ID=$CIRCLE_BUILD_NUM npx netlify build
           working_directory: tests/test-twice
           environment:
             DEBUG: netlify-plugin-cypress
@@ -152,7 +154,7 @@ jobs:
           at: ~/
       - run:
           name: Netlify Build 🏗
-          command: npx netlify build
+          command: BUILD_ID=$CIRCLE_BUILD_NUM npx netlify build
           working_directory: tests/use-chromium
           environment:
             DEBUG: netlify-plugin-cypress
@@ -178,7 +180,7 @@ jobs:
           at: ~/
       - run:
           name: Netlify Build 🏗
-          command: npx netlify build
+          command: BUILD_ID=$CIRCLE_BUILD_NUM npx netlify build
           working_directory: tests/html-pages
           environment:
             DEBUG: netlify-plugin-cypress

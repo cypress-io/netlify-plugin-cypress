@@ -1,6 +1,7 @@
 [build]
 command = "npm run build"
 publish = "build"
+base = "tests/routing"
 
 [build.environment]
 # cache Cypress binary in local "node_modules" folder

@@ -1,6 +1,7 @@
 [build]
 command = "echo 'Netlify build command ...'"
 publish = "public"
+base = "tests/config-file"
 
 [[plugins]]
   # local Cypress plugin will test our site after it is built

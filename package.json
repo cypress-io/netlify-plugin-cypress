@@ -44,7 +44,7 @@
   },
   "devDependencies": {
     "jest": "^24.9.0",
-    "cypress": "13.12.0",
+    "cypress": "13.13.0",
     "netlify-cli": "17.31.0",
     "prettier": "2.2.1",
     "react": "16.13.1",

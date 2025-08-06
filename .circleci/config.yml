@@ -12,7 +12,7 @@ defaultCypressOrbConfig: &defaultCypressOrbConfig
 version: 2.1
 orbs:
   node: circleci/node@5.1.0
-  cypress: cypress-io/cypress@4.1.0
+  cypress: cypress-io/cypress@5.0.1
 jobs:
   build:
     executor:

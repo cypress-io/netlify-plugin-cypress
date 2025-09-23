@@ -20,6 +20,8 @@ And then add the plugin's name to the list of build plugins in `netlify.toml` fi
 
 ### Chromium install
 
+*note:* the most recent version does not install chromium (it is broken), so it defaults to using the built in electron browser.
+
 This plugin installs [via Puppeteer](https://github.com/puppeteer/puppeteer) Chromium browser, which is also cached inside `./node_modules` folder.
 
 ## How does it work
@@ -201,6 +203,8 @@ package = "netlify-plugin-cypress"
 See [cypress-example-kitchensink](https://github.com/cypress-io/cypress-example-kitchensink) for instance.
 
 ### browser
+
+*note:* the most recent version does not install chromium (it is broken), so it defaults to using the built in electron browser.
 
 By default all tests run using the Chromium browser. If you want to use Electron:
 

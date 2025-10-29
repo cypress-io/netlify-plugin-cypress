@@ -251,6 +251,7 @@ workflows:
           requires:
             - install_and_persist
       - release:
+          context: org-npm-credentials
           # run the release job on all branches
           # since we might want to release a beta version
           requires:

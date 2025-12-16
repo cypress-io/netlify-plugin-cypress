@@ -17,12 +17,15 @@ jobs:
   build:
     executor:
       name: node/default
-      tag: '18.17.1'
+      tag: '20.19.6'
     steps:
       - checkout
       - node/install-packages:
           cache-path: ~/project/node_modules
           override-ci-command: npm install
+      - run:
+          name: update npm to latest
+          command: npm update -g npm
       - run:
           name: show package contents 📦
           command: npm pack --dry

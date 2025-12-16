@@ -4,10 +4,11 @@
 # To update, be sure to set the NODE_VERSION inside netlify when updating this
 # executor. 
 # @see https://docs.netlify.com/configure-builds/environment-variables/#netlify-configuration-variables
+_node-version: &node-version '20.19.6'
 defaultCypressOrbConfig: &defaultCypressOrbConfig
   executor: 
     name: cypress/default
-    node-version: '18.17.1'
+    node-version: <<: *node-version
 
 version: 2.1
 orbs:
@@ -17,7 +18,7 @@ jobs:
   build:
     executor:
       name: node/default
-      tag: '20.19.6'
+      tag: <<: *node-version
     steps:
       - checkout
       - node/install-packages:
@@ -47,7 +48,7 @@ jobs:
   release:
     executor:
       name: node/default
-      tag: '18.17.1'
+      tag: <<: *node-version
     environment:
       # since we do not need Cypress to publish the NPM package
       # we can skip the binary download

@@ -25,9 +25,6 @@ jobs:
           cache-path: ~/project/node_modules
           override-ci-command: npm install
       - run:
-          name: update npm to latest
-          command: npm update -g npm
-      - run:
           name: show package contents 📦
           command: npm pack --dry
       - run:
@@ -38,7 +35,7 @@ jobs:
     steps:
       - cypress/install:
           # --force is needed to avoid unsupported platform issues with netlify cli dependencies on @esbuild/android-arm
-          install-command: npm ci --force
+          install-command: npm update -g npm && npm ci --force
       - persist_to_workspace:
           paths:
               - .cache/Cypress

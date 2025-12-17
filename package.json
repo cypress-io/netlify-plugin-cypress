@@ -40,7 +40,7 @@
     "access": "public"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20.19.6"
   },
   "devDependencies": {
     "jest": "^24.9.0",

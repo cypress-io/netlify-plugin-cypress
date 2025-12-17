@@ -4,10 +4,11 @@
 # To update, be sure to set the NODE_VERSION inside netlify when updating this
 # executor. 
 # @see https://docs.netlify.com/configure-builds/environment-variables/#netlify-configuration-variables
+
 defaultCypressOrbConfig: &defaultCypressOrbConfig
   executor: 
     name: cypress/default
-    node-version: '18.17.1'
+    node-version: '20.19.6'
 
 version: 2.1
 orbs:
@@ -17,7 +18,7 @@ jobs:
   build:
     executor:
       name: node/default
-      tag: '18.17.1'
+      tag: '20.19.6'
     steps:
       - checkout
       - node/install-packages:
@@ -34,7 +35,7 @@ jobs:
     steps:
       - cypress/install:
           # --force is needed to avoid unsupported platform issues with netlify cli dependencies on @esbuild/android-arm
-          install-command: npm ci --force
+          install-command: npm update -g npm && npm ci --force
       - persist_to_workspace:
           paths:
               - .cache/Cypress
@@ -44,7 +45,7 @@ jobs:
   release:
     executor:
       name: node/default
-      tag: '18.17.1'
+      tag: '20.19.6'
     environment:
       # since we do not need Cypress to publish the NPM package
       # we can skip the binary download

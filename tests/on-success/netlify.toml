@@ -1,0 +1,16 @@
+[build]
+command = "echo 'Netlify build command ...'"
+publish = "public"
+  [build.environment]
+  # stands in for the URL Netlify sets after a real deploy,
+  # test.sh serves the "public" folder at this address
+  DEPLOY_PRIME_URL = "http://localhost:5050"
+
+[[plugins]]
+  # local Cypress plugin will test our site after it is "deployed"
+  # in production, please use: package = "netlify-plugin-cypress"
+  package = "../../"
+
+  # run tests after deploy (the default onSuccess step)
+  [plugins.inputs]
+    enable = true

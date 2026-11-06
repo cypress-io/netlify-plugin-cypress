@@ -3,7 +3,7 @@ command = "echo 'Netlify build command ...'"
 publish = "public"
   [build.environment]
   # stands in for the URL Netlify sets after a real deploy,
-  # test.sh serves the "public" folder at this address
+  # test.sh reads it and serves the "public" folder at this address
   DEPLOY_PRIME_URL = "http://localhost:5050"
 
 [[plugins]]

@@ -36,7 +36,7 @@ CI = "1"
   # let's run tests against Netlify Dev server
   [plugins.inputs.preBuild]
     enable = true
-    start = 'npx netlify dev'
+    start = 'npx netlify dev --offline'
     wait-on = 'http://localhost:8888'
 
   # do no run tests after deploy

@@ -8,6 +8,24 @@ defaultCypressOrbConfig: &defaultCypressOrbConfig
     name: cypress/default
     node-version: '20.19.6'
 
+# Test jobs restore the project from the workspace instead of running
+# "checkout", so GitHub's SSH host key is never added and the origin
+# remote is an SSH URL. When Cypress records a run for a pull request,
+# it runs a git command that reaches github.com, and SSH then waits
+# forever at its "continue connecting (yes/no)?" prompt until CircleCI
+# kills the job. This repo is public, so read from GitHub over anonymous
+# HTTPS instead, and never let git or SSH prompt.
+testJobConfig: &testJobConfig
+  <<: *defaultCypressOrbConfig
+  environment:
+    GIT_TERMINAL_PROMPT: '0'
+    GIT_SSH_COMMAND: ssh -o BatchMode=yes
+    GIT_CONFIG_COUNT: '2'
+    GIT_CONFIG_KEY_0: url.https://github.com/.insteadOf
+    GIT_CONFIG_VALUE_0: 'git@github.com:'
+    GIT_CONFIG_KEY_1: url.https://github.com/.insteadOf
+    GIT_CONFIG_VALUE_1: ssh://git@github.com/
+
 version: 2.1
 orbs:
   node: circleci/node@5.1.0
@@ -68,7 +86,7 @@ jobs:
             CI_PULL_REQUEST:
 
   'basic test':
-    <<: *defaultCypressOrbConfig
+    <<: *testJobConfig
     steps:
       # all dependencies were installed in previous job
       - attach_workspace:
@@ -81,7 +99,7 @@ jobs:
             DEBUG: netlify-plugin-cypress
 
   'recommended test':
-    <<: *defaultCypressOrbConfig
+    <<: *testJobConfig
     steps:
       # all dependencies were installed in previous job
       - attach_workspace:
@@ -94,7 +112,7 @@ jobs:
             DEBUG: netlify-plugin-cypress
 
   'recording test':
-    <<: *defaultCypressOrbConfig
+    <<: *testJobConfig
     steps:
       # all dependencies were installed in previous job
       - attach_workspace:
@@ -107,7 +125,7 @@ jobs:
             DEBUG: netlify-plugin-cypress
 
   'test-twice':
-    <<: *defaultCypressOrbConfig
+    <<: *testJobConfig
     steps:
       # all dependencies were installed in previous job
       - attach_workspace:
@@ -120,7 +138,7 @@ jobs:
             DEBUG: netlify-plugin-cypress
 
   'test-prebuild-only':
-    <<: *defaultCypressOrbConfig
+    <<: *testJobConfig
     steps:
       # all dependencies were installed in previous job
       - attach_workspace:
@@ -133,7 +151,7 @@ jobs:
             DEBUG: netlify-plugin-cypress
 
   'test-postbuild-start':
-    <<: *defaultCypressOrbConfig
+    <<: *testJobConfig
     steps:
       # all dependencies were installed in previous job
       - attach_workspace:
@@ -146,7 +164,7 @@ jobs:
             DEBUG: netlify-plugin-cypress
 
   'test-using-chromium':
-    <<: *defaultCypressOrbConfig
+    <<: *testJobConfig
     steps:
       # all dependencies were installed in previous job
       - attach_workspace:
@@ -159,7 +177,7 @@ jobs:
             DEBUG: netlify-plugin-cypress
 
   'test-netlify-dev':
-    <<: *defaultCypressOrbConfig
+    <<: *testJobConfig
     steps:
       # all dependencies were installed in previous job
       - attach_workspace:
@@ -172,7 +190,7 @@ jobs:
             DEBUG: netlify-plugin-cypress
 
   'html-pages':
-    <<: *defaultCypressOrbConfig
+    <<: *testJobConfig
     steps:
       # all dependencies were installed in previous job
       - attach_workspace:
@@ -185,7 +203,7 @@ jobs:
             DEBUG: netlify-plugin-cypress
 
   routing:
-    <<: *defaultCypressOrbConfig
+    <<: *testJobConfig
     steps:
       # all dependencies were installed in previous job
       - attach_workspace:
@@ -198,7 +216,7 @@ jobs:
             DEBUG: netlify-plugin-cypress
 
   config-file:
-    <<: *defaultCypressOrbConfig
+    <<: *testJobConfig
     steps:
       # all dependencies were installed in previous job
       - attach_workspace:
@@ -211,7 +229,7 @@ jobs:
             DEBUG: netlify-plugin-cypress
 
   'on-success':
-    <<: *defaultCypressOrbConfig
+    <<: *testJobConfig
     steps:
       # all dependencies were installed in previous job
       - attach_workspace:

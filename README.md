@@ -30,7 +30,7 @@ With this plugin, you can:
 
 ### Requirements
 
-- Node.js 20.19.6 or later in your Netlify build
+- Node.js 22.12.0 or later in your Netlify build. Netlify's current build image uses Node.js 22 by default.
 - Cypress installed as a dev dependency in your project, with at least one end-to-end spec. The plugin runs end-to-end tests only. It doesn't run component tests.
 
 ```shell
@@ -83,7 +83,7 @@ onSuccess    ← default: test the live deployed URL
 | `postBuild` | Your publish folder, served locally | No | The build fails and **Netlify doesn't deploy** |
 | `preBuild` | A server you start, such as a dev server | No | The build fails and **Netlify doesn't deploy** |
 
-We run Cypress through the [Cypress Module API](https://on.cypress.io/module-api) in headless mode. We use Chromium by default, which we install through [Puppeteer](https://github.com/puppeteer/puppeteer) and cache in `node_modules`.
+We run Cypress through the [Cypress Module API](https://on.cypress.io/module-api) in headless mode, in [Chrome for Testing](https://developer.chrome.com/blog/chrome-for-testing) by default. The plugin pins the Chrome version, so a new Chrome release can't change your results between builds. It downloads Chrome for Testing the first time a build needs it and saves it to the Netlify build cache, so later builds reuse it. Nothing runs at install time, so it works the same with npm, Yarn, and pnpm.
 
 ### Important: the default step can't stop a deploy
 
@@ -266,7 +266,8 @@ Remember that each step reads only its own block. See [Each step has its own set
 | Setting | What it does | Default | `onSuccess` | `postBuild` | `preBuild` |
 | --- | --- | --- | :---: | :---: | :---: |
 | `enable` | Turns testing on for this step | `true` for `onSuccess`, `false` otherwise | ✓ | ✓ | ✓ |
-| `browser` | Browser to run tests in: `chromium` (recommended) or `electron` | `chromium` | ✓ | ✓ | ✓ |
+| `browser` | Browser to run tests in: `chrome-for-testing` or `electron` (deprecated by Cypress). `chromium` is a deprecated alias for `chrome-for-testing`. | `chrome-for-testing` | ✓ | ✓ | ✓ |
+| `browserVersion` | Chrome for Testing version to use instead of the pinned one: an exact version, a major version like `"150"`, or a channel (`stable`, `beta`, `dev`, `canary`). Falls back to the pinned version if it can't be downloaded. | The plugin's pinned version | ✓ | ✓ | ✓ |
 | `spec` | Spec file or glob to run, like `cypress run --spec` | All specs | ✓ | ✓ | ✓ |
 | `configFile` | Path to a Cypress config file | Cypress default | ✓ | ✓ | ✓ |
 | `record` | Record the run to Cypress Cloud (needs `CYPRESS_RECORD_KEY`) | `false` | ✓ | ✓ | ✓ |
@@ -287,6 +288,17 @@ Remember that each step reads only its own block. See [Each step has its own set
   [plugins.inputs]
     spec = "cypress/e2e/smoke*.cy.js"
 ```
+
+**Test in a different Chrome version:**
+
+```toml
+[[plugins]]
+  package = "netlify-plugin-cypress"
+  [plugins.inputs]
+    browserVersion = "beta"
+```
+
+The plugin pins a Chrome for Testing version so your results don't change when Chrome updates. Set `browserVersion` to try your site in an upcoming release, or to stay on an older one. If the plugin can't find or download the version you ask for, it logs a warning and runs the pinned version instead, so the build still tests your site. A channel like `stable` or `beta` follows Chrome's releases, so the version can change from one build to the next.
 
 **Use a different Cypress config file:**
 
@@ -346,6 +358,13 @@ The [tests](./tests) folder in this repo has a small working project for each fe
 - **No parallelization.** Netlify runs each build on a single machine, so Cypress can't split specs across machines. You can still record runs to Cypress Cloud.
 - **The built-in `postBuild` server doesn't run Netlify redirects or Netlify Functions.** Use the [Netlify CLI](#test-redirects-and-functions-with-the-netlify-cli) if your tests need them.
 - **The `onSuccess` step can't stop a deploy.** See [the default step can't stop a deploy](#important-the-default-step-cant-stop-a-deploy).
+
+## Moving from Chromium to Chrome for Testing
+
+The default browser is now Chrome for Testing, which replaces the Chromium build the plugin used to install through Puppeteer.
+
+- **You don't need to change anything.** If you set `browser = "chromium"`, it keeps working and runs Chrome for Testing, but the build log shows a deprecation warning. Remove the setting, or change it to `chrome-for-testing`.
+- **The first build downloads the browser.** Later builds restore it from the Netlify build cache. If you clear the cache, the next build downloads it again.
 
 ## Upgrading from v1 to v2
 
@@ -408,8 +427,18 @@ DEBUG=netlify-plugin-cypress,netlify-plugin-cypress:verbose
 </details>
 
 <details>
+  <summary>The build fails with "Could not find local browser"</summary>
+  Older versions of the plugin downloaded Chromium in an install script, which pnpm 10 and later skips by default. Upgrade the plugin: it now downloads Chrome for Testing during the build instead. Remove any <code>browser = "chromium"</code> setting while you're there, since <code>chromium</code> is a deprecated alias for the default.
+</details>
+
+<details>
+  <summary>The build fails with "Could not download Chrome for Testing"</summary>
+  The plugin downloads Chrome for Testing from <code>storage.googleapis.com</code> the first time a build needs it. Check the rest of the error for a network problem, then retry the deploy. Once a download succeeds, later builds restore the browser from the Netlify build cache.
+</details>
+
+<details>
   <summary>The browser crashes while running tests</summary>
-  Use Chromium, which tends to be the most reliable on Netlify. Set <code>browser = "chromium"</code>, or remove the <code>browser</code> setting to use the default.
+  Use the default <code>chrome-for-testing</code> browser. Remove the <code>browser</code> setting, or set <code>browser = "chrome-for-testing"</code>. Cypress has deprecated the bundled Electron browser and plans to remove it in a future major version, so avoid <code>browser = "electron"</code>.
 </details>
 
 ## License

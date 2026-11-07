@@ -23,6 +23,7 @@ async function postBuild({
   tag,
   spa,
   browser,
+  browserVersion,
   configFile,
   errorCallback,
   summaryCallback,
@@ -58,6 +59,7 @@ async function postBuild({
     tag,
     browser,
     configFile,
+    { cache: utils.cache, version: browserVersion },
   )
 
   if (closeServer) {
@@ -132,6 +134,7 @@ module.exports = async ({ inputs, constants, utils }) => {
     tag,
     spa,
     browser,
+    browserVersion: postBuildInputs.browserVersion,
     configFile,
     errorCallback,
     summaryCallback,

@@ -20,11 +20,11 @@
   ],
   "license": "MIT",
   "dependencies": {
+    "@puppeteer/browsers": "3.2.6",
     "common-tags": "1.8.0",
     "debug": "4.1.1",
     "got": "11.8.6",
     "local-web-server": "^4.2.1",
-    "puppeteer": "18.1.0",
     "ramda": "0.28.0"
   },
   "repository": {
@@ -38,11 +38,11 @@
     "access": "public"
   },
   "engines": {
-    "node": ">=20.19.6"
+    "node": ">=22.12.0"
   },
   "devDependencies": {
-    "jest": "^24.9.0",
     "cypress": "15.12.0",
+    "jest": "^24.9.0",
     "netlify-cli": "18.1.0",
     "prettier": "2.2.1",
     "react": "16.13.1",

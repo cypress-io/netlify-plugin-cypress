@@ -8,6 +8,7 @@ const {
 } = require('./utils')
 
 jest.mock('./utils')
+jest.mock('./browser', () => ({}))
 
 const setup = ({ postBuildInputs = {} } = {}) => {
   const inputs = {
@@ -22,6 +23,10 @@ const setup = ({ postBuildInputs = {} } = {}) => {
   }
   const utils = {
     run: jest.fn(),
+    cache: {
+      restore: jest.fn(),
+      save: jest.fn(),
+    },
     build: {
       failBuild: jest.fn(),
     },
@@ -54,6 +59,28 @@ describe('onPostBuild', () => {
     await expect(testFunction()).resolves.toBe(undefined)
     expect(startServerMaybe).not.toHaveBeenCalled()
     expect(serveFolder).not.toHaveBeenCalled()
+  })
+
+  it('passes the browser settings to the test run', async () => {
+    const { testFunction, utils } = setup({
+      postBuildInputs: {
+        enable: true,
+        browser: 'chrome-for-testing',
+        browserVersion: 'beta',
+      },
+    })
+
+    await expect(testFunction()).resolves.toBe(undefined)
+    expect(runCypressTests).toHaveBeenCalledWith(
+      expect.anything(),
+      false,
+      undefined,
+      undefined,
+      undefined,
+      'chrome-for-testing',
+      undefined,
+      { cache: utils.cache, version: 'beta' },
+    )
   })
 
   describe('start option', () => {
@@ -118,7 +145,7 @@ describe('onPostBuild', () => {
     })
 
     it('runs the cypress tests', async () => {
-      const { testFunction, inputs } = setup({
+      const { testFunction, inputs, utils } = setup({
         postBuildInputs: {
           enable: true,
           start: 'a start command',
@@ -133,8 +160,9 @@ describe('onPostBuild', () => {
         inputs.postBuild.spec,
         undefined,
         undefined,
-        'chromium',
+        'chrome-for-testing',
         undefined,
+        { cache: utils.cache, version: undefined },
       )
     })
 
@@ -228,7 +256,7 @@ describe('onPostBuild', () => {
     })
 
     it('runs the cypress tests', async () => {
-      const { testFunction, inputs } = setup({
+      const { testFunction, inputs, utils } = setup({
         postBuildInputs: {
           enable: true,
         },
@@ -242,8 +270,9 @@ describe('onPostBuild', () => {
         inputs.postBuild.spec,
         undefined,
         undefined,
-        'chromium',
+        'chrome-for-testing',
         undefined,
+        { cache: utils.cache, version: undefined },
       )
     })
 

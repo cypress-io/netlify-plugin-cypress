@@ -4,36 +4,40 @@ name: Snyk Software Composition Analysis Scan
 # Develop branches. We use this as a control to prevent vulnerable packages 
 # from being introduced into the codebase. 
 #
-# Pull requests from branches in this repo are scanned on "pull_request",
-# which checks out the pull request's code and has access to SNYK_TOKEN.
+# Every pull request runs on "pull_request_target", whenever it's opened,
+# pushed to or reopened, so each commit gets a real scan. We don't use
+# "pull_request" because fork PRs would get a skipped job there, and
+# GitHub counts a skipped job as a passing check.
 #
-# Pull requests from forks don't get secrets on "pull_request", so they
-# are scanned on "pull_request_target" instead. That event checks out
-# master, never the fork's code, because running a scan over untrusted
-# code with access to secrets is unsafe. For fork PRs this scan reflects
-# master, not the contributor's changes.
+# - PRs from branches in this repo scan the pull request's own code.
+#   Those branches come from people with write access, so this is the
+#   same trust "pull_request" would give them.
+# - PRs from forks scan master instead. Checking out a fork's code here
+#   would run a scan over untrusted code with access to SNYK_TOKEN. For
+#   fork PRs the result reflects master, not the contributor's changes.
 on:
-  pull_request:
-    branches:
-      - master
   pull_request_target:
     types:
       - opened
+      - synchronize
+      - reopened
     branches:
       - master
 jobs:
   Snyk_SCA_Scan:
-    if: >-
-      (github.event_name == 'pull_request' &&
-        github.event.pull_request.head.repo.full_name == github.repository) ||
-      (github.event_name == 'pull_request_target' &&
-        github.event.pull_request.head.repo.full_name != github.repository)
     runs-on: ubuntu-latest
     strategy:
       matrix:
         node-version: [18.x]
     steps:
       - uses: actions/checkout@v2
+        with:
+          # same-repo PRs: the PR's commit; fork PRs: empty, which checks
+          # out the default for pull_request_target (master)
+          ref: ${{ github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.sha || '' }}
+      - name: Note when this scan reflects master
+        if: github.event.pull_request.head.repo.full_name != github.repository
+        run: echo "::notice::This pull request comes from a fork, so this Snyk scan checked master, not the pull request's changes."
       - name: Setting up Node
         uses: actions/setup-node@v1
         with:

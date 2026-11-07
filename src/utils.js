@@ -20,13 +20,16 @@ const getBrowserPath = async () => {
 }
 
 /**
- * Servers local folder
+ * Serves a local folder. Resolves with the server once it is listening,
+ * and rejects if the server cannot start, for example with EADDRINUSE
+ * when another process already uses the port.
  * @see https://github.com/lwsjs/local-web-server
  * @param {string} directory
  * @param {number} port
  * @param {boolean|'index.html'} spa
+ * @returns {Promise<import('http').Server>}
  */
-function serveFolder(directory, port, spa) {
+async function serveFolder(directory, port, spa) {
   if (typeof spa === 'boolean') {
     if (spa) {
       // spa parameter should be the name of the
@@ -52,7 +55,7 @@ function serveFolder(directory, port, spa) {
     throw new Error(`Cannot find folder "${directory}" to serve`)
   }
 
-  return LocalWebServer.create({
+  const server = LocalWebServer.create({
     // @ts-ignore
     directory,
     port,
@@ -61,6 +64,84 @@ function serveFolder(directory, port, spa) {
     // DEBUG=koa-send
     staticExtensions: ['html'],
   }).server
+
+  // The server reports a listen error with an "error" event after create()
+  // has returned, so a try/catch around create() can never catch it.
+  // Wait for the outcome so the caller can fail the build cleanly.
+  await new Promise((resolve, reject) => {
+    if (server.listening) {
+      return resolve()
+    }
+    const onListening = () => {
+      server.removeListener('error', onError)
+      resolve()
+    }
+    const onError = (err) => {
+      server.removeListener('listening', onListening)
+      if (err.code === 'EADDRINUSE') {
+        err.message = stripIndent`
+          ${err.message}
+          Another process is already using port ${port}, so the plugin cannot serve "${directory}".
+          If a "start" command runs in an earlier step, make sure that server stops before this step.
+        `
+      }
+      reject(err)
+    }
+    server.once('listening', onListening)
+    server.once('error', onError)
+  })
+
+  return server
+}
+
+// how long the start command gets to exit on its own after SIGTERM,
+// before every process left in its group gets SIGKILL
+const STOP_SERVER_GRACE_MS = 2000
+
+/**
+ * Sends a signal to the whole process group of a detached process.
+ * The start command runs inside a shell and usually spawns more processes
+ * (for example shell -> npm -> sh -> node), so signaling only the shell
+ * would leave the actual server running and holding its port.
+ * Falls back to signaling the single process if the group is not reachable.
+ */
+function killProcessGroup(serverProcess, signal) {
+  const { pid } = serverProcess
+  if (pid && process.platform !== 'win32') {
+    try {
+      // a negative pid targets every process in the group
+      process.kill(-pid, signal)
+      return
+    } catch (err) {
+      // ESRCH means the group already exited
+      if (err.code === 'ESRCH') {
+        return
+      }
+      debug('could not signal process group %d: %s', pid, err.message)
+    }
+  }
+  serverProcess.kill(signal)
+}
+
+/**
+ * Checks if any process in the group of a detached process still exists.
+ * Exited processes that were not cleaned up yet (zombies) also count,
+ * so this can report true for the whole grace period. That only delays
+ * stopping, because SIGKILL follows the grace period either way.
+ */
+function processGroupExists(serverProcess) {
+  const { pid } = serverProcess
+  if (!pid || process.platform === 'win32') {
+    return serverProcess.exitCode === null && !serverProcess.killed
+  }
+  try {
+    // signal 0 only checks that the processes exist
+    process.kill(-pid, 0)
+    return true
+  } catch (err) {
+    // EPERM means the processes exist but we cannot signal them
+    return err.code === 'EPERM'
+  }
 }
 
 function startServerMaybe(run, options = {}) {
@@ -75,10 +156,39 @@ function startServerMaybe(run, options = {}) {
     shell: true,
   })
 
+  // The process promise rejects when we stop the server with a signal.
+  // That is expected, so only report errors from before we stopped it,
+  // for example a typo in the start command that exits with code 127.
+  let stopping = false
+  Promise.resolve(serverProcess).catch((err) => {
+    if (stopping) {
+      debug('server process exited: %s', err && err.message)
+      return
+    }
+    console.error('')
+    console.error('The start command "%s" exited unexpectedly', startCommand)
+    console.error(err && err.message)
+    console.error('')
+  })
+
   debug('detached the process and returning stop function')
   return async () => {
+    stopping = true
     console.log('stopping server process opened with:', startCommand)
-    await serverProcess.kill()
+    killProcessGroup(serverProcess, 'SIGTERM')
+
+    // give the server a moment to shut down cleanly
+    const deadline = Date.now() + STOP_SERVER_GRACE_MS
+    while (processGroupExists(serverProcess) && Date.now() < deadline) {
+      await new Promise((resolve) => setTimeout(resolve, 100))
+    }
+
+    // Then stop anything left, such as a server that ignores SIGTERM.
+    // Zombies may still be counted here, and SIGKILL does not affect them.
+    if (processGroupExists(serverProcess)) {
+      debug('server process still running, sending SIGKILL')
+      killProcessGroup(serverProcess, 'SIGKILL')
+    }
   }
 }
 

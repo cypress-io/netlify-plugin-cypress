@@ -115,7 +115,7 @@ module.exports = async (arg) => {
 
   if (closeServer) {
     debug('closing server')
-    closeServer()
+    await closeServer()
   }
 
   const errorCallback = utils.build.failBuild.bind(utils.build)

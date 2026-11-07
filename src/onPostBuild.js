@@ -39,7 +39,7 @@ async function postBuild({
     })
   } else {
     try {
-      server = serveFolder(fullPublishFolder, port, spa)
+      server = await serveFolder(fullPublishFolder, port, spa)
       debug('local server listening on port %d', port)
     } catch (err) {
       return errorCallback(`Could not serve folder ${fullPublishFolder}`, {

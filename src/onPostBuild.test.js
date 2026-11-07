@@ -210,6 +210,28 @@ describe('onPostBuild', () => {
       )
     })
 
+    it('calls the error callback when the port is already in use', async () => {
+      const { testFunction, utils, constants } = setup({
+        postBuildInputs: {
+          enable: true,
+        },
+      })
+
+      const error = Object.assign(new Error('listen EADDRINUSE'), {
+        code: 'EADDRINUSE',
+      })
+      serveFolder.mockRejectedValue(error)
+
+      await expect(testFunction()).resolves.toBe(undefined)
+      expect(
+        utils.build.failBuild,
+      ).toHaveBeenCalledWith(
+        `Could not serve folder ${constants.PUBLISH_DIR}`,
+        { error },
+      )
+      expect(runCypressTests).not.toHaveBeenCalled()
+    })
+
     it('rejects when it fails to close the server', async () => {
       const { testFunction, utils, constants } = setup({
         postBuildInputs: {

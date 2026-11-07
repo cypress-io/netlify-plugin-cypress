@@ -1,5 +1,5 @@
 # netlify-plugin-cypress
-[![CircleCI](https://circleci.com/gh/cypress-io/netlify-plugin-cypress.svg?style=shield)](https://circleci.com/gh/cypress-io/netlify-plugin-cypress/tree/master) [![renovate-app badge][renovate-badge]][renovate-app] [![netlify-plugin-cypress](https://img.shields.io/endpoint?url=https://cloud.cypress.io/badge/simple/ixroqc/master&style=flat&logo=cypress)](https://cloud.cypress.io/projects/ixroqc/runs)
+[![CI](https://github.com/cypress-io/netlify-plugin-cypress/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/cypress-io/netlify-plugin-cypress/actions/workflows/ci.yml?query=branch%3Amaster) [![renovate-app badge][renovate-badge]][renovate-app] [![netlify-plugin-cypress](https://img.shields.io/endpoint?url=https://cloud.cypress.io/badge/simple/ixroqc/master&style=flat&logo=cypress)](https://cloud.cypress.io/projects/ixroqc/runs)
 
 > Run [Cypress](https://www.cypress.io) end-to-end tests as part of every Netlify build.
 

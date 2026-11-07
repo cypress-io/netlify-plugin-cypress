@@ -18,7 +18,7 @@
     "src",
     "!src/**/*.test.js"
   ],
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "common-tags": "1.8.0",
     "debug": "4.1.1",

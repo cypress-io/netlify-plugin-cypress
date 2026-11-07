@@ -1,5 +1,5 @@
 # netlify-plugin-cypress
-[![CircleCI](https://circleci.com/gh/cypress-io/netlify-plugin-cypress.svg?style=shield)](https://circleci.com/gh/cypress-io/netlify-plugin-cypress/tree/master) [![renovate-app badge][renovate-badge]][renovate-app] [![netlify-plugin-cypress](https://img.shields.io/endpoint?url=https://dashboard.cypress.io/badge/simple/ixroqc/master&style=flat&logo=cypress)](https://dashboard.cypress.io/projects/ixroqc/runs)
+[![CircleCI](https://circleci.com/gh/cypress-io/netlify-plugin-cypress.svg?style=shield)](https://circleci.com/gh/cypress-io/netlify-plugin-cypress/tree/master) [![renovate-app badge][renovate-badge]][renovate-app] [![netlify-plugin-cypress](https://img.shields.io/endpoint?url=https://cloud.cypress.io/badge/simple/ixroqc/master&style=flat&logo=cypress)](https://cloud.cypress.io/projects/ixroqc/runs)
 
 > Run [Cypress](https://www.cypress.io) end-to-end tests as part of every Netlify build.
 
@@ -266,7 +266,7 @@ Remember that each step reads only its own block. See [Each step has its own set
 | Setting | What it does | Default | `onSuccess` | `postBuild` | `preBuild` |
 | --- | --- | --- | :---: | :---: | :---: |
 | `enable` | Turns testing on for this step | `true` for `onSuccess`, `false` otherwise | ✓ | ✓ | ✓ |
-| `browser` | `chromium` or `electron` | `chromium` | ✓ | ✓ | ✓ |
+| `browser` | Browser to run tests in: `chromium` (recommended) or `electron` | `chromium` | ✓ | ✓ | ✓ |
 | `spec` | Spec file or glob to run, like `cypress run --spec` | All specs | ✓ | ✓ | ✓ |
 | `configFile` | Path to a Cypress config file | Cypress default | ✓ | ✓ | ✓ |
 | `record` | Record the run to Cypress Cloud (needs `CYPRESS_RECORD_KEY`) | `false` | ✓ | ✓ | ✓ |
@@ -321,7 +321,7 @@ A few details to know:
 - **Default groups and tags.** If you leave out `group`, we use the step name (`onSuccess`, `postBuild`, or `preBuild`). If you leave out `tag`, we use the Netlify deploy context (`production`, `deploy-preview`, or `branch-deploy`).
 - **One build, one run.** We pass Netlify's `BUILD_ID` to Cypress, so recordings from different steps of the same build show up as groups in a single run.
 
-See [tests/recording](./tests/recording) for an example, and [this plugin's own recorded runs in Cypress Cloud](https://dashboard.cypress.io/projects/ixroqc/runs).
+See [tests/recording](./tests/recording) for an example, and [this plugin's own recorded runs in Cypress Cloud](https://cloud.cypress.io/projects/ixroqc/runs).
 
 ### Keep your record key secret
 
@@ -351,7 +351,7 @@ The [tests](./tests) folder in this repo has a small working project for each fe
 
 v2 changed two defaults:
 
-- **The default browser is now Chromium.** To keep using Electron, set `browser = "electron"`.
+- **The default browser is now Chromium.** You don't need to set `browser` to use it.
 - **Tests now run against the deployed URL by default.** In v1, tests ran after the build. In v2, they run in `onSuccess`. To test before deploying, enable [`postBuild`](#test-the-built-site-postbuild) or [`preBuild`](#test-a-running-server-prebuild).
 
 ## Debugging
@@ -408,13 +408,8 @@ DEBUG=netlify-plugin-cypress,netlify-plugin-cypress:verbose
 </details>
 
 <details>
-  <summary>Electron crashes while running tests</summary>
-  Chromium tends to be more reliable on Netlify. Remove <code>browser = "electron"</code> to use the default, or set <code>browser = "chromium"</code>.
-</details>
-
-<details>
-  <summary>I want to skip the Chromium download</summary>
-  If you only use the Electron browser, set the build environment variable <code>PUPPETEER_SKIP_DOWNLOAD = "1"</code> to save build time. Don't set this if any step uses Chromium, since those tests need the download.
+  <summary>The browser crashes while running tests</summary>
+  Use Chromium, which tends to be the most reliable on Netlify. Set <code>browser = "chromium"</code>, or remove the <code>browser</code> setting to use the default.
 </details>
 
 ## License

@@ -58,6 +58,7 @@ async function postBuild({
     tag,
     browser,
     configFile,
+    utils.cache,
   )
 
   if (closeServer) {

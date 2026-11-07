@@ -111,6 +111,7 @@ module.exports = async (arg) => {
     tag,
     browser,
     configFile,
+    utils.cache,
   )
 
   if (closeServer) {

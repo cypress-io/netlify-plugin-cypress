@@ -8,6 +8,7 @@ const {
 } = require('./utils')
 
 jest.mock('./utils')
+jest.mock('./browser', () => ({}))
 
 const setup = ({ postBuildInputs = {} } = {}) => {
   const inputs = {
@@ -22,6 +23,10 @@ const setup = ({ postBuildInputs = {} } = {}) => {
   }
   const utils = {
     run: jest.fn(),
+    cache: {
+      restore: jest.fn(),
+      save: jest.fn(),
+    },
     build: {
       failBuild: jest.fn(),
     },
@@ -118,7 +123,7 @@ describe('onPostBuild', () => {
     })
 
     it('runs the cypress tests', async () => {
-      const { testFunction, inputs } = setup({
+      const { testFunction, inputs, utils } = setup({
         postBuildInputs: {
           enable: true,
           start: 'a start command',
@@ -133,8 +138,9 @@ describe('onPostBuild', () => {
         inputs.postBuild.spec,
         undefined,
         undefined,
-        'chromium',
+        'chrome-for-testing',
         undefined,
+        utils.cache,
       )
     })
 
@@ -228,7 +234,7 @@ describe('onPostBuild', () => {
     })
 
     it('runs the cypress tests', async () => {
-      const { testFunction, inputs } = setup({
+      const { testFunction, inputs, utils } = setup({
         postBuildInputs: {
           enable: true,
         },
@@ -242,8 +248,9 @@ describe('onPostBuild', () => {
         inputs.postBuild.spec,
         undefined,
         undefined,
-        'chromium',
+        'chrome-for-testing',
         undefined,
+        utils.cache,
       )
     })
 

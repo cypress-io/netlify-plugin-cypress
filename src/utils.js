@@ -1,22 +1,28 @@
 // @ts-check
-const puppeteer = require('puppeteer')
 const debug = require('debug')('netlify-plugin-cypress')
 const LocalWebServer = require('local-web-server')
 const fs = require('fs')
 const { stripIndent } = require('common-tags')
 const { ping } = require('./ping')
-const { PLUGIN_NAME } = require('./constants')
+const { PLUGIN_NAME, BROWSERS } = require('./constants')
+const { getChromeForTestingPath } = require('./browser')
 
-const getBrowserPath = async () => {
-  const browserFetcher = puppeteer.createBrowserFetcher()
-  const revisions = await browserFetcher.localRevisions()
-  debug('local Chromium revisions %o', revisions)
-  if (revisions.length <= 0) {
-    throw new Error('Could not find local browser')
+/**
+ * Turns the plugin's browser input into the value Cypress expects
+ * @param {string} browser
+ * @param {{ restore: Function, save: Function } | undefined} cache
+ *   Netlify's `utils.cache`
+ */
+const getBrowserPath = async (browser, cache) => {
+  if (browser === 'electron') {
+    return 'electron'
   }
-  const info = await browserFetcher.revisionInfo(revisions[0])
-  debug('found Chromium %o', info)
-  return info.executablePath
+  if (browser === 'chromium') {
+    console.warn(
+      'The "chromium" browser setting is deprecated and now runs Chrome for Testing. Set browser = "chrome-for-testing" instead.',
+    )
+  }
+  return getChromeForTestingPath(cache)
 }
 
 /**
@@ -112,7 +118,7 @@ async function waitOnMaybe(buildUtils, options = {}) {
   }
 }
 
-const isValidBrowser = (name) => name === 'electron' || name === 'chromium'
+const isValidBrowser = (name) => BROWSERS.includes(name)
 
 async function runCypressTests(
   baseUrl,
@@ -122,9 +128,12 @@ async function runCypressTests(
   tag,
   browser,
   configFile,
+  cache,
 ) {
   if (!isValidBrowser(browser)) {
-    throw new Error(`Invalid browser name "${browser}"`)
+    throw new Error(
+      `Invalid browser name "${browser}". Use one of: ${BROWSERS.join(', ')}`,
+    )
   }
 
   // we will use Cypress via its NPM module API
@@ -138,8 +147,7 @@ async function runCypressTests(
     ciBuildId = process.env.BUILD_ID
   }
 
-  const browserPath =
-    browser === 'electron' ? 'electron' : await getBrowserPath()
+  const browserPath = await getBrowserPath(browser, cache)
 
   debug('run cypress params %o', {
     baseUrl,

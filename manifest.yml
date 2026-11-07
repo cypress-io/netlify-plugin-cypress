@@ -6,11 +6,11 @@ inputs:
     description: Run tests against the preview or production deploy
     default: true
 
-  # Cypress comes with built-in Electron browser
-  # and this NPM package installs Chromium browser
+  # The plugin downloads Chrome for Testing on first use and saves it
+  # to the Netlify build cache. "chromium" is a deprecated alias for it.
   - name: browser
-    description: Allowed values are chromium, electron
-    default: chromium
+    description: Allowed values are chrome-for-testing, electron
+    default: chrome-for-testing
 
   - name: configFile
     description: Path to the Cypress config file to use

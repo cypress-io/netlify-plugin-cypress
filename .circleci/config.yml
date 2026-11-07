@@ -218,10 +218,14 @@ jobs:
           at: ~/
       - run:
           name: Netlify Build with onSuccess 🏗
-          command: npm run netlify:build
+          command: BUILD_ID=$CIRCLE_BUILD_NUM npm run netlify:build
           working_directory: tests/on-success
           environment:
             DEBUG: netlify-plugin-cypress
+      - store_artifacts:
+          path: tests/on-success/netlify-build.log
+      - store_artifacts:
+          path: tests/on-success/server.log
 
 workflows:
   version: 2

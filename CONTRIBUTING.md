@@ -15,6 +15,8 @@ To run locally, from a subfolder of `tests`:
 
 Most fixtures turn off the default `onSuccess` step, since there's no real deploy to test. The [tests/on-success](tests/on-success) fixture covers it, along with how the plugin reports skipped and pending tests, by serving the built site locally and pointing `DEPLOY_PRIME_URL` at that server. Netlify doesn't fail the build when `onSuccess` fails, so its `test.sh` script checks the build output instead.
 
+The fixture also records to Cypress Cloud when `CYPRESS_RECORD_KEY` is set, and `test.sh` then checks that the run was recorded. Without the key, the plugin skips recording and `test.sh` skips that check.
+
 ## Releasing a new version
 
 Before releasing check that each CircleCI job has actually run the tests correctly. We don't have a way to check if Cypress _executed all tests_, other than looking at the CircleCI terminal output.

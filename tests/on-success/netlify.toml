@@ -1,4 +1,5 @@
 [build]
+base = "tests/on-success"
 command = "echo 'Netlify build command ...'"
 publish = "public"
   [build.environment]
@@ -12,5 +13,7 @@ publish = "public"
   package = "../../"
 
   # run tests after deploy (the default onSuccess step)
+  # and record them when CYPRESS_RECORD_KEY is set
   [plugins.inputs]
     enable = true
+    record = true

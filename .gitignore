@@ -9,3 +9,4 @@ build
 
 # onSuccess fixture build output
 tests/on-success/netlify-build.log
+tests/on-success/server.log

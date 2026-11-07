@@ -22,19 +22,24 @@ if [ -z "$DEPLOY_URL" ] || ! [[ "$PORT" =~ ^[0-9]+$ ]]; then
   exit 1
 fi
 
-# "serve" quietly picks another port when this one is taken
-# (even with --no-port-switching), so make sure the port is free first
-if ! node -e "require('net').createServer().once('error', () => process.exit(1)).listen($PORT, () => process.exit(0))"; then
-  echo "❌ port $PORT is already in use, stop whatever is using it and try again"
-  exit 1
-fi
-
-"$BIN/serve" public --listen "$PORT" > /dev/null 2>&1 &
+# serve the folder with the same server the plugin uses during postBuild,
+# it exits with an error if the port is already taken
+SERVER_LOG=server.log
+node ../../src/serve-cli.js public "$PORT" > "$SERVER_LOG" 2>&1 &
 SERVER_PID=$!
 trap 'kill "$SERVER_PID" 2> /dev/null || true' EXIT
 
-# stop with a clear error if the server never comes up (60s timeout)
-if ! node ../../src/ping-cli.js "$DEPLOY_URL"; then
+# wait up to 30 seconds for our server to report it is listening
+for _ in $(seq 1 60); do
+  grep --quiet "listening at" "$SERVER_LOG" && break
+  if ! kill -0 "$SERVER_PID" 2> /dev/null; then
+    cat "$SERVER_LOG"
+    echo "❌ static server exited, is port $PORT already in use?"
+    exit 1
+  fi
+  sleep 0.5
+done
+if ! grep --quiet "listening at" "$SERVER_LOG"; then
   echo "❌ static server did not start at $DEPLOY_URL"
   exit 1
 fi
@@ -57,6 +62,14 @@ grep --quiet --extended-regexp "Pending tests: 2([^0-9]|$)" "$LOG" ||
   fail "the plugin summary did not report 2 pending tests"
 # Netlify titles a reported failure 'Plugin "../../" failed' and a thrown
 # error 'Plugin "../../" internal error', so match the shared prefix
+# the plugin only records when the key is present, and quietly skips
+# recording otherwise, so only check for a recorded run when it can happen
+if [ -n "${CYPRESS_RECORD_KEY:-}" ]; then
+  grep --quiet "Recorded Run:" "$LOG" ||
+    fail "CYPRESS_RECORD_KEY is set, but the run was not recorded"
+else
+  echo "ℹ️  CYPRESS_RECORD_KEY is not set, skipping the recording check"
+fi
 if grep --quiet --fixed-strings 'Plugin "../../" ' "$LOG"; then
   fail "the plugin reported a failure"
 fi

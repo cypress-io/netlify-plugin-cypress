@@ -7,7 +7,7 @@ In this example the public folder has both `index.html` and pages like `public/c
 Test locally with
 
 ```
-$ DEBUG=netlify-plugin-cypress ../../node_modules/.bin/netlify build
+$ DEBUG=netlify-plugin-cypress ../../node_modules/.bin/netlify build --offline
 ```
 
 These tests run:

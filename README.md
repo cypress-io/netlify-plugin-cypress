@@ -30,7 +30,7 @@ With this plugin, you can:
 
 ### Requirements
 
-- Node.js 20.19.6 or later in your Netlify build
+- Node.js 22.12.0 or later in your Netlify build. Netlify's current build image uses Node.js 22 by default.
 - Cypress installed as a dev dependency in your project, with at least one end-to-end spec. The plugin runs end-to-end tests only. It doesn't run component tests.
 
 ```shell

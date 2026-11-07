@@ -20,7 +20,7 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@puppeteer/browsers": "2.13.2",
+    "@puppeteer/browsers": "3.2.6",
     "common-tags": "1.8.0",
     "debug": "4.1.1",
     "got": "11.8.6",
@@ -38,7 +38,7 @@
     "access": "public"
   },
   "engines": {
-    "node": ">=20.19.6"
+    "node": ">=22.12.0"
   },
   "devDependencies": {
     "cypress": "15.12.0",

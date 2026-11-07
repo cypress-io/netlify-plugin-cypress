@@ -14,7 +14,8 @@ BIN=../../node_modules/.bin
 LOG=netlify-build.log
 
 # netlify.toml is the single source of truth for the "deployed" URL
-DEPLOY_URL=$(sed -n 's/^ *DEPLOY_PRIME_URL *= *"\(.*\)".*/\1/p' netlify.toml)
+# (accepts either "double" or 'single' quoted TOML strings)
+DEPLOY_URL=$(sed -n "s/^ *DEPLOY_PRIME_URL *= *[\"']\([^\"']*\)[\"'].*/\1/p" netlify.toml)
 PORT=${DEPLOY_URL##*:}
 if [ -z "$DEPLOY_URL" ] || ! [[ "$PORT" =~ ^[0-9]+$ ]]; then
   echo "❌ could not read DEPLOY_PRIME_URL with a port from netlify.toml"
@@ -52,9 +53,11 @@ grep --quiet "All specs passed!" "$LOG" ||
   fail "Cypress specs did not all pass"
 # spec.cy.js has 1 passing test plus 1 skipped and 1 pending test,
 # which Cypress both counts as pending
-grep --quiet --fixed-strings "Pending tests: 2" "$LOG" ||
+grep --quiet --extended-regexp "Pending tests: 2([^0-9]|$)" "$LOG" ||
   fail "the plugin summary did not report 2 pending tests"
-if grep --quiet --fixed-strings 'Plugin "../../" failed' "$LOG"; then
+# Netlify titles a reported failure 'Plugin "../../" failed' and a thrown
+# error 'Plugin "../../" internal error', so match the shared prefix
+if grep --quiet --fixed-strings 'Plugin "../../" ' "$LOG"; then
   fail "the plugin reported a failure"
 fi
 

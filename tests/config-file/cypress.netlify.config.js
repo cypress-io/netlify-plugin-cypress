@@ -2,7 +2,7 @@ const { defineConfig } = require("cypress");
 
 module.exports = defineConfig({
   fixturesFolder: false,
-  env: {
+  expose: {
     CUSTOM_FILE: 42,
   },
   e2e: {

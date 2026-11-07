@@ -17,9 +17,8 @@ permissions:
   contents: read
 
 env:
-  NODE_VERSION: '20.19.6'
   # Cypress 16 supports only Node 22, 24 and 26 or newer
-  CYPRESS_NODE_VERSION: '22'
+  NODE_VERSION: '22'
 
 jobs:
   build:
@@ -99,7 +98,7 @@ jobs:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
         with:
-          node-version: ${{ env.CYPRESS_NODE_VERSION }}
+          node-version: ${{ env.NODE_VERSION }}
           cache: npm
       - name: Read Cypress version
         id: cypress

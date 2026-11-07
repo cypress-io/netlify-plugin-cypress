@@ -24,6 +24,7 @@ describe('getChromeForTestingPath', () => {
   let onDisk
   let browsers
   let getChromeForTestingPath
+  let cleanUpChromeForTesting
   let BROWSER_CACHE_DIR
   let PINNED
   let warn
@@ -36,6 +37,7 @@ describe('getChromeForTestingPath', () => {
     browsers = require('@puppeteer/browsers')
     ;({
       getChromeForTestingPath,
+      cleanUpChromeForTesting,
       BROWSER_CACHE_DIR,
       CHROME_FOR_TESTING_VERSION: PINNED,
     } = require('./browser'))
@@ -97,10 +99,12 @@ describe('getChromeForTestingPath', () => {
       )
       expect(cache.restore).toHaveBeenCalledWith(BROWSER_CACHE_DIR)
       expect(browsers.install).not.toHaveBeenCalled()
+
+      await cleanUpChromeForTesting(cache)
       expect(cache.save).not.toHaveBeenCalled()
     })
 
-    it('downloads the pinned version and saves it to the Netlify cache', async () => {
+    it('downloads the pinned version and saves it to the Netlify cache at the end', async () => {
       const cache = makeCache()
 
       await expect(getChromeForTestingPath(cache)).resolves.toBe(
@@ -113,10 +117,14 @@ describe('getChromeForTestingPath', () => {
         cacheDir: BROWSER_CACHE_DIR,
         platform: 'linux',
       })
+      expect(cache.save).not.toHaveBeenCalled()
+
+      await cleanUpChromeForTesting(cache)
+      expect(cache.save).toHaveBeenCalledTimes(1)
       expect(cache.save).toHaveBeenCalledWith(BROWSER_CACHE_DIR)
     })
 
-    it('removes versions this build did not use', async () => {
+    it('removes versions this build did not use at the end', async () => {
       const cache = makeCache()
       cache.restore.mockImplementation(async () => {
         onDisk.add('1.0.0')
@@ -124,6 +132,10 @@ describe('getChromeForTestingPath', () => {
       })
 
       await getChromeForTestingPath(cache)
+      expect(browsers.uninstall).not.toHaveBeenCalled()
+
+      await cleanUpChromeForTesting(cache)
+      expect(cache.save).toHaveBeenCalledWith(BROWSER_CACHE_DIR)
       expect(browsers.uninstall).toHaveBeenCalledTimes(1)
       expect(browsers.uninstall).toHaveBeenCalledWith({
         browser: 'chrome',
@@ -262,10 +274,49 @@ describe('getChromeForTestingPath', () => {
 
       await getChromeForTestingPath(cache, '150.0.7871.24')
       await getChromeForTestingPath(cache)
+      await cleanUpChromeForTesting(cache)
       expect(browsers.install).toHaveBeenCalledTimes(2)
       expect(cache.restore).toHaveBeenCalledTimes(1)
       expect(browsers.uninstall).not.toHaveBeenCalled()
       expect([...onDisk].sort()).toEqual([PINNED, '150.0.7871.24'].sort())
+    })
+
+    it('keeps a restored version that a later step needs', async () => {
+      // The cache holds only the pinned version. An earlier step downloads
+      // a requested version, then a later step uses the pinned one.
+      const cache = makeCache()
+      cache.restore.mockImplementation(async () => {
+        onDisk.add(PINNED)
+        return true
+      })
+
+      await getChromeForTestingPath(cache, '150.0.7871.24')
+      await expect(getChromeForTestingPath(cache)).resolves.toBe(
+        executableFor(PINNED),
+      )
+      expect(browsers.install).toHaveBeenCalledTimes(1)
+      expect(browsers.install).toHaveBeenCalledWith(
+        expect.objectContaining({ buildId: '150.0.7871.24' }),
+      )
+
+      await cleanUpChromeForTesting(cache)
+      expect(browsers.uninstall).not.toHaveBeenCalled()
+      expect(cache.save).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  describe('cleanUpChromeForTesting', () => {
+    it('leaves the cache alone when no step used Chrome for Testing', async () => {
+      const cache = makeCache()
+
+      await cleanUpChromeForTesting(cache)
+      expect(browsers.getInstalledBrowsers).not.toHaveBeenCalled()
+      expect(cache.save).not.toHaveBeenCalled()
+    })
+
+    it('works without the Netlify cache', async () => {
+      await getChromeForTestingPath(undefined)
+      await expect(cleanUpChromeForTesting(undefined)).resolves.toBe(undefined)
     })
   })
 })

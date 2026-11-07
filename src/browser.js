@@ -35,11 +35,13 @@ const BROWSER_CACHE_DIR = path.join(
 /** @type {Map<string, Promise<string>>} */
 const pathsByRequest = new Map()
 // Every build step runs in the same process, and steps can ask for different
-// versions, so keep all of them when pruning the cache.
+// versions. Only onEnd knows which ones the whole build used, so the cache
+// is pruned and saved there.
 const usedVersions = new Set()
 // Restoring replaces the whole folder, which would delete a version an
 // earlier step downloaded in this build.
 let restoreAttempted = false
+let downloaded = false
 
 async function removeUnusedVersions() {
   const installed = await getInstalledBrowsers({ cacheDir: BROWSER_CACHE_DIR })
@@ -55,6 +57,7 @@ async function removeUnusedVersions() {
       cacheDir: BROWSER_CACHE_DIR,
     })
   }
+  return unused.length
 }
 
 /**
@@ -96,12 +99,7 @@ async function installVersion(buildId, cache, platform) {
       `Could not download Chrome for Testing ${buildId}: ${error.message}`,
     )
   }
-  await removeUnusedVersions()
-
-  if (cache) {
-    await cache.save(BROWSER_CACHE_DIR)
-    debug('saved Chrome for Testing to the Netlify cache')
-  }
+  downloaded = true
 
   return executablePath
 }
@@ -169,8 +167,27 @@ function getChromeForTestingPath(cache, requestedVersion) {
   return /** @type {Promise<string>} */ (pathsByRequest.get(key))
 }
 
+/**
+ * Removes Chrome for Testing versions this build didn't use, then saves the
+ * folder to the Netlify cache if anything changed. Runs once, after every
+ * step that could need a browser.
+ * @param {NetlifyCache | undefined} cache
+ */
+async function cleanUpChromeForTesting(cache) {
+  if (usedVersions.size === 0) {
+    debug('no step used Chrome for Testing, leaving the cache alone')
+    return
+  }
+  const removed = await removeUnusedVersions()
+  if (cache && (downloaded || removed > 0)) {
+    await cache.save(BROWSER_CACHE_DIR)
+    debug('saved Chrome for Testing to the Netlify cache')
+  }
+}
+
 module.exports = {
   BROWSER_CACHE_DIR,
   CHROME_FOR_TESTING_VERSION,
+  cleanUpChromeForTesting,
   getChromeForTestingPath,
 }

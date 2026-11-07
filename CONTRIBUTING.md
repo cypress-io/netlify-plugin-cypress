@@ -21,13 +21,7 @@ The fixture also records to Cypress Cloud when `CYPRESS_RECORD_KEY` is set, and 
 
 The `release` job in the [CI workflow](.github/workflows/ci.yml) runs `semantic-release` after every push, once the unit tests and all end-to-end jobs pass.
 
-It publishes to NPM with [trusted publishing](https://docs.npmjs.com/trusted-publishers), so there's no NPM token to store or rotate. Each published version also gets a provenance statement linking it to the workflow run that built it. The package's trusted publisher is set on npmjs.com, under the package's **Settings** → **Trusted Publisher**:
-
-- **Publisher:** GitHub Actions
-- **Organization or user:** `cypress-io`
-- **Repository:** `netlify-plugin-cypress`
-- **Workflow filename:** `ci.yml`
-- **Environment name:** leave empty
+It publishes to NPM with [trusted publishing](https://docs.npmjs.com/trusted-publishers), so there's no NPM token to store or rotate. Each published version also gets a provenance statement linking it to the workflow run that built it. The package's trusted publisher is set on npmjs.com, under the package's **Settings** → **Trusted Publisher**.
 
 If you rename the workflow file, update the trusted publisher to match, or publishing fails. GitHub provides `GITHUB_TOKEN` for tags and releases.
 

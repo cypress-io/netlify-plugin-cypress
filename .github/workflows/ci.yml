@@ -17,7 +17,6 @@ permissions:
   contents: read
 
 env:
-  # Cypress 16 supports only Node 22, 24 and 26 or newer
   NODE_VERSION: '22'
 
 jobs:

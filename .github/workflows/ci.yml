@@ -152,8 +152,8 @@ jobs:
     # semantic-release only publishes from the "release.branches" in
     # package.json and does nothing on other branches. It won't publish from
     # a "pull_request" event, so only pushes and manual runs (to retry a
-    # failed release) start this job.
-    # forks have no NPM_TOKEN and can't publish this package
+    # failed release) start this job, and only in this repo, the package's
+    # trusted publisher on npm.
     if: github.repository == 'cypress-io/netlify-plugin-cypress' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     needs:
       - build
@@ -168,6 +168,7 @@ jobs:
       contents: write # create tags and GitHub releases
       issues: write # comment on released issues
       pull-requests: write # comment on released pull requests
+      id-token: write # publish to npm with trusted publishing (OIDC)
     env:
       # publishing needs neither Cypress nor Chromium
       CYPRESS_INSTALL_BINARY: 0
@@ -181,7 +182,8 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@v5
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          # semantic-release needs Node 22.14 or newer
+          node-version: '24'
           cache: npm
       - name: Install dependencies 📦
         # npm 11 and --force: see the e2e install step
@@ -189,7 +191,8 @@ jobs:
           npm install -g npm@11
           npm ci --force
       - name: Semantic release 🚀
+        # npm trusted publishing: npm accepts an OIDC token from this workflow
+        # file in place of an npm token, and adds provenance to the package
         run: npx semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

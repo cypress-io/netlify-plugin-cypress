@@ -19,10 +19,19 @@ The fixture also records to Cypress Cloud when `CYPRESS_RECORD_KEY` is set, and 
 
 ## Releasing a new version
 
-The `release` job in the [CI workflow](.github/workflows/ci.yml) runs `semantic-release` after every push, once the unit tests and all end-to-end jobs pass. It needs two secrets in the repository settings:
+The `release` job in the [CI workflow](.github/workflows/ci.yml) runs `semantic-release` after every push, once the unit tests and all end-to-end jobs pass.
 
-- `NPM_TOKEN` to publish to NPM (GitHub provides `GITHUB_TOKEN` for tags and releases). npm publish tokens expire, so replace this secret before its expiry date, or the release job fails.
-- `CYPRESS_RECORD_KEY` so the recording fixtures record to Cypress Cloud
+It publishes to NPM with [trusted publishing](https://docs.npmjs.com/trusted-publishers), so there's no NPM token to store or rotate. Each published version also gets a provenance statement linking it to the workflow run that built it. The package's trusted publisher is set on npmjs.com, under the package's **Settings** → **Trusted Publisher**:
+
+- **Publisher:** GitHub Actions
+- **Organization or user:** `cypress-io`
+- **Repository:** `netlify-plugin-cypress`
+- **Workflow filename:** `ci.yml`
+- **Environment name:** leave empty
+
+If you rename the workflow file, update the trusted publisher to match, or publishing fails. GitHub provides `GITHUB_TOKEN` for tags and releases.
+
+The end-to-end jobs also use a `CYPRESS_RECORD_KEY` repository secret, so the recording fixtures record to Cypress Cloud.
 
 Before releasing check that each end-to-end job has actually run the tests correctly. We don't have a way to check if Cypress _executed all tests_, other than looking at the job's log on GitHub Actions.
 

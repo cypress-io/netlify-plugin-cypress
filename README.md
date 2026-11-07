@@ -3,7 +3,7 @@
 
 > Run [Cypress](https://www.cypress.io) end-to-end tests as part of every Netlify build.
 
-A successful build doesn't always mean a working site. A page can render blank, a route can 404, or a form can stop submitting, and the build log still shows green. This plugin runs your Cypress tests inside Netlify Build, so you find out whether the site *works*, not just whether it compiled.
+A successful build doesn't always mean a working site. A page can render blank, a route can 404, or a form can stop submitting, and the build still reports success. This plugin runs your Cypress tests inside Netlify Build, so you find out whether the site *works*, not just whether it compiled.
 
 With this plugin, you can:
 
@@ -173,7 +173,7 @@ The built-in server doesn't run Netlify redirects or Netlify Functions. If your 
 
 #### Single-page apps
 
-If your app uses client-side routing, set `spa` so the server returns your index page for unknown routes like `/about`. This setting only works in the `postBuild` step.
+If your app uses client-side routing, set `spa` so the server returns your index page for unknown routes like `/about`. This setting only works in the `postBuild` step with the built-in server. We ignore it when you set `start`.
 
 ```toml
 [[plugins]]
@@ -301,7 +301,7 @@ See [tests/config-file](./tests/config-file) for an example that sets `configFil
 
 ## Recording to Cypress Cloud
 
-Recording sends your test results to [Cypress Cloud](https://www.cypress.io/cloud). With [Test Replay](https://docs.cypress.io/cloud/features/test-replay), you can step through a failed test exactly as it ran on Netlify, including the DOM, network requests, and console logs, without digging through build logs.
+Recording sends your test results to [Cypress Cloud](https://www.cypress.io/cloud). With [Test Replay](https://docs.cypress.io/cloud/features/test-replay) (Cypress 13 or later), you can step through a failed test as it ran on Netlify, including the DOM, network requests, and console logs, without digging through build logs.
 
 1. In Netlify, add `CYPRESS_RECORD_KEY` as an [environment variable](https://docs.netlify.com/configure-builds/environment-variables/).
 2. Set `record = true` in each step you want to record:
@@ -321,9 +321,9 @@ A few details to know:
 - **Default groups and tags.** If you leave out `group`, we use the step name (`onSuccess`, `postBuild`, or `preBuild`). If you leave out `tag`, we use the Netlify deploy context (`production`, `deploy-preview`, or `branch-deploy`).
 - **One build, one run.** We pass Netlify's `BUILD_ID` to Cypress, so recordings from different steps of the same build show up as groups in a single run.
 
-See [cypress-example-kitchensink](https://github.com/cypress-io/cypress-example-kitchensink) and its [recorded runs in Cypress Cloud](https://dashboard.cypress.io/projects/ixroqc/runs).
+See [tests/recording](./tests/recording) for an example, and [this plugin's own recorded runs in Cypress Cloud](https://dashboard.cypress.io/projects/ixroqc/runs).
 
-### Keep your record key secret 🔐
+### Keep your record key secret
 
 Treat `CYPRESS_RECORD_KEY` like a password. Review how Netlify handles [environment variables in builds from external pull requests](https://docs.netlify.com/configure-builds/environment-variables/), and never expose sensitive variables to builds from forks you don't trust.
 

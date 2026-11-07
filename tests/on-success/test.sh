@@ -50,6 +50,10 @@ grep --quiet --fixed-strings "testing deployed url $DEPLOY_URL" "$LOG" ||
   fail "onSuccess did not test the local \"deployed\" URL"
 grep --quiet "All specs passed!" "$LOG" ||
   fail "Cypress specs did not all pass"
+# spec.cy.js has 1 passing test plus 1 skipped and 1 pending test,
+# which Cypress both counts as pending
+grep --quiet --fixed-strings "Pending tests: 2" "$LOG" ||
+  fail "the plugin summary did not report 2 pending tests"
 if grep --quiet --fixed-strings 'Plugin "../../" failed' "$LOG"; then
   fail "the plugin reported a failure"
 fi

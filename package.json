@@ -5,10 +5,8 @@
   "description": "Cypress Netlify build plugin",
   "main": "src",
   "scripts": {
-    "test": "cypress run",
     "test:unit": "jest",
-    "semantic-release": "semantic-release",
-    "start": "serve public"
+    "semantic-release": "semantic-release"
   },
   "keywords": [
     "netlify",

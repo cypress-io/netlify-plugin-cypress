@@ -13,7 +13,7 @@ To run locally, from a subfolder of `tests`:
 
 ### Testing the onSuccess step
 
-Most fixtures turn off the default `onSuccess` step, since there's no real deploy to test. The [tests/on-success](tests/on-success) fixture covers it by serving the built site locally and pointing `DEPLOY_PRIME_URL` at that server. Netlify doesn't fail the build when `onSuccess` fails, so its `test.sh` script checks the build output instead.
+Most fixtures turn off the default `onSuccess` step, since there's no real deploy to test. The [tests/on-success](tests/on-success) fixture covers it, along with how the plugin reports skipped and pending tests, by serving the built site locally and pointing `DEPLOY_PRIME_URL` at that server. Netlify doesn't fail the build when `onSuccess` fails, so its `test.sh` script checks the build output instead.
 
 ## Releasing a new version
 

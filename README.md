@@ -267,6 +267,7 @@ Remember that each step reads only its own block. See [Each step has its own set
 | --- | --- | --- | :---: | :---: | :---: |
 | `enable` | Turns testing on for this step | `true` for `onSuccess`, `false` otherwise | ✓ | ✓ | ✓ |
 | `browser` | Browser to run tests in: `chrome-for-testing` or `electron` (deprecated by Cypress). `chromium` is a deprecated alias for `chrome-for-testing`. | `chrome-for-testing` | ✓ | ✓ | ✓ |
+| `browserVersion` | Chrome for Testing version to use instead of the pinned one: an exact version, a major version like `"150"`, or a channel (`stable`, `beta`, `dev`, `canary`). Falls back to the pinned version if it can't be downloaded. | The plugin's pinned version | ✓ | ✓ | ✓ |
 | `spec` | Spec file or glob to run, like `cypress run --spec` | All specs | ✓ | ✓ | ✓ |
 | `configFile` | Path to a Cypress config file | Cypress default | ✓ | ✓ | ✓ |
 | `record` | Record the run to Cypress Cloud (needs `CYPRESS_RECORD_KEY`) | `false` | ✓ | ✓ | ✓ |
@@ -287,6 +288,17 @@ Remember that each step reads only its own block. See [Each step has its own set
   [plugins.inputs]
     spec = "cypress/e2e/smoke*.cy.js"
 ```
+
+**Test in a different Chrome version:**
+
+```toml
+[[plugins]]
+  package = "netlify-plugin-cypress"
+  [plugins.inputs]
+    browserVersion = "beta"
+```
+
+The plugin pins a Chrome for Testing version so your results don't change when Chrome updates. Set `browserVersion` to try your site in an upcoming release, or to stay on an older one. If the plugin can't find or download the version you ask for, it logs a warning and runs the pinned version instead, so the build still tests your site. A channel like `stable` or `beta` follows Chrome's releases, so the version can change from one build to the next.
 
 **Use a different Cypress config file:**
 

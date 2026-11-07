@@ -61,6 +61,28 @@ describe('onPostBuild', () => {
     expect(serveFolder).not.toHaveBeenCalled()
   })
 
+  it('passes the browser settings to the test run', async () => {
+    const { testFunction, utils } = setup({
+      postBuildInputs: {
+        enable: true,
+        browser: 'chrome-for-testing',
+        browserVersion: 'beta',
+      },
+    })
+
+    await expect(testFunction()).resolves.toBe(undefined)
+    expect(runCypressTests).toHaveBeenCalledWith(
+      expect.anything(),
+      false,
+      undefined,
+      undefined,
+      undefined,
+      'chrome-for-testing',
+      undefined,
+      { cache: utils.cache, version: 'beta' },
+    )
+  })
+
   describe('start option', () => {
     it('runs the specified command', async () => {
       const startCommand = 'a start command'
@@ -140,7 +162,7 @@ describe('onPostBuild', () => {
         undefined,
         'chrome-for-testing',
         undefined,
-        utils.cache,
+        { cache: utils.cache, version: undefined },
       )
     })
 
@@ -250,7 +272,7 @@ describe('onPostBuild', () => {
         undefined,
         'chrome-for-testing',
         undefined,
-        utils.cache,
+        { cache: utils.cache, version: undefined },
       )
     })
 

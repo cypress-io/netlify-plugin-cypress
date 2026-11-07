@@ -78,7 +78,7 @@ module.exports = async ({ utils, inputs, constants }) => {
     tag,
     browser,
     configFile,
-    utils.cache,
+    { cache: utils.cache, version: onSuccessInputs.browserVersion },
   )
   processCypressResults(results, errorCallback, summaryCallback)
 }

@@ -8,13 +8,23 @@ const { PLUGIN_NAME, BROWSERS } = require('./constants')
 const { getChromeForTestingPath } = require('./browser')
 
 /**
+ * @typedef {object} BrowserOptions
+ * @property {{ restore: Function, save: Function }} [cache] Netlify's `utils.cache`
+ * @property {string | number} [version] the step's `browserVersion` input
+ */
+
+/**
  * Turns the plugin's browser input into the value Cypress expects
  * @param {string} browser
- * @param {{ restore: Function, save: Function } | undefined} cache
- *   Netlify's `utils.cache`
+ * @param {BrowserOptions} [options]
  */
-const getBrowserPath = async (browser, cache) => {
+const getBrowserPath = async (browser, { cache, version } = {}) => {
   if (browser === 'electron') {
+    if (version !== undefined) {
+      console.warn(
+        'The "browserVersion" setting only applies to Chrome for Testing, so it is ignored for Electron.',
+      )
+    }
     return 'electron'
   }
   if (browser === 'chromium') {
@@ -22,7 +32,7 @@ const getBrowserPath = async (browser, cache) => {
       'The "chromium" browser setting is deprecated and now runs Chrome for Testing. Set browser = "chrome-for-testing" instead.',
     )
   }
-  return getChromeForTestingPath(cache)
+  return getChromeForTestingPath(cache, version)
 }
 
 /**
@@ -128,7 +138,7 @@ async function runCypressTests(
   tag,
   browser,
   configFile,
-  cache,
+  browserOptions,
 ) {
   if (!isValidBrowser(browser)) {
     throw new Error(
@@ -147,7 +157,7 @@ async function runCypressTests(
     ciBuildId = process.env.BUILD_ID
   }
 
-  const browserPath = await getBrowserPath(browser, cache)
+  const browserPath = await getBrowserPath(browser, browserOptions)
 
   debug('run cypress params %o', {
     baseUrl,

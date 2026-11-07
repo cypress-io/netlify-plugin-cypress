@@ -9,10 +9,12 @@ const {
   detectBrowserPlatform,
   getInstalledBrowsers,
   install,
+  resolveBuildId,
   uninstall,
 } = require('@puppeteer/browsers')
 
-// Pinned so a new Chrome release can't change test results between builds.
+// Pinned so a new Chrome release can't change test results between builds,
+// and used whenever the version a user asks for can't be downloaded.
 // Match the Chrome version in the latest Puppeteer release when bumping it.
 const CHROME_FOR_TESTING_VERSION = '156.0.8078.47'
 
@@ -25,67 +27,76 @@ const BROWSER_CACHE_DIR = path.join(
   'netlify-plugin-cypress',
 )
 
-/** @type {Promise<string> | undefined} */
-let chromeForTestingPath
+/**
+ * @typedef {{ restore: Function, save: Function }} NetlifyCache
+ *   Netlify's `utils.cache`
+ */
 
-async function removeOtherVersions(cacheDir) {
-  const installed = await getInstalledBrowsers({ cacheDir })
-  const stale = installed.filter(
-    (browser) => browser.buildId !== CHROME_FOR_TESTING_VERSION,
+/** @type {Map<string, Promise<string>>} */
+const pathsByRequest = new Map()
+// Every build step runs in the same process, and steps can ask for different
+// versions, so keep all of them when pruning the cache.
+const usedVersions = new Set()
+// Restoring replaces the whole folder, which would delete a version an
+// earlier step downloaded in this build.
+let restoreAttempted = false
+
+async function removeUnusedVersions() {
+  const installed = await getInstalledBrowsers({ cacheDir: BROWSER_CACHE_DIR })
+  const unused = installed.filter(
+    (browser) => !usedVersions.has(browser.buildId),
   )
-  for (const browser of stale) {
+  for (const browser of unused) {
     debug('removing Chrome for Testing %s', browser.buildId)
     await uninstall({
       browser: browser.browser,
       buildId: browser.buildId,
       platform: browser.platform,
-      cacheDir,
+      cacheDir: BROWSER_CACHE_DIR,
     })
   }
 }
 
 /**
- * @param {{ restore: Function, save: Function } | undefined} cache
- *   Netlify's `utils.cache`
+ * @param {string} buildId
+ * @param {NetlifyCache | undefined} cache
+ * @param {*} platform
  */
-async function installChromeForTesting(cache) {
-  const platform = detectBrowserPlatform()
-  if (!platform) {
-    throw new Error(
-      `Chrome for Testing is not available for ${os.platform()} ${os.arch()}`,
-    )
-  }
-
+async function installVersion(buildId, cache, platform) {
+  usedVersions.add(buildId)
   const options = {
     browser: Browser.CHROME,
-    buildId: CHROME_FOR_TESTING_VERSION,
+    buildId,
     cacheDir: BROWSER_CACHE_DIR,
     platform,
   }
   const executablePath = computeExecutablePath(options)
 
   if (fs.existsSync(executablePath)) {
-    debug('found Chrome for Testing at %s', executablePath)
+    debug('found Chrome for Testing %s at %s', buildId, executablePath)
     return executablePath
   }
 
-  if (cache && (await cache.restore(BROWSER_CACHE_DIR))) {
-    if (fs.existsSync(executablePath)) {
-      debug('restored Chrome for Testing from the Netlify cache')
-      return executablePath
+  if (cache && !restoreAttempted) {
+    restoreAttempted = true
+    if (await cache.restore(BROWSER_CACHE_DIR)) {
+      if (fs.existsSync(executablePath)) {
+        debug('restored Chrome for Testing %s from the Netlify cache', buildId)
+        return executablePath
+      }
+      debug('the Netlify cache has a different Chrome for Testing version')
     }
-    debug('the Netlify cache has a different Chrome for Testing version')
   }
 
-  console.log(`Downloading Chrome for Testing ${CHROME_FOR_TESTING_VERSION}`)
+  console.log(`Downloading Chrome for Testing ${buildId}`)
   try {
     await install(options)
   } catch (error) {
     throw new Error(
-      `Could not download Chrome for Testing ${CHROME_FOR_TESTING_VERSION}: ${error.message}`,
+      `Could not download Chrome for Testing ${buildId}: ${error.message}`,
     )
   }
-  await removeOtherVersions(BROWSER_CACHE_DIR)
+  await removeUnusedVersions()
 
   if (cache) {
     await cache.save(BROWSER_CACHE_DIR)
@@ -96,20 +107,66 @@ async function installChromeForTesting(cache) {
 }
 
 /**
+ * @param {NetlifyCache | undefined} cache
+ * @param {string | undefined} requestedVersion
+ */
+async function installChromeForTesting(cache, requestedVersion) {
+  const platform = detectBrowserPlatform()
+  if (!platform) {
+    throw new Error(
+      `Chrome for Testing is not available for ${os.platform()} ${os.arch()}`,
+    )
+  }
+
+  if (requestedVersion) {
+    try {
+      const buildId = await resolveBuildId(
+        Browser.CHROME,
+        platform,
+        requestedVersion,
+      )
+      debug('browserVersion "%s" resolved to %s', requestedVersion, buildId)
+      const executablePath = await installVersion(buildId, cache, platform)
+      console.log(`Using Chrome for Testing ${buildId}`)
+      return executablePath
+    } catch (error) {
+      console.warn(
+        `Could not use Chrome for Testing "${requestedVersion}": ${error.message}`,
+      )
+      console.warn(
+        `Falling back to the plugin's pinned version, ${CHROME_FOR_TESTING_VERSION}`,
+      )
+    }
+  }
+
+  return installVersion(CHROME_FOR_TESTING_VERSION, cache, platform)
+}
+
+/**
  * Returns the path to Chrome for Testing, downloading it on first use.
- * Every build step shares one download.
- * @param {{ restore: Function, save: Function } | undefined} cache
- *   Netlify's `utils.cache`
+ * Steps that ask for the same version share one download.
+ * @param {NetlifyCache | undefined} cache
+ * @param {string | number} [requestedVersion] a version, major version, or
+ *   channel. A number comes from an unquoted major version in netlify.toml.
+ *   Falls back to the pinned version if it can't be downloaded.
  * @returns {Promise<string>}
  */
-function getChromeForTestingPath(cache) {
-  if (!chromeForTestingPath) {
-    chromeForTestingPath = installChromeForTesting(cache).catch((error) => {
-      chromeForTestingPath = undefined
-      throw error
-    })
+function getChromeForTestingPath(cache, requestedVersion) {
+  const version =
+    requestedVersion === undefined || requestedVersion === null
+      ? undefined
+      : String(requestedVersion).trim() || undefined
+  const key = version || CHROME_FOR_TESTING_VERSION
+  if (!pathsByRequest.has(key)) {
+    pathsByRequest.set(
+      key,
+      installChromeForTesting(cache, version).catch((error) => {
+        pathsByRequest.delete(key)
+        throw error
+      }),
+    )
   }
-  return chromeForTestingPath
+  return /** @type {Promise<string>} */ (pathsByRequest.get(key))
 }
 
 module.exports = {

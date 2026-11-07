@@ -221,8 +221,8 @@ const processCypressResults = (results, errorCallback, summaryCallback) => {
     🚫  Skipped tests: ${results.totalSkipped}
   `
   if (results.runUrl) {
-    summary.push(`🔗 [dashboard run](${results.runUrl})`)
-    text += `\n🔗 Cypress Dashboard url: [${results.runUrl}](${results.runUrl})`
+    summary.push(`🔗 [Cypress Cloud run](${results.runUrl})`)
+    text += `\n🔗 Cypress Cloud run: [${results.runUrl}](${results.runUrl})`
   }
   summaryCallback({
     title: PLUGIN_NAME,

@@ -1,0 +1,172 @@
+name: CI
+# Builds, tests and releases the plugin. This replaces the CircleCI
+# "test_and_release" workflow.
+#
+# Every test job runs "netlify build --offline", so the tests do not need
+# a Netlify site, deploy, or access token. The plugin's default "onSuccess"
+# step is covered by the "on-success" fixture, which serves the built site
+# locally in place of a real deploy.
+#
+# We run on every push, plus pull requests from forks. Pull requests from
+# branches in this repo are already covered by their push, so we skip them
+# to avoid running everything twice.
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: '20.19.6'
+
+jobs:
+  build:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository
+    runs-on: ubuntu-latest
+    env:
+      # unit tests and "npm pack" need neither Cypress nor Chromium
+      CYPRESS_INSTALL_BINARY: 0
+      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - name: Install dependencies 📦
+        run: npm install
+      - name: Show package contents 📦
+        run: npm pack --dry
+      - name: Unit tests 🧪
+        run: npm run test:unit
+
+  e2e:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository
+    name: e2e (${{ matrix.name }})
+    runs-on: ubuntu-latest
+    strategy:
+      # let every fixture finish, so one failure doesn't hide another
+      fail-fast: false
+      matrix:
+        include:
+          - name: basic test
+            dir: tests/basic
+            command: npx netlify build --offline
+          - name: html-pages
+            dir: tests/html-pages
+            command: npx netlify build --offline
+          - name: recommended test
+            dir: tests/recommended
+            command: npx netlify build --offline
+          - name: recording test
+            dir: tests/recording
+            command: npx netlify build --offline
+          - name: test-twice
+            dir: tests/test-twice
+            command: npx netlify build --offline
+          - name: test-prebuild-only
+            dir: tests/test-prebuild-only
+            command: npm run netlify:build
+          - name: test-postbuild-start
+            dir: tests/test-postbuild-start
+            command: npm run netlify:build
+          - name: test-using-chromium
+            dir: tests/use-chromium
+            command: npx netlify build --offline
+          - name: test-netlify-dev
+            dir: tests/test-netlify-dev
+            command: npm run netlify:build
+          - name: routing
+            dir: tests/routing
+            command: npm run netlify:build
+          - name: config-file
+            dir: tests/config-file
+            command: npm run netlify:build
+          - name: on-success
+            dir: tests/on-success
+            command: npm run netlify:build
+    env:
+      DEBUG: netlify-plugin-cypress
+      # Netlify sets BUILD_ID on its own builds, and the plugin passes it to
+      # Cypress so that preBuild and postBuild recordings land in one run.
+      # It has to be unique for every job and every re-run.
+      BUILD_ID: ${{ github.run_id }}-${{ github.run_attempt }}-${{ strategy.job-index }}
+      # recording fixtures skip recording when the key is missing,
+      # for example on pull requests from forks
+      CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - name: Cache Cypress binary
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/Cypress
+          key: cypress-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - name: Install dependencies 📦
+        # --force is needed to avoid unsupported platform issues with
+        # netlify cli dependencies on @esbuild/android-arm.
+        # npm 12 needs Node 22 or newer, so stay on npm 11 while we test on Node 20
+        run: npm install -g npm@11 && npm ci --force
+      - name: Verify Cypress
+        run: npx cypress verify
+      - name: Netlify Build 🏗
+        working-directory: ${{ matrix.dir }}
+        run: ${{ matrix.command }}
+      - name: Save onSuccess logs
+        if: always() && matrix.name == 'on-success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: on-success-logs
+          path: |
+            tests/on-success/netlify-build.log
+            tests/on-success/server.log
+          if-no-files-found: ignore
+
+  release:
+    # Runs on every branch pushed to this repo, since we might want to
+    # release a beta version. semantic-release decides from the "release"
+    # branches in package.json whether there is anything to publish, and
+    # does nothing on other branches.
+    #
+    # Only push events release. On a "pull_request" event semantic-release
+    # refuses to publish, so an open pull request doesn't block a pre-release.
+    if: github.event_name == 'push'
+    needs:
+      - build
+      - e2e
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # create tags and GitHub releases
+      issues: write # comment on released issues
+      pull-requests: write # comment on released pull requests
+    env:
+      # since we do not need Cypress to publish the NPM package
+      # we can skip the binary download
+      CYPRESS_INSTALL_BINARY: 0
+      # we also skip Puppeteer Chromium download
+      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          # semantic-release reads every tag and commit to find the next version
+          fetch-depth: 0
+          # semantic-release pushes tags with GITHUB_TOKEN below
+          persist-credentials: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - name: Install dependencies 📦
+        run: npm install
+      - name: Semantic release 🚀
+        run: npx semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

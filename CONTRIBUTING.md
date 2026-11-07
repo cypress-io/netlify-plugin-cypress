@@ -21,7 +21,7 @@ The fixture also records to Cypress Cloud when `CYPRESS_RECORD_KEY` is set, and 
 
 The `release` job in the [CI workflow](.github/workflows/ci.yml) runs `semantic-release` after every push, once the unit tests and all end-to-end jobs pass. It needs two secrets in the repository settings:
 
-- `NPM_TOKEN` to publish to NPM (GitHub provides `GITHUB_TOKEN` for tags and releases)
+- `NPM_TOKEN` to publish to NPM (GitHub provides `GITHUB_TOKEN` for tags and releases). npm publish tokens expire, so replace this secret before its expiry date, or the release job fails.
 - `CYPRESS_RECORD_KEY` so the recording fixtures record to Cypress Cloud
 
 Before releasing check that each end-to-end job has actually run the tests correctly. We don't have a way to check if Cypress _executed all tests_, other than looking at the job's log on GitHub Actions.

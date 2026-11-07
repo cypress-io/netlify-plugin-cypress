@@ -2,22 +2,20 @@ How to [code a plugin](https://github.com/netlify/build/blob/master/docs/creatin
 
 ## Testing
 
-End-to-end tests are in folder [tests](tests) and they use this [plugin locally](https://github.com/netlify/build/blob/master/README.md#using-a-local-plugin) and build each subfolder using Netlify CLI on CircleCI. You can find the test recordings at [Cypress Dashboard](https://dashboard.cypress.io/projects/ixroqc/)
+End-to-end tests are in folder [tests](tests). Each subfolder uses this [plugin locally](https://github.com/netlify/build/blob/master/README.md#using-a-local-plugin) and runs a Netlify build with the Netlify CLI on CircleCI. You can find the test recordings at [Cypress Dashboard](https://dashboard.cypress.io/projects/ixroqc/)
 
-To run locally:
+The builds use `netlify build --offline`, so you don't need a Netlify account, a linked site, or an access token to run them, locally or on CircleCI.
 
-- `npx netlify link` once
-- from every subfolder of `tests` execute `npm run build`
+To run locally, from a subfolder of `tests`:
 
-### Authentication (local)
+- if it has a `netlify:build` script, run `npm run netlify:build`
+- otherwise, run `npx netlify build --offline`
 
-- use `netlify-cli` to authenticate locally. It will also create a local site and store its ID in `.netlify` folder (ignored by `git`)
+### Testing the onSuccess step
 
-### Authentication (ci)
+Most fixtures turn off the default `onSuccess` step, since there's no real deploy to test. The [tests/on-success](tests/on-success) fixture covers it, along with how the plugin reports skipped and pending tests, by serving the built site locally and pointing `DEPLOY_PRIME_URL` at that server. Netlify doesn't fail the build when `onSuccess` fails, so its `test.sh` script checks the build output instead.
 
-To authenticate `netlify` on CircleCI:
-- grab the Settings > Site information > APP ID and set it as environment variable `NETLIFY_SITE_ID`
-- generate new authentication token for CI from User Settings > Applications > New Access Token and set it as environment variable `NETLIFY_AUTH_TOKEN`
+The fixture also records to Cypress Cloud when `CYPRESS_RECORD_KEY` is set, and `test.sh` then checks that the run was recorded. Without the key, the plugin skips recording and `test.sh` skips that check.
 
 ## Releasing a new version
 

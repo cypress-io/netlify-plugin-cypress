@@ -1,14 +1,30 @@
-# The default executor for cypress-io/cypress@3.0.0 orb is 16.16.0
-# this executor node version should also be in parity with the node version
-# in netlify: https://app.netlify.com/sites/netlify-plugin-cypress
-# To update, be sure to set the NODE_VERSION inside netlify when updating this
-# executor. 
-# @see https://docs.netlify.com/configure-builds/environment-variables/#netlify-configuration-variables
+# Every test job runs "netlify build --offline" on CircleCI, so the tests
+# do not need a Netlify site, deploy, or access token.
+# The plugin's default "onSuccess" step is covered by the "on-success" job,
+# which serves the built site locally in place of a real deploy.
 
 defaultCypressOrbConfig: &defaultCypressOrbConfig
   executor: 
     name: cypress/default
     node-version: '20.19.6'
+
+# Test jobs restore the project from the workspace instead of running
+# "checkout", so GitHub's SSH host key is never added and the origin
+# remote is an SSH URL. When Cypress records a run for a pull request,
+# it runs a git command that reaches github.com, and SSH then waits
+# forever at its "continue connecting (yes/no)?" prompt until CircleCI
+# kills the job. This repo is public, so read from GitHub over anonymous
+# HTTPS instead, and never let git or SSH prompt.
+testJobConfig: &testJobConfig
+  <<: *defaultCypressOrbConfig
+  environment:
+    GIT_TERMINAL_PROMPT: '0'
+    GIT_SSH_COMMAND: ssh -o BatchMode=yes
+    GIT_CONFIG_COUNT: '2'
+    GIT_CONFIG_KEY_0: url.https://github.com/.insteadOf
+    GIT_CONFIG_VALUE_0: 'git@github.com:'
+    GIT_CONFIG_KEY_1: url.https://github.com/.insteadOf
+    GIT_CONFIG_VALUE_1: ssh://git@github.com/
 
 version: 2.1
 orbs:
@@ -70,59 +86,59 @@ jobs:
             CI_PULL_REQUEST:
 
   'basic test':
-    <<: *defaultCypressOrbConfig
+    <<: *testJobConfig
     steps:
       # all dependencies were installed in previous job
       - attach_workspace:
           at: ~/
       - run:
           name: Netlify Build 🏗
-          command: BUILD_ID=$CIRCLE_BUILD_NUM npx netlify build
+          command: BUILD_ID=$CIRCLE_BUILD_NUM npx netlify build --offline
           working_directory: tests/basic
           environment:
             DEBUG: netlify-plugin-cypress
 
   'recommended test':
-    <<: *defaultCypressOrbConfig
+    <<: *testJobConfig
     steps:
       # all dependencies were installed in previous job
       - attach_workspace:
           at: ~/
       - run:
           name: Netlify Build 🏗
-          command: BUILD_ID=$CIRCLE_BUILD_NUM npx netlify build
+          command: BUILD_ID=$CIRCLE_BUILD_NUM npx netlify build --offline
           working_directory: tests/recommended
           environment:
             DEBUG: netlify-plugin-cypress
 
   'recording test':
-    <<: *defaultCypressOrbConfig
+    <<: *testJobConfig
     steps:
       # all dependencies were installed in previous job
       - attach_workspace:
           at: ~/
       - run:
           name: Netlify Build 🏗
-          command: BUILD_ID=$CIRCLE_BUILD_NUM npx netlify build
+          command: BUILD_ID=$CIRCLE_BUILD_NUM npx netlify build --offline
           working_directory: tests/recording
           environment:
             DEBUG: netlify-plugin-cypress
 
   'test-twice':
-    <<: *defaultCypressOrbConfig
+    <<: *testJobConfig
     steps:
       # all dependencies were installed in previous job
       - attach_workspace:
           at: ~/
       - run:
           name: Netlify Build 🏗
-          command: BUILD_ID=$CIRCLE_BUILD_NUM npx netlify build
+          command: BUILD_ID=$CIRCLE_BUILD_NUM npx netlify build --offline
           working_directory: tests/test-twice
           environment:
             DEBUG: netlify-plugin-cypress
 
   'test-prebuild-only':
-    <<: *defaultCypressOrbConfig
+    <<: *testJobConfig
     steps:
       # all dependencies were installed in previous job
       - attach_workspace:
@@ -135,7 +151,7 @@ jobs:
             DEBUG: netlify-plugin-cypress
 
   'test-postbuild-start':
-    <<: *defaultCypressOrbConfig
+    <<: *testJobConfig
     steps:
       # all dependencies were installed in previous job
       - attach_workspace:
@@ -148,20 +164,20 @@ jobs:
             DEBUG: netlify-plugin-cypress
 
   'test-using-chromium':
-    <<: *defaultCypressOrbConfig
+    <<: *testJobConfig
     steps:
       # all dependencies were installed in previous job
       - attach_workspace:
           at: ~/
       - run:
           name: Netlify Build 🏗
-          command: BUILD_ID=$CIRCLE_BUILD_NUM npx netlify build
+          command: BUILD_ID=$CIRCLE_BUILD_NUM npx netlify build --offline
           working_directory: tests/use-chromium
           environment:
             DEBUG: netlify-plugin-cypress
 
   'test-netlify-dev':
-    <<: *defaultCypressOrbConfig
+    <<: *testJobConfig
     steps:
       # all dependencies were installed in previous job
       - attach_workspace:
@@ -174,20 +190,20 @@ jobs:
             DEBUG: netlify-plugin-cypress
 
   'html-pages':
-    <<: *defaultCypressOrbConfig
+    <<: *testJobConfig
     steps:
       # all dependencies were installed in previous job
       - attach_workspace:
           at: ~/
       - run:
           name: Netlify Build 🏗
-          command: BUILD_ID=$CIRCLE_BUILD_NUM npx netlify build
+          command: BUILD_ID=$CIRCLE_BUILD_NUM npx netlify build --offline
           working_directory: tests/html-pages
           environment:
             DEBUG: netlify-plugin-cypress
 
   routing:
-    <<: *defaultCypressOrbConfig
+    <<: *testJobConfig
     steps:
       # all dependencies were installed in previous job
       - attach_workspace:
@@ -200,7 +216,7 @@ jobs:
             DEBUG: netlify-plugin-cypress
 
   config-file:
-    <<: *defaultCypressOrbConfig
+    <<: *testJobConfig
     steps:
       # all dependencies were installed in previous job
       - attach_workspace:
@@ -211,6 +227,23 @@ jobs:
           working_directory: tests/config-file
           environment:
             DEBUG: netlify-plugin-cypress
+
+  'on-success':
+    <<: *testJobConfig
+    steps:
+      # all dependencies were installed in previous job
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Netlify Build with onSuccess 🏗
+          command: BUILD_ID=$CIRCLE_BUILD_NUM npm run netlify:build
+          working_directory: tests/on-success
+          environment:
+            DEBUG: netlify-plugin-cypress
+      - store_artifacts:
+          path: tests/on-success/netlify-build.log
+      - store_artifacts:
+          path: tests/on-success/server.log
 
 workflows:
   version: 2
@@ -251,6 +284,9 @@ workflows:
       - config-file:
           requires:
             - install_and_persist
+      - 'on-success':
+          requires:
+            - install_and_persist
       - release:
           context: org-npm-credentials
           # run the release job on all branches
@@ -267,3 +303,5 @@ workflows:
             - test-using-chromium
             - test-netlify-dev
             - 'routing'
+            - config-file
+            - 'on-success'

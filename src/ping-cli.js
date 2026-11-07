@@ -15,5 +15,6 @@ ping(url, timeoutSeconds * 1000).then(
   },
   (err) => {
     console.error('a problem', err)
+    process.exit(1)
   },
 )

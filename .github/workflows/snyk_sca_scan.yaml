@@ -3,14 +3,31 @@ name: Snyk Software Composition Analysis Scan
 # Analysis scan on our Opensource libraries upon Pull Requests to Master & 
 # Develop branches. We use this as a control to prevent vulnerable packages 
 # from being introduced into the codebase. 
+#
+# Pull requests from branches in this repo are scanned on "pull_request",
+# which checks out the pull request's code and has access to SNYK_TOKEN.
+#
+# Pull requests from forks don't get secrets on "pull_request", so they
+# are scanned on "pull_request_target" instead. That event checks out
+# master, never the fork's code, because running a scan over untrusted
+# code with access to secrets is unsafe. For fork PRs this scan reflects
+# master, not the contributor's changes.
 on:
+  pull_request:
+    branches:
+      - master
   pull_request_target:
     types:
       - opened
-    branches: 
+    branches:
       - master
 jobs:
   Snyk_SCA_Scan:
+    if: >-
+      (github.event_name == 'pull_request' &&
+        github.event.pull_request.head.repo.full_name == github.repository) ||
+      (github.event_name == 'pull_request_target' &&
+        github.event.pull_request.head.repo.full_name != github.repository)
     runs-on: ubuntu-latest
     strategy:
       matrix:

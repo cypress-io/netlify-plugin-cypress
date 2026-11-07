@@ -10,7 +10,7 @@ With this plugin, you can:
 - **Test every deploy automatically.** By default, we run your tests against the deploy preview, branch deploy, or production URL as soon as Netlify publishes it.
 - **Block broken sites from going live.** Run tests before or after the build step, and Netlify stops the deploy if any test fails.
 - **Skip the CI setup.** No separate pipeline, no extra YAML. Add a few lines to `netlify.toml` and you're done.
-- **See results where you already look.** We post a pass/fail summary in the Netlify deploy log, and you can record runs to [Cypress Cloud](https://www.cypress.io/cloud) for screenshots, videos, and GitHub status checks.
+- **See results where you already look.** We post a pass/fail summary in the Netlify deploy log, and you can record runs to [Cypress Cloud](https://www.cypress.io/cloud) for Test Replay and pull request status checks.
 
 ## Contents
 
@@ -31,7 +31,7 @@ With this plugin, you can:
 ### Requirements
 
 - Node.js 20.19.6 or later in your Netlify build
-- Cypress installed as a dev dependency in your project, with at least one end-to-end spec
+- Cypress installed as a dev dependency in your project, with at least one end-to-end spec. The plugin runs end-to-end tests only. It doesn't run component tests.
 
 ```shell
 npm install --save-dev cypress
@@ -43,11 +43,15 @@ You can install the plugin in one of two ways.
 
 **Option 1: From the Netlify UI.** Use the [direct in-app installation link](https://app.netlify.com/plugins/netlify-plugin-cypress/install) or find it in the [Netlify plugins directory](https://app.netlify.com/plugins).
 
-**Option 2: In your repository.** Add the package as a dev dependency:
+**Option 2: In your repository.** Add the package as a dev dependency with npm:
 
 ```shell
 npm install --save-dev netlify-plugin-cypress
-# or
+```
+
+Or with Yarn:
+
+```shell
 yarn add -D netlify-plugin-cypress
 ```
 
@@ -86,8 +90,8 @@ We run Cypress through the [Cypress Module API](https://on.cypress.io/module-api
 The `onSuccess` step runs *after* Netlify publishes your site. That's how it can test the real URL, but it also means a failing test can't undo the deploy. To protect your site, choose one or more of these:
 
 1. **Also run tests before the deploy.** Enable [`postBuild`](#test-the-built-site-postbuild) or [`preBuild`](#test-a-running-server-prebuild). A failure in either step fails the build, and Netlify keeps the previous deploy live.
-2. **Add status checks to pull requests.** [Record to Cypress Cloud](#recording-to-cypress-cloud) and install the [Cypress GitHub integration](https://on.cypress.io/github-integration) (GitLab and Bitbucket are also supported). Failing tests then show up as failing checks on the pull request.
-3. **Get notified fast.** Set up [Cypress Slack notifications](https://on.cypress.io/slack-integration) so you can roll back a broken production deploy quickly.
+2. **Add status checks to pull requests.** [Record to Cypress Cloud](#recording-to-cypress-cloud) and connect your source control provider. Failing tests then show up as failing checks. See [status checks](#status-checks).
+3. **Get notified fast.** When you record to Cypress Cloud, you can send run results to [Slack](https://docs.cypress.io/cloud/integrations/slack) or [Microsoft Teams](https://docs.cypress.io/cloud/integrations/microsoft-teams), or to any other tool through [webhooks](https://docs.cypress.io/cloud/integrations/webhooks). That way you can roll back a broken production deploy quickly.
 
 ## Recommended setup
 
@@ -111,15 +115,13 @@ By default, Cypress installs its binary in your home folder, which Netlify doesn
   package = "netlify-plugin-cypress"
 ```
 
-The rest of the examples in this README leave out the `[build]` sections to stay short, but we suggest keeping these settings in your own config.
-
-For a complete working project, see the [netlify-plugin-cypress-example](https://github.com/cypress-io/netlify-plugin-cypress-example) repo. For a step-by-step walkthrough, read [Test Sites Deployed To Netlify Using netlify-plugin-cypress](https://glebbahmutov.com/blog/test-netlify/).
+The rest of the examples in this README leave out the `[build]` sections to stay short, but we suggest keeping these settings in your own config. For a complete working project, see [tests/recommended](./tests/recommended).
 
 ## Choose when tests run
 
 ### Each step has its own settings
 
-This is the part that most often trips people up: **every step reads only its own block of settings.**
+**Every step reads only its own block of settings.**
 
 - Settings directly under `[plugins.inputs]` apply **only** to the `onSuccess` step.
 - Settings under `[plugins.inputs.postBuild]` apply **only** to `postBuild`.
@@ -214,7 +216,7 @@ Before Netlify builds your site, we can start a server, such as your dev server,
     wait-on-timeout = "30" # seconds
 ```
 
-`wait-on` is also the URL Cypress tests, so `preBuild` needs both `start` and `wait-on`. See the [netlify-plugin-prebuild-example](https://github.com/cypress-io/netlify-plugin-prebuild-example) repo.
+`wait-on` is also the URL Cypress tests, so `preBuild` needs both `start` and `wait-on`. See [tests/test-prebuild-only](./tests/test-prebuild-only) for an example.
 
 ### Test redirects and functions with the Netlify CLI
 
@@ -233,7 +235,7 @@ npm install --save-dev netlify-cli
     wait-on = "http://localhost:8888"
 ```
 
-For a full example, see [tests/test-netlify-dev](./tests/test-netlify-dev) and the [Testing Netlify Functions](https://glebbahmutov.com/blog/test-netlify/#testing-netlify-functions) section of the tutorial.
+For a full example, see [tests/test-netlify-dev](./tests/test-netlify-dev).
 
 ### Combine steps
 
@@ -286,17 +288,6 @@ Remember that each step reads only its own block. See [Each step has its own set
     spec = "cypress/e2e/smoke*.cy.js"
 ```
 
-**Use the Electron browser that ships with Cypress:**
-
-```toml
-[[plugins]]
-  package = "netlify-plugin-cypress"
-  [plugins.inputs]
-    browser = "electron"
-```
-
-If you only use Electron, you can also skip the Chromium download and save build time. See [Troubleshooting](#troubleshooting).
-
 **Use a different Cypress config file:**
 
 ```toml
@@ -310,7 +301,7 @@ See [tests/config-file](./tests/config-file) for an example that sets `configFil
 
 ## Recording to Cypress Cloud
 
-Recording sends your test results, screenshots, and videos to [Cypress Cloud](https://www.cypress.io/cloud), so you can debug failures without digging through build logs.
+Recording sends your test results to [Cypress Cloud](https://www.cypress.io/cloud). With [Test Replay](https://docs.cypress.io/cloud/features/test-replay), you can step through a failed test exactly as it ran on Netlify, including the DOM, network requests, and console logs, without digging through build logs.
 
 1. In Netlify, add `CYPRESS_RECORD_KEY` as an [environment variable](https://docs.netlify.com/configure-builds/environment-variables/).
 2. Set `record = true` in each step you want to record:
@@ -336,23 +327,19 @@ See [cypress-example-kitchensink](https://github.com/cypress-io/cypress-example-
 
 Treat `CYPRESS_RECORD_KEY` like a password. Review how Netlify handles [environment variables in builds from external pull requests](https://docs.netlify.com/configure-builds/environment-variables/), and never expose sensitive variables to builds from forks you don't trust.
 
-### Status checks on pull requests
+### Status checks
 
-When you record, install the [Cypress GitHub integration](https://on.cypress.io/github-integration) to get status checks for each group or spec on every commit. For an example, see [netlify-plugin-prebuild-example PR #8](https://github.com/cypress-io/netlify-plugin-prebuild-example/pull/8).
+When you record, connect Cypress Cloud to your source control provider to get status checks on every commit and pull request:
+
+- [GitHub](https://docs.cypress.io/cloud/integrations/source-control/github): status checks for each group or spec, plus pull request comments
+- [GitLab](https://docs.cypress.io/cloud/integrations/source-control/gitlab): commit statuses and merge request comments
+- [Bitbucket](https://docs.cypress.io/cloud/integrations/source-control/bitbucket): commit statuses and pull request comments
 
 ![A GitHub pull request showing Cypress status checks for each recorded group, with links to the runs in Cypress Cloud](./images/netlify-to-cy-gh-app-checks.png)
 
 ## More examples
 
-| Repo | What it shows |
-| --- | --- |
-| [netlify-plugin-cypress-example](https://github.com/cypress-io/netlify-plugin-cypress-example) | Runs Cypress tests on Netlify and records the results to Cypress Cloud |
-| [netlify-plugin-prebuild-example](https://github.com/cypress-io/netlify-plugin-prebuild-example) | Tests the dev version of the site first, then tests again after Netlify builds the production bundle |
-| [cypress-example-kitchensink](https://github.com/cypress-io/cypress-example-kitchensink) | Runs a subset of tests before publishing the folder to Netlify |
-| [bahmutov/eleventyone](https://github.com/bahmutov/eleventyone) | The project used in the [Test Sites Deployed To Netlify](https://glebbahmutov.com/blog/test-netlify/) tutorial |
-| [gatsby-starter-portfolio-cara](https://github.com/bahmutov/gatsby-starter-portfolio-cara) | A Gatsby site |
-
-The [tests](./tests) folder in this repo also has a small working project for each feature, including [basic](./tests/basic), [recommended](./tests/recommended), [recording](./tests/recording), [routing](./tests/routing), and [test-twice](./tests/test-twice).
+The [tests](./tests) folder in this repo has a small working project for each feature, including [basic](./tests/basic), [recommended](./tests/recommended), [recording](./tests/recording), [routing](./tests/routing), and [test-twice](./tests/test-twice).
 
 ## Limitations
 
@@ -364,7 +351,7 @@ The [tests](./tests) folder in this repo also has a small working project for ea
 
 v2 changed two defaults:
 
-- **The default browser is now Chromium.** To keep using Electron, set [`browser = "electron"`](#examples).
+- **The default browser is now Chromium.** To keep using Electron, set `browser = "electron"`.
 - **Tests now run against the deployed URL by default.** In v1, tests ran after the build. In v2, they run in `onSuccess`. To test before deploying, enable [`postBuild`](#test-the-built-site-postbuild) or [`preBuild`](#test-a-running-server-prebuild).
 
 ## Debugging
@@ -436,7 +423,7 @@ This project is licensed under the terms of the [MIT license](LICENSE.md).
 
 ## Contributing
 
-We'd love your help. Read the [contributing guide](CONTRIBUTING.md) to get started.
+Read the [contributing guide](CONTRIBUTING.md).
 
 [renovate-badge]: https://img.shields.io/badge/renovate-app-blue.svg
 [renovate-app]: https://renovateapp.com/

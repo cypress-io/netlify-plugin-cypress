@@ -16,7 +16,7 @@ inputs:
     description: Path to the Cypress config file to use
 
   - name: record
-    description: Record test results to Cypress Dashboard
+    description: Record test results to Cypress Cloud
     default: false
 
   - name: spec
@@ -26,16 +26,16 @@ inputs:
 
   - name: group
     description: |
-      If recording to Cypress Dashboard,
+      If recording to Cypress Cloud,
       pass the group name with "cypress run --record --group ..."
 
   - name: tag
     description: |
-      If recording to Cypress Dashboard,
+      If recording to Cypress Cloud,
       pass the tag with "cypress run --record --tag ..."
 
   # tells the plugin how to start the server using custom command
-  # and waiting for an url, record to the dashboard, tag, etc
+  # and waiting for an url, record to Cypress Cloud, tag, etc
   # see README "testing the site before build"
   - name: preBuild
     description: Run tests before building the site

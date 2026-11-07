@@ -38,7 +38,8 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
       - name: Install dependencies 📦
-        run: npm install
+        # install exactly what package-lock.json lists; --force as in the e2e jobs
+        run: npm ci --force
       - name: Show package contents 📦
         run: npm pack --dry
       - name: Unit tests 🧪
@@ -95,10 +96,20 @@ jobs:
       # Cypress so that preBuild and postBuild recordings land in one run.
       # It has to be unique for every job and every re-run.
       BUILD_ID: ${{ github.run_id }}-${{ github.run_attempt }}-${{ strategy.job-index }}
-      # recording fixtures skip recording when the key is missing,
-      # for example on pull requests from forks
-      CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
     steps:
+      # The plugin records whenever CYPRESS_RECORD_KEY is set, even to an
+      # empty string. A missing secret (on pull requests from forks, say)
+      # comes through as an empty string, so only set the variable when
+      # there's a real key. Without it, the recording fixtures skip recording.
+      - name: Set Cypress record key
+        env:
+          RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+        run: |
+          if [ -n "$RECORD_KEY" ]; then
+            echo "CYPRESS_RECORD_KEY=$RECORD_KEY" >> "$GITHUB_ENV"
+          else
+            echo "::notice::CYPRESS_RECORD_KEY is not available, so tests will run without recording."
+          fi
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
         with:
@@ -128,6 +139,8 @@ jobs:
             tests/on-success/netlify-build.log
             tests/on-success/server.log
           if-no-files-found: ignore
+          # a re-run of this job uploads again under the same name
+          overwrite: true
 
   release:
     # Runs on every branch pushed to this repo, since we might want to
@@ -135,13 +148,20 @@ jobs:
     # branches in package.json whether there is anything to publish, and
     # does nothing on other branches.
     #
-    # Only push events release. On a "pull_request" event semantic-release
-    # refuses to publish, so an open pull request doesn't block a pre-release.
-    if: github.event_name == 'push'
+    # Only pushes and manual runs release. On a "pull_request" event
+    # semantic-release refuses to publish, so an open pull request doesn't
+    # block a pre-release. A manual run from the Actions tab can retry a
+    # failed release without a new commit.
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     needs:
       - build
       - e2e
     runs-on: ubuntu-latest
+    # two quick pushes would otherwise run semantic-release side by side
+    # and both try to publish the same version
+    concurrency:
+      group: release-${{ github.ref }}
+      cancel-in-progress: false
     permissions:
       contents: write # create tags and GitHub releases
       issues: write # comment on released issues
@@ -164,7 +184,8 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
       - name: Install dependencies 📦
-        run: npm install
+        # install exactly what package-lock.json lists; --force as in the e2e jobs
+        run: npm ci --force
       - name: Semantic release 🚀
         run: npx semantic-release
         env:

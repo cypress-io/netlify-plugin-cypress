@@ -28,4 +28,6 @@ Before releasing check that each end-to-end job has actually run the tests corre
 
 Try using `beta` branch to release new pre-release versions of the plugin by following [the semantic release guide](https://github.com/semantic-release/semantic-release/blob/master/docs/recipes/pre-releases.md). You can fork and test out new versions published to NPM using the [netlify-plugin-cypress-example](https://github.com/cypress-io/netlify-plugin-cypress-example) repository. Hope the `master` branch merged into `beta` does not bring features and fixes *already released*. Thus I suggest using `beta` branch for new features.
 
-The `release` job only runs on `push` events, never on `pull_request` events, so an open pull request from the `beta` branch doesn't stop semantic-release from publishing a pre-release. You can watch the [`beta` builds on GitHub Actions](https://github.com/cypress-io/netlify-plugin-cypress/actions/workflows/ci.yml?query=branch%3Abeta).
+semantic-release only publishes from the branches listed under `release.branches` in [package.json](package.json): right now that's `master` and the `prepare-v2` pre-release branch. To release pre-releases from `beta`, add it there first.
+
+The `release` job runs on pushes and manual runs, never on `pull_request` events, so an open pull request doesn't stop semantic-release from publishing a pre-release. To retry a failed release without a new commit, run the [CI workflow](https://github.com/cypress-io/netlify-plugin-cypress/actions/workflows/ci.yml) manually from the Actions tab.
